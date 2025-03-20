@@ -83,7 +83,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.deleteCampaign = exports.launchCampaign = exports.getCampaigns = exports.duplicateCampaign = exports.toggleCampaignStatus = exports.editCampaign = exports.createOrUpdateCampaign = exports.getCampaignList = void 0;
-const Campaign_1 = __importDefault(require("../models/Campaign"));
+const Campaign_1 = __importDefault(require("../models/Campaign")); // ✅ Import `ICampaign`
 // ✅ Get Campaign List with Filters
 const getCampaignList = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {

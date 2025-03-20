@@ -16,7 +16,7 @@ const campaignSchema = new mongoose.Schema({
 const Campaign = mongoose.model("Campaign", campaignSchema);
 export default Campaign; */
 
-import mongoose from "mongoose";
+/*import mongoose from "mongoose";
 
 const CampaignSchema = new mongoose.Schema({
   name: { type: String, required: true },  
@@ -35,10 +35,54 @@ const CampaignSchema = new mongoose.Schema({
   delivered: { type: Number, default: 0 },  
   publishedDate: { type: Date, required: true },  
   createdAt: { type: Date, default: Date.now },  
-});
+}); 
 
 const Campaign = mongoose.model("Campaign", CampaignSchema);
+export default Campaign;*/
+
+import mongoose, { Schema, Document } from "mongoose";
+
+export interface ICampaign extends Document {
+  name: string;
+  type: "Criteria-Based" | "Real-Time Triggered" | "Scheduled";
+  audience: mongoose.Types.ObjectId;
+  template: mongoose.Types.ObjectId;
+  status: "Scheduled" | "Draft" | "Active" | "Completed" | "On Going" | "Expired" | "Paused";
+  createdAt: Date;
+  publishedDate?: Date; // ✅ Ensure publishedDate is optional
+  openRate: Number; 
+  ctr: Number;
+  delivered: Number;
+  schedule?: {
+    frequency?: "Daily" | "Weekly" | "Monthly";
+    time?: string;
+    startDate: Date;
+    endDate?: Date;
+  };
+}
+
+const CampaignSchema: Schema = new Schema({
+  name: { type: String, required: true },
+  type: { type: String, enum: ["Criteria-Based", "Real-Time Triggered", "Scheduled"], required: true },
+  audience: { type: mongoose.Schema.Types.ObjectId, ref: "Filter", required: true },
+  template: { type: mongoose.Schema.Types.ObjectId, ref: "Template", required: true },
+  status: { type: String, enum: ["Scheduled", "Draft", "Active", "Completed", "On Going", "Expired", "Paused"], required: true },
+  createdAt: { type: Date, default: Date.now },
+  publishedDate: { type: Date, default: null }, // ✅ Ensure `publishedDate` is optional & defaults to null
+  openRate: { type: Number, default: 0 },  
+  ctr: { type: Number, default: 0 },  
+  delivered: { type: Number, default: 0 },  
+  schedule: {
+    frequency: { type: String, enum: ["Daily", "Weekly", "Monthly"], required: true }, // ✅ Make optional
+    time: { type: String, required: true }, // ✅ Make optional
+    startDate: { type: Date, required: true }, // ✅ Allow missing startDate for drafts
+    endDate: { type: Date, required: true },
+  },
+});
+
+const Campaign = mongoose.model<ICampaign>("Campaign", CampaignSchema);
 export default Campaign;
+
 
 
 

@@ -70,7 +70,7 @@ export const deleteCampaign = async (req: Request, res: Response) => {
 //   };*/
 
 import { Request, Response } from "express";
-import Campaign from "../models/Campaign";
+import Campaign, { ICampaign } from "../models/Campaign"; // ✅ Import `ICampaign`
 
 // ✅ Get Campaign List with Filters
 export const getCampaignList = async (req: Request, res: Response) => {
