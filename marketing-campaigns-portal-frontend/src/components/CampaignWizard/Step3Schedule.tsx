@@ -12,7 +12,7 @@ import {
 } from '@mui/material';
 import { DatePicker } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { LocalizationProvider } from '@mui/x-date-pickers';
 import dayjs, { Dayjs } from 'dayjs';
 // import { PickerChangeHandlerContext } from '@mui/x-date-pickers/internals';
 import AccessTimeFilledIcon from '@mui/icons-material/AccessTimeFilled';
@@ -84,6 +84,7 @@ const ScheduleForm: React.FC<ScheduleFormProps> = ({ handleChange, campaignData,
         </Grid>
       </Box>
     </LocalizationProvider>
+   
   );
 }
 
