@@ -72,26 +72,36 @@ export const deleteCampaign = async (req: Request, res: Response) => {
 import { Request, Response } from "express";
 import Campaign, { ICampaign } from "../models/Campaign"; // ✅ Import `ICampaign`
 
-// ✅ Get Campaign List with Filters
-export const getCampaignList = async (req: Request, res: Response) => {
+export const getCampaigns = async (req: Request, res: Response) => {
   try {
-    const { search, status, type, startDate, endDate, sortBy, order, page = 1, limit = 10 } = req.query;
+    const {
+      search,
+      status,
+      type,
+      startDate,
+      endDate,
+      sortBy = "createdAt", // Default Sort By `createdAt`
+      order = "desc", // Default Order `desc`
+      page = "1",
+      limit = "10",
+    } = req.query;
 
     let query: any = {};
 
-    // ✅ Search by campaign name
+    // ✅ Search by Campaign Name (Case-Insensitive)
     if (search) {
       query.name = { $regex: search as string, $options: "i" };
     }
 
-    // ✅ Filter by Status
+    // ✅ Filter by Status (Handle Spaces & Multiple Statuses)
     if (status) {
-      query.status = status;
+      const statusArray = (status as string).split(",").map((s) => s.trim());
+      query.status = { $in: statusArray };
     }
 
-    // ✅ Filter by Type
+    // ✅ Filter by Type (Allow Multiple Types)
     if (type) {
-      query.type = type;
+      query.type = { $in: (type as string).split(",").map((t) => t.trim()) };
     }
 
     // ✅ Filter by Date Range
@@ -102,13 +112,20 @@ export const getCampaignList = async (req: Request, res: Response) => {
       };
     }
 
-    // ✅ Pagination & Sorting
-    const pageNumber = parseInt(page as string) || 1;
-    const pageSize = parseInt(limit as string) || 10;
+    // ✅ Pagination (Always Apply)
+    const pageNumber = parseInt(page as string, 10) || 1;
+    const pageSize = parseInt(limit as string, 10) || 10;
     const skip = (pageNumber - 1) * pageSize;
 
+    // ✅ Sorting
+    const sortField = sortBy as string;
+    const sortOrder = order === "desc" ? -1 : 1;
+
+    console.log("Final Query:", JSON.stringify(query, null, 2)); // ✅ Debug Query
+
+    // ✅ Fetch Campaigns with Filters, Sorting & Pagination
     const campaigns = await Campaign.find(query)
-      .sort({ [sortBy as string]: order === "desc" ? -1 : 1 })
+      .sort({ [sortField]: sortOrder })
       .skip(skip)
       .limit(pageSize);
 
@@ -122,6 +139,7 @@ export const getCampaignList = async (req: Request, res: Response) => {
         total: totalCount,
         page: pageNumber,
         limit: pageSize,
+        totalPages: Math.ceil(totalCount / pageSize),
       },
     });
   } catch (error) {
@@ -129,6 +147,7 @@ export const getCampaignList = async (req: Request, res: Response) => {
     res.status(500).json({ message: "Internal Server Error" });
   }
 };
+
 
 // ✅ Create or Update a Campaign
 export const createOrUpdateCampaign = async (req: Request, res: Response) => {
@@ -189,13 +208,13 @@ export const toggleCampaignStatus = async (req: Request, res: Response) => {
       return res.status(404).json({ message: "Campaign not found" });
     }
 
-    // ✅ Toggle between 'Paused' and 'Active'
-    const newStatus = campaign.status === "Active" ? "Paused" : "Active";
+    // Toggle status
+    campaign.status = campaign.status === "On Going" ? "Paused" : "On Going";
+    await campaign.save();
 
-    // ✅ Update only `status` field without triggering required validation
-    await Campaign.updateOne({ _id: campaignId }, { $set: { status: newStatus } });
+    console.log("Updated Campaign:", campaign); // ✅ Log updated campaign
 
-    res.status(200).json({ message: `Campaign ${newStatus} Successfully`, newStatus });
+    return res.status(200).json({ message: `Campaign ${campaign.status} Successfully`, campaign });
   } catch (error) {
     console.error("Error updating campaign status:", error);
     res.status(500).json({ message: "Internal Server Error" });
@@ -235,15 +254,15 @@ export const duplicateCampaign = async (req: Request, res: Response) => {
 
 
 // ✅ Get All Campaigns
-export const getCampaigns = async (req: Request, res: Response) => {
-  try {
-    const campaigns = await Campaign.find().populate("audience template");
-    res.status(200).json(campaigns);
-  } catch (error) {
-    console.error("Error fetching campaigns:", error);
-    res.status(500).json({ message: "Internal Server Error" });
-  }
-};
+// export const getCampaigns = async (req: Request, res: Response) => {
+//   try {
+//     const campaigns = await Campaign.find().populate("audience template");
+//     res.status(200).json(campaigns);
+//   } catch (error) {
+//     console.error("Error fetching campaigns:", error);
+//     res.status(500).json({ message: "Internal Server Error" });
+//   }
+// };
 
 // ✅ Launch a Campaign
 export const launchCampaign = async (req: Request, res: Response) => {

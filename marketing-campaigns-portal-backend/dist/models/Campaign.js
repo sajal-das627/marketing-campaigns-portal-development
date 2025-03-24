@@ -3,7 +3,7 @@
 
 const campaignSchema = new mongoose.Schema({
   name: { type: String, required: true },
-  type: { type: String, enum: ["criteria-based", "real-time", "scheduled"], required: true },
+  type: { type: String, enum: ["Criteria Based", "real-time", "scheduled"], required: true },
   audienceFilter: { type: Object },
   templateId: { type: mongoose.Schema.Types.ObjectId, ref: "Template" },
   schedule: {
@@ -54,7 +54,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 
 const CampaignSchema = new mongoose.Schema({
   name: { type: String, required: true },
-  type: { type: String, enum: ["Criteria-Based", "Real-Time Triggered", "Scheduled"], required: true },
+  type: { type: String, enum: ["Criteria Based", "Real Time", "Scheduled"], required: true },
   audience: { type: mongoose.Schema.Types.ObjectId, ref: "Filter", required: true },
   template: { type: mongoose.Schema.Types.ObjectId, ref: "Template", required: true },
   schedule: {
@@ -76,10 +76,10 @@ export default Campaign;*/
 const mongoose_1 = __importStar(require("mongoose"));
 const CampaignSchema = new mongoose_1.Schema({
     name: { type: String, required: true },
-    type: { type: String, enum: ["Criteria-Based", "Real-Time Triggered", "Scheduled"], required: true },
+    type: { type: String, enum: ["Criteria Based", "Real Time", "Scheduled"], required: true },
     audience: { type: mongoose_1.default.Schema.Types.ObjectId, ref: "Filter", required: true },
     template: { type: mongoose_1.default.Schema.Types.ObjectId, ref: "Template", required: true },
-    status: { type: String, enum: ["Scheduled", "Draft", "Active", "Completed", "On Going", "Expired", "Paused"], required: true },
+    status: { type: String, enum: ["Scheduled", "Draft", "Active", "Completed", "On Going", "Expired", "Paused", "Not Yet Started"], required: true },
     createdAt: { type: Date, default: Date.now },
     publishedDate: { type: Date, default: null }, // ✅ Ensure `publishedDate` is optional & defaults to null
     openRate: { type: Number, default: 0 },

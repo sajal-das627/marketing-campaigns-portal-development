@@ -25,10 +25,10 @@ import { authenticateToken } from "../middleware/authMiddleware";
 
 const router = express.Router();
 
-router.get("/", authenticateToken, getAllTemplates); // ✅ Fetch All Templates
-router.get("/recent", authenticateToken, getRecentlyUsedTemplates); // ✅ Fetch Recently Used Templates
-router.get("/past", authenticateToken, getPastCampaignTemplates); // ✅ Fetch Past Campaign Templates
-router.put("/:templateId/favorite", authenticateToken, toggleFavoriteTemplate); // ✅ Toggle Favorite Status
+router.get("/", /*authenticateToken,*/ getAllTemplates); // ✅ Fetch All Templates
+router.get("/recent", /*authenticateToken,*/ getRecentlyUsedTemplates); // ✅ Fetch Recently Used Templates
+router.get("/past", /*authenticateToken,*/ getPastCampaignTemplates); // ✅ Fetch Past Campaign Templates
+router.put("/:templateId/favorite", /*authenticateToken,*/ toggleFavoriteTemplate); // ✅ Toggle Favorite Status
 
 export default router;
 

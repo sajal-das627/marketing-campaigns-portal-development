@@ -82,24 +82,26 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.deleteCampaign = exports.launchCampaign = exports.getCampaigns = exports.duplicateCampaign = exports.toggleCampaignStatus = exports.editCampaign = exports.createOrUpdateCampaign = exports.getCampaignList = void 0;
+exports.deleteCampaign = exports.launchCampaign = exports.duplicateCampaign = exports.toggleCampaignStatus = exports.editCampaign = exports.createOrUpdateCampaign = exports.getCampaigns = void 0;
 const Campaign_1 = __importDefault(require("../models/Campaign")); // ✅ Import `ICampaign`
-// ✅ Get Campaign List with Filters
-const getCampaignList = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+const getCampaigns = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const { search, status, type, startDate, endDate, sortBy, order, page = 1, limit = 10 } = req.query;
+        const { search, status, type, startDate, endDate, sortBy = "createdAt", // Default Sort By `createdAt`
+        order = "desc", // Default Order `desc`
+        page = "1", limit = "10", } = req.query;
         let query = {};
-        // ✅ Search by campaign name
+        // ✅ Search by Campaign Name (Case-Insensitive)
         if (search) {
             query.name = { $regex: search, $options: "i" };
         }
-        // ✅ Filter by Status
+        // ✅ Filter by Status (Handle Spaces & Multiple Statuses)
         if (status) {
-            query.status = status;
+            const statusArray = status.split(",").map((s) => s.trim());
+            query.status = { $in: statusArray };
         }
-        // ✅ Filter by Type
+        // ✅ Filter by Type (Allow Multiple Types)
         if (type) {
-            query.type = type;
+            query.type = { $in: type.split(",").map((t) => t.trim()) };
         }
         // ✅ Filter by Date Range
         if (startDate && endDate) {
@@ -108,12 +110,17 @@ const getCampaignList = (req, res) => __awaiter(void 0, void 0, void 0, function
                 $lte: new Date(endDate),
             };
         }
-        // ✅ Pagination & Sorting
-        const pageNumber = parseInt(page) || 1;
-        const pageSize = parseInt(limit) || 10;
+        // ✅ Pagination (Always Apply)
+        const pageNumber = parseInt(page, 10) || 1;
+        const pageSize = parseInt(limit, 10) || 10;
         const skip = (pageNumber - 1) * pageSize;
+        // ✅ Sorting
+        const sortField = sortBy;
+        const sortOrder = order === "desc" ? -1 : 1;
+        console.log("Final Query:", JSON.stringify(query, null, 2)); // ✅ Debug Query
+        // ✅ Fetch Campaigns with Filters, Sorting & Pagination
         const campaigns = yield Campaign_1.default.find(query)
-            .sort({ [sortBy]: order === "desc" ? -1 : 1 })
+            .sort({ [sortField]: sortOrder })
             .skip(skip)
             .limit(pageSize);
         // ✅ Get Total Count for Pagination
@@ -125,6 +132,7 @@ const getCampaignList = (req, res) => __awaiter(void 0, void 0, void 0, function
                 total: totalCount,
                 page: pageNumber,
                 limit: pageSize,
+                totalPages: Math.ceil(totalCount / pageSize),
             },
         });
     }
@@ -133,7 +141,7 @@ const getCampaignList = (req, res) => __awaiter(void 0, void 0, void 0, function
         res.status(500).json({ message: "Internal Server Error" });
     }
 });
-exports.getCampaignList = getCampaignList;
+exports.getCampaigns = getCampaigns;
 // ✅ Create or Update a Campaign
 const createOrUpdateCampaign = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
@@ -183,11 +191,11 @@ const toggleCampaignStatus = (req, res) => __awaiter(void 0, void 0, void 0, fun
         if (!campaign) {
             return res.status(404).json({ message: "Campaign not found" });
         }
-        // ✅ Toggle between 'Paused' and 'Active'
-        const newStatus = campaign.status === "Active" ? "Paused" : "Active";
-        // ✅ Update only `status` field without triggering required validation
-        yield Campaign_1.default.updateOne({ _id: campaignId }, { $set: { status: newStatus } });
-        res.status(200).json({ message: `Campaign ${newStatus} Successfully`, newStatus });
+        // Toggle status
+        campaign.status = campaign.status === "On Going" ? "Paused" : "On Going";
+        yield campaign.save();
+        console.log("Updated Campaign:", campaign); // ✅ Log updated campaign
+        return res.status(200).json({ message: `Campaign ${campaign.status} Successfully`, campaign });
     }
     catch (error) {
         console.error("Error updating campaign status:", error);
@@ -222,17 +230,15 @@ const duplicateCampaign = (req, res) => __awaiter(void 0, void 0, void 0, functi
 });
 exports.duplicateCampaign = duplicateCampaign;
 // ✅ Get All Campaigns
-const getCampaigns = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    try {
-        const campaigns = yield Campaign_1.default.find().populate("audience template");
-        res.status(200).json(campaigns);
-    }
-    catch (error) {
-        console.error("Error fetching campaigns:", error);
-        res.status(500).json({ message: "Internal Server Error" });
-    }
-});
-exports.getCampaigns = getCampaigns;
+// export const getCampaigns = async (req: Request, res: Response) => {
+//   try {
+//     const campaigns = await Campaign.find().populate("audience template");
+//     res.status(200).json(campaigns);
+//   } catch (error) {
+//     console.error("Error fetching campaigns:", error);
+//     res.status(500).json({ message: "Internal Server Error" });
+//   }
+// };
 // ✅ Launch a Campaign
 const launchCampaign = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {

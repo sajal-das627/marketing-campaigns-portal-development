@@ -16,11 +16,11 @@ import { authenticateToken } from "../middleware/authMiddleware";
 
 const router = express.Router();
 
-router.post("/", authenticateToken, createOrUpdateFilter); // Create/Update Filter
-router.put("/:filterId", authenticateToken, editFilter); // Edit Filter
-router.post("/:filterId/duplicate", authenticateToken, duplicateFilter); // Duplicate Filter
-router.get("/", authenticateToken, getFilters); // Get All Filters
-router.post("/preview", authenticateToken, previewAudience); // Get Estimated Audience
-router.delete("/:filterId", authenticateToken, deleteFilter); // Delete Filter
+router.post("/", /*authenticateToken,*/ createOrUpdateFilter); // Create/Update Filter
+router.put("/:filterId", /*authenticateToken,*/ editFilter); // Edit Filter
+router.post("/:filterId/duplicate", /*authenticateToken,*/ duplicateFilter); // Duplicate Filter
+router.get("/", /*authenticateToken,*/ getFilters); // Get All Filters
+router.post("/preview", /*authenticateToken,*/ previewAudience); // Get Estimated Audience
+router.delete("/:filterId", /*authenticateToken,*/ deleteFilter); // Delete Filter
 
 export default router;

@@ -4,6 +4,6 @@ import { authenticateToken   } from "../middleware/authMiddleware";
 
 const router = express.Router();
 
-router.get("/", authenticateToken, getDashboardStats); // Fetch Dashboard Data
+router.get("/", /*authenticateToken,*/ getDashboardStats); // Fetch Dashboard Data
 
 export default router;
