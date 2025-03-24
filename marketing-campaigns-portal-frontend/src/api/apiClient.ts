@@ -1,6 +1,6 @@
 import axios from "axios";
 import useNotification from "../hooks/useNotification";
-
+import { CampaignData } from "types/campaign";
 const apiClient = axios.create({
     baseURL: process.env.REACT_APP_API_BASE_URL,
     headers: { "Content-Type": "application/json" },
@@ -20,7 +20,7 @@ const apiClient = axios.create({
 export const createFilter = (filterData: any) => apiClient.post("/filters", filterData);
 export const getFilters = () => apiClient.get("/filters");
 export const applyFilter = (filterId: string) => apiClient.get(`/filters/apply/${filterId}`);
-export const createCampaign = (campaignData: any) => apiClient.post("/campaigns", campaignData);
+export const createCampaign = (campaignData: CampaignData) => apiClient.post("/campaigns", campaignData);
 export const getCampaigns = () => apiClient.get("/campaigns"); 
 
 // Update API Client for Templates

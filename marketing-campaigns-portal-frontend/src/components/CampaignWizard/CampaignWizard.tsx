@@ -1,6 +1,4 @@
 import React, { useState } from 'react';
-import VisibilityIcon from '@mui/icons-material/Visibility';
-import CampaignIcon from '@mui/icons-material/Campaign';
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 import PeopleIcon from '@mui/icons-material/People';
 import TvIcon from '@mui/icons-material/Tv';
@@ -11,18 +9,15 @@ import { useAppDispatch } from "../../hooks/useAppDispatch";
 import { Types } from 'mongoose';
 import {
   Container,
-  Typography,
-  TextField,
+  Typography,  
   Box,
   Button,
   Grid2 as Grid,
-  Card,
-  CardActionArea,
+  Card,  
   CardContent,
   Stepper, StepConnector, stepConnectorClasses,
   Step,
   StepLabel,
-  IconButton,
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import Step2Templates from './Step2Templates';
@@ -105,6 +100,38 @@ export default function CampaignCreator() {
   });
 
   const handleNextStep = async() => {
+    let isValid = true;
+  switch(activeStep) {
+    case 0:
+      if (!campaignData.type) {
+        isValid = false;
+        alert('Please select a campaign type');
+      }
+      break;
+    case 1:
+      if (!campaignData.audience) {
+        isValid = false;
+        alert('Please select an audience');
+      }
+      break;
+    case 2:
+      if (!campaignData.template) {
+        isValid = false;
+        alert('Please select a template');
+      }
+      break;
+    case 3:
+      if (!campaignData.schedule.frequency || !campaignData.schedule.startDate) {
+        isValid = false;
+        alert('Please complete all schedule fields');
+      }
+      break;
+    default:
+      break;
+  }
+
+  if (!isValid) return;
+
     console.log('Moving to next step:', activeStep);
     if (activeStep < steps.length - 1) {
       setActiveStep((prevStep) => prevStep + 1);
@@ -167,29 +194,15 @@ export default function CampaignCreator() {
     }));
   }
 };
-
   console.log('campaignData: ', campaignData);
-
-  const isSelected = (selectVal: string) => campaignData.type === selectVal /*|| campaignData.audience.toString() === selectVal*/ ? '2px solid #007BFF' : '1px solid #ddd';
-
   const renderStepContent = (step: number) => {
     switch (step) {
       case 0:
-        return (
-          <Step0CampaignType handleChange={handleChange} campaignData={campaignData} />
-        );
+        return <Step0CampaignType handleChange={handleChange} campaignData={campaignData} />;
       case 1:
-        return (
-          <>
-              <Step1Audience handleChange={handleChange}  />           
-          </>
-        )
+        return <Step1Audience handleChange={handleChange}  />
       case 2:
-        return (
-          <SpacedBox>
-            <Step2Templates handleChange={handleChange} campaignData={campaignData} />
-          </SpacedBox>
-        );
+        return <Step2Templates handleChange={handleChange} campaignData={campaignData} />;
       case 3:
         return <Step3Schedule handleChange={handleChange} campaignData={campaignData} handleDateChange={handleDateChange} />;
       case 4:
@@ -239,8 +252,8 @@ export default function CampaignCreator() {
                             color: activeStep >= index ? '#fff' : '#B8B8B8',
                             bgcolor: activeStep >= index ? '#0057D9' : '#F5F5F5',
                             '&.Mui-completed': { color: '#0057D9' },
-                            width: { xs: '18px', sm: '24px' },
-                            height: { xs: '18px', sm: '24px' },
+                            width: { xs: '24px', sm: '30px', md: '35px' },
+                            height: { xs: '24px', sm: '30px', md: '35px' },
                           }}
                         />
                       }
@@ -275,7 +288,7 @@ export default function CampaignCreator() {
                 </Grid>
                 <Grid>
                   <Button sx={{ bgcolor: "#0057D9" }} variant="contained" onClick={handleNextStep}>
-                    {activeStep === steps.length - 1 ? 'Launch Campaign' : 'Save & Continue'}
+                    {(activeStep === steps.length - 1) ? 'Launch Campaign' : activeStep === 1 ? 'Next' : 'Save & Continue'}
                   </Button>
 
                   <SuccessModal open={open} onClose={() => setOpen(false)} />
