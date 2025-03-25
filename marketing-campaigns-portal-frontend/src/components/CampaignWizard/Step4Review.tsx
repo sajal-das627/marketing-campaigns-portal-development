@@ -9,9 +9,11 @@ import {
 import { CampaignData } from 'types/campaign';
 interface Step4ReviewProps {
     campaignData: CampaignData;
+    audienceName: String;
+    templateData: {name: String; type: String};
 }
 
-const Step4Review: React.FC<Step4ReviewProps> = ({ campaignData }) => {
+const Step4Review: React.FC<Step4ReviewProps> = ({ campaignData , audienceName, templateData }) => {
     return (
         <Box>
             <Typography variant="h6" fontWeight={'500'} >Campaign Overview</Typography>
@@ -32,11 +34,11 @@ const Step4Review: React.FC<Step4ReviewProps> = ({ campaignData }) => {
                             </Grid>
                             <Grid size={5}>
                                 <Typography sx={{ color: '#ABABAB' }}>Selected Audience</Typography>
-                                <Typography>{String(campaignData.audience)}</Typography>
+                                <Typography>{audienceName}</Typography>
                             </Grid>
                             <Grid size={7}>
                                 <Typography sx={{ color: '#ABABAB' }}>Template</Typography>
-                                <Typography> {String(campaignData.template)}</Typography>
+                                <Typography> {templateData.type + " " + templateData.name}</Typography>
                             </Grid>
                             <Grid size={5}>
                                 <Typography sx={{ color: '#ABABAB' }}>Schedule</Typography>

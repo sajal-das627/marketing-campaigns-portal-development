@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import { Types } from "mongoose";
 import {
@@ -22,6 +22,8 @@ import { CampaignData, Template } from '../../types/campaign'
 interface Step2TemplatesProps {
   handleChange: (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => void;
   campaignData: CampaignData;
+  templateData: {name: string; type: string};
+  setTemplateData:React.Dispatch<React.SetStateAction<{name: string; type: string}>>;
 }
 // Dummy template data with required properties
 const templates: Template[] = [
@@ -75,13 +77,11 @@ const templates: Template[] = [
   },
 ];
 
-const Step2Templates: React.FC<Step2TemplatesProps> = ({ handleChange, campaignData }) => {
-  console.log('Current campaign data:', campaignData);
-  const [templateName, setTemplateName] = useState('');
+const Step2Templates: React.FC<Step2TemplatesProps> = ({ handleChange, campaignData, templateData, setTemplateData }) => {
 
-  const [selectedType, setSelectedType] = useState<"Email" | "SMS" | "Push Notifications">("Email");
+  // const [selectedType, setSelectedType] = useState<"Email" | "SMS" | "Push Notifications">("Email");
   // Filter templates based on the selected type
-  const filteredTemplates = templates.filter((template) => template.type === selectedType);
+  const filteredTemplates = templates.filter((template) => template.type === templateData.type);
 
   const isSelected = (selectVal: number | string | Types.ObjectId) => {
     return campaignData.template === selectVal ? '2px solid #007BFF' : '1px solid #ddd';
@@ -113,8 +113,11 @@ const Step2Templates: React.FC<Step2TemplatesProps> = ({ handleChange, campaignD
             <FormControl component="fieldset" sx={{ mb: 2 }}>
               <RadioGroup
 
-                value={selectedType}
-                onChange={(e) => setSelectedType(e.target.value as "Email" | "SMS" | "Push Notifications")}
+                value={templateData.type}
+                onChange={(e) => setTemplateData((prev) => ({
+                  ...prev, type: e.target.value as "Email" | "SMS" | "Push Notifications",
+                })
+                )}
               >
                 <FormControlLabel value="Email" control={<Radio />} label="Email" />
                 <FormControlLabel value="SMS" control={<Radio />} label="SMS" />
@@ -129,7 +132,7 @@ const Step2Templates: React.FC<Step2TemplatesProps> = ({ handleChange, campaignD
               <Card key={template.id.toString()}
                 onClick={() => {
                   handleChange({ target: { name: "template", value: template.id.toString() } } as any);
-                  setTemplateName(template.type + " - " + template.title);
+                  setTemplateData({name: template.title, type: template.type})
                 }}
 
                 sx={{

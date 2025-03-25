@@ -12,6 +12,8 @@ import ManageFilter from "./components/ManageFilter/ManageFilter";
 import TemplateManagement from "./components/Templates/TemplateManagement";
 import Login from "./features/auth/Login";
 import Header from "layout/Header";
+import CampaignListing from "./components/CampaignWizard/CampaignListing";
+import CampaignListing1 from "./components/CampaignWizard/CampaignListing1";
 
 const drawerWidth = 240;
 
@@ -35,6 +37,8 @@ const App = () => {
           <Routes>
             <Route path="/" element={<Dashboard />} />
             <Route path="/campaigns" element={<Campaigns />} />
+            <Route path="/campaign-listing" element={<CampaignListing />} />
+            <Route path="/campaign-listing1" element={<CampaignListing1 />} />
             <Route path="/analytics" element={<Analytics />} />
             <Route path="/activity-logs" element={<ActivityLogs />} />
             <Route path="/login" element={<Login />} />
