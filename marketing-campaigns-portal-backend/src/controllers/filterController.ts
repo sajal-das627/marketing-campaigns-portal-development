@@ -71,7 +71,8 @@ export const applyFilter = async (req: Request, res: Response) => {
         name,
         description,
         tags,
-        userId: (req as any).user.id,
+        // userId: (req as any).user.id,
+        userId: "67daedeaff85ef645f71206f",
         conditions,
         logicalOperator,
         estimatedAudience,
@@ -93,7 +94,8 @@ export const applyFilter = async (req: Request, res: Response) => {
       const updatedData = req.body;
   
       const filter = await Filter.findOneAndUpdate(
-        { _id: filterId, userId: (req as any).user.id },
+        { _id: filterId,     // userId: (req as any).user.id,
+          userId: "67daedeaff85ef645f71206f", },
         updatedData,
         { new: true }
       );
@@ -139,7 +141,7 @@ export const applyFilter = async (req: Request, res: Response) => {
   // ✅ Get All Filters for a User
   export const getFilters = async (req: Request, res: Response) => {
     try {
-      const filters = await Filter.find({ /*userId: req.user.id*/ userId: (req as any).user.id });
+      const filters = await Filter.find({ /*userId: req.user.id*/ /*userId: (req as any).user.id,*/ userId: "67daedeaff85ef645f71206f" });
       
       res.status(200).json(filters);
     } catch (error) {
@@ -171,7 +173,10 @@ export const applyFilter = async (req: Request, res: Response) => {
   export const deleteFilter = async (req: Request, res: Response) => {
     try {
       const { filterId } = req.params;
-      const filter = await Filter.findOneAndDelete({ _id: filterId, /*userId: req.user.id*/  userId: (req as any).user.id });
+      const filter = await Filter.findOneAndDelete({ _id: filterId, /*userId: req.user.id*/ 
+         /*userId: (req as any).user.id*/
+         userId: "67daedeaff85ef645f71206f"
+        });
   
       if (!filter) {
         return res.status(404).json({ message: "Filter not found" });

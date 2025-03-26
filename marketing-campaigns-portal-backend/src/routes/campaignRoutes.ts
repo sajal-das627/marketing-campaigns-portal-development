@@ -14,7 +14,7 @@ router.delete("/:id", authenticateToken, deleteCampaign);
 export default router; */
 
 import express from "express";
-import {  createOrUpdateCampaign, editCampaign, toggleCampaignStatus, duplicateCampaign,  getCampaigns, launchCampaign, deleteCampaign } from "../controllers/campaignController";
+import { getCampaigns, createOrUpdateCampaign, editCampaign, toggleCampaignStatus, duplicateCampaign,  launchCampaign, deleteCampaign } from "../controllers/campaignController";
 import { authenticateToken } from "../middleware/authMiddleware";
 
 const router = express.Router();

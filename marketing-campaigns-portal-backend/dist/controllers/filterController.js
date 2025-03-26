@@ -26,7 +26,8 @@ const createOrUpdateFilter = (req, res) => __awaiter(void 0, void 0, void 0, fun
             name,
             description,
             tags,
-            userId: req.user.id,
+            // userId: (req as any).user.id,
+            userId: "67daedeaff85ef645f71206f",
             conditions,
             logicalOperator,
             estimatedAudience,
@@ -46,7 +47,8 @@ const editFilter = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
     try {
         const { filterId } = req.params;
         const updatedData = req.body;
-        const filter = yield Filter_1.default.findOneAndUpdate({ _id: filterId, userId: req.user.id }, updatedData, { new: true });
+        const filter = yield Filter_1.default.findOneAndUpdate({ _id: filterId, // userId: (req as any).user.id,
+            userId: "67daedeaff85ef645f71206f", }, updatedData, { new: true });
         if (!filter) {
             return res.status(404).json({ message: "Filter not found" });
         }
@@ -84,7 +86,7 @@ exports.duplicateFilter = duplicateFilter;
 // ✅ Get All Filters for a User
 const getFilters = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const filters = yield Filter_1.default.find({ /*userId: req.user.id*/ userId: req.user.id });
+        const filters = yield Filter_1.default.find({ /*userId: req.user.id*/ /*userId: (req as any).user.id,*/ userId: "67daedeaff85ef645f71206f" });
         res.status(200).json(filters);
     }
     catch (error) {
@@ -114,7 +116,10 @@ exports.previewAudience = previewAudience;
 const deleteFilter = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { filterId } = req.params;
-        const filter = yield Filter_1.default.findOneAndDelete({ _id: filterId, /*userId: req.user.id*/ userId: req.user.id });
+        const filter = yield Filter_1.default.findOneAndDelete({ _id: filterId, /*userId: req.user.id*/
+            /*userId: (req as any).user.id*/
+            userId: "67daedeaff85ef645f71206f"
+        });
         if (!filter) {
             return res.status(404).json({ message: "Filter not found" });
         }
