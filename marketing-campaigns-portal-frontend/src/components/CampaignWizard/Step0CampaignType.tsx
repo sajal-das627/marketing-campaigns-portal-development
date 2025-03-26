@@ -1,7 +1,7 @@
 
 
 import React from 'react'
-import { Grid2 as Grid, Card, CardActionArea, CardContent, Box, Typography, Button, TextField,  } from "@mui/material";
+import { Grid2 as Grid, Card, CardActionArea, CardContent, Box, Typography, TextField,  } from "@mui/material";
 import { CampaignData } from 'types/campaign';
 import { styled } from '@mui/material/styles';
 
@@ -38,8 +38,8 @@ const Step0CampaignType: React.FC<Step0CampaignType> = ({ handleChange, campaign
         <Grid size={{ xs: 12 }}>
           <Card
             variant="outlined"
-            sx={{ border: isSelected("Criteria-Based") }}
-            onClick={() => handleChange({ target: { name: "type", value: "Criteria-Based" } } as any)}>
+            sx={{ border: isSelected("Criteria Based") }}
+            onClick={() => handleChange({ target: { name: "type", value: "Criteria Based" } } as any)}>
             <CardActionArea>
               <CardContent sx={{ display: 'flex' }}>
                 <Box component="img" src="/icons/criteriaBased_Campaign.png" alt="Real Time Campaign Icon" sx={{ width: 50, height: 50, mr: { xs: 1, md: 2 }, flexShrink: 0 }} />
@@ -58,8 +58,8 @@ const Step0CampaignType: React.FC<Step0CampaignType> = ({ handleChange, campaign
         <Grid size={{ xs: 12 }}>
           <Card
             variant="outlined"
-            sx={{ border: isSelected("Real-Time Triggered") }}
-            onClick={() => handleChange({ target: { name: "type", value: "Real-Time Triggered" } } as any)}>
+            sx={{ border: isSelected("Real Time") }}
+            onClick={() => handleChange({ target: { name: "type", value: "Real Time" } } as any)}>
             <CardActionArea>
               <CardContent sx={{ display: 'flex' }}>
                 <Box component="img" src="/icons/realTime_Campaign.png" alt="Real Time Campaign Icon" sx={{ width: 50, height: 50, mr: { xs: 1, md: 2 }, flexShrink: 0 }} />

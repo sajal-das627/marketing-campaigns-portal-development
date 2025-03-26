@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-
+import { useNavigate } from 'react-router-dom';
 import {
   styled,
   Box,
@@ -8,17 +8,14 @@ import {
   Card,
   CardContent,
   Grid2 as Grid,
-  // ToggleButton,
-  // ToggleButtonGroup,
   List,
   ListItem,
   ListItemText,
   Select, MenuItem, FormControl,
   useTheme, useMediaQuery,
   Container,
-  // InputLabel,
 } from '@mui/material';
-
+import { Types } from 'mongoose';
 import CampaignPerformanceChart from './Charts/CampaignPerformanceChart';
 import EmailSent from './Charts/EmailSent';
 
@@ -71,10 +68,10 @@ const Dashboard: React.FC<DashboardProps> = () => {
   
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
-  const [activityLogs, setActivityLogs] = useState<any[]>([]);
   const [campaignDropdownOption, setCampaignDropdownOption] = useState("weekly");
   const [audienceDropdownOption, setaudienceDropdownOption] = useState("monthly");
   
+  const navigation = useNavigate();
   //demo api response
 const campaignResponses: Array<{
   activeCampaigns: number;
@@ -90,6 +87,7 @@ const campaignResponses: Array<{
     clickRate: string;
   };
   recentActivity: Array<{
+    id: Types.ObjectId;
     type: string;
     user: string;
     details: string;
@@ -112,12 +110,14 @@ const campaignResponses: Array<{
       },
       recentActivity: [
         {
+          id: new Types.ObjectId("65f8e3c5a9b7d1a8f4e52345"),          
           type: "New Campaign",
           user: "Michael Scott",
           details: "Created 'Spring Super Sale 2025'",
           timeAgo: "5m ago"
         },
         {
+          id: new Types.ObjectId("65f8e3c5a9b7d1a8f4e52346"), 
           type: "New Campaign",
           user: "Michael Scott",
           details: "Created 'Spring Super Sale 2025'",
@@ -161,8 +161,7 @@ const campaignResponses: Array<{
               Manage&nbsp;Templates
             </StyledText>
           </StyledButton>
-
-          <Button variant="contained" sx={{ minWidth: '180px',bgcolor: '#0057D9', color: '#fff  ', p: 1, ":hover": { bgcolor: '#2068d5' } }}>
+          <Button onClick={()=> navigation('/create-campaign')} variant="contained" sx={{ minWidth: '180px',bgcolor: '#0057D9', color: '#fff  ', p: 1, ":hover": { bgcolor: '#2068d5' } }}>
             + Create&nbsp;Campaign
           </Button>
         </Box>
@@ -284,53 +283,18 @@ const campaignResponses: Array<{
                   sx={{ margin: 0 }}
                 />
               </ListItem>
-              <ListItem sx={{ alignItems: "flex-start", padding: { xs: 1, md: 2 },minHeight: { xs: 'auto', md: '64px' }, }}>
-                <Box
-                  component="img"
-                  src="/icons/recent_activity.png"
-                  alt="Activity Icon"
-                  sx={{ width: 24, height: 24, mr: { xs: 1, md: 2 }, flexShrink: 0 }}
-                />
-                <ListItemText
-                  primary="New Campaign"
-                  secondary="Michael Scott created 'Spring Super Sale 2025' - 5 min ago"
-                  sx={{ margin: 0 }}
-                />
-              </ListItem>
-              <ListItem sx={{ alignItems: "flex-start", padding: { xs: 1, md: 2 },minHeight: { xs: 'auto', md: '64px' }, }}>
-                <Box
-                  component="img"
-                  src="/icons/recent_activity.png"
-                  alt="Activity Icon"
-                  sx={{ width: 24, height: 24, mr: { xs: 1, md: 2 }, flexShrink: 0 }}
-                />
-                <ListItemText
-                  primary="New Campaign"
-                  secondary="Michael Scott created 'Spring Super Sale 2025' - 5 min ago"
-                  sx={{ margin: 0 }}
-                />
-              </ListItem>
-              <ListItem sx={{ alignItems: "flex-start", padding: { xs: 1, md: 2 },minHeight: { xs: 'auto', md: '64px' }, }}>
-                <Box
-                  component="img"
-                  src="/icons/recent_activity.png"
-                  alt="Activity Icon"
-                  sx={{ width: 24, height: 24, mr: { xs: 1, md: 2 }, flexShrink: 0 }}
-                />
-                <ListItemText
-                  primary="New Campaign"
-                  secondary="Michael Scott created 'Spring Super Sale 2025' - 5 min ago"
-                  sx={{ margin: 0 }}
-                />
-              </ListItem>
 
 
-              {activityLogs.slice(0, 5).map((log, index) => (
-                <ListItem key={index}>
-                  <Box component="img" src="/icons/recent_activity.png" alt="Activity Icon" sx={{ width: 24, height: 24 }} />
-                  <ListItemText >
-                    <strong>{log.action}</strong> - {log.message} ({new Date(log.timestamp).toLocaleString()})
-                  </ListItemText>
+              {campaignResponses[0].recentActivity.map((activity) => (
+                <ListItem key={activity.id.toString()} sx={{ alignItems: "flex-start", padding: { xs: 1, md: 2 },minHeight: { xs: 'auto', md: '64px' }, }}>
+
+                  <Box component="img" src="/icons/recent_activity.png" alt="Activity Icon" sx={{ width: 24, height: 24, mr: { xs: 1, md: 2 }, flexShrink: 0 }} />
+
+                  <ListItemText 
+                    primary={activity.type}
+                    secondary={`${activity.user} ${activity.details} - ${activity.timeAgo.toString()}`}
+                    sx={{ margin: 0 }}
+                  />
                 </ListItem>
               ))}
             </List>

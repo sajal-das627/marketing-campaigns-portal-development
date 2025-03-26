@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import { Types } from "mongoose";
 import {
@@ -18,17 +18,17 @@ import {
   Grid2 as Grid,
 } from "@mui/material";
 import { CampaignData, Template } from '../../types/campaign'
-// Update the Template interface to include `id` and `type`
-
 
 interface Step2TemplatesProps {
   handleChange: (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => void;
   campaignData: CampaignData;
+  templateData: {name: string; type: string};
+  setTemplateData:React.Dispatch<React.SetStateAction<{name: string; type: string}>>;
 }
 // Dummy template data with required properties
 const templates: Template[] = [
   {
-    id: new Types.ObjectId("65f8e3c5a9b7d1a8f4e12348"), 
+    id: new Types.ObjectId("65f8e3c5a9b7d1a8f4e12348"),
     type: "Email",
     created_at: "2021-10-01",
     title: "Welcome Email Template",
@@ -36,7 +36,7 @@ const templates: Template[] = [
     image: "/images/welcome-template.png",
   },
   {
-    id: new Types.ObjectId("65f8e3c5a9b7d1a8f4e12349"), 
+    id: new Types.ObjectId("65f8e3c5a9b7d1a8f4e12349"),
     type: "Email",
     created_at: "2021-10-01",
     title: "AI Promotional Template",
@@ -60,7 +60,7 @@ const templates: Template[] = [
     image: "/images/happy-birthday-template.png",
   },
   {
-    id: new Types.ObjectId("65f8e3c5a9b7d1a8f4e1234c"), 
+    id: new Types.ObjectId("65f8e3c5a9b7d1a8f4e1234c"),
     type: "SMS",
     created_at: "2021-10-01",
     title: "Order Confirmation SMS",
@@ -68,7 +68,7 @@ const templates: Template[] = [
     image: "/images/welcome-template.png",
   },
   {
-    id: new Types.ObjectId("65f8e3c5a9b7d1a8f4e1234d"), 
+    id: new Types.ObjectId("65f8e3c5a9b7d1a8f4e1234d"),
     type: "Push Notifications",
     created_at: "2021-10-01",
     title: "AI Push Notification Template",
@@ -77,20 +77,15 @@ const templates: Template[] = [
   },
 ];
 
-const Step2Templates: React.FC<Step2TemplatesProps> = ({ handleChange, campaignData }) => {
-  console.log('Current campaign data:', campaignData);
-  const[templateName, setTemplateName] = useState('');
+const Step2Templates: React.FC<Step2TemplatesProps> = ({ handleChange, campaignData, templateData, setTemplateData }) => {
 
-  const [selectedType, setSelectedType] = useState<"Email" | "SMS" | "Push Notifications">("Email");
+  // const [selectedType, setSelectedType] = useState<"Email" | "SMS" | "Push Notifications">("Email");
   // Filter templates based on the selected type
-const filteredTemplates = templates.filter((template) => template.type === selectedType);
-  // console.log('Filtered templates:', filteredTemplates);
+  const filteredTemplates = templates.filter((template) => template.type === templateData.type);
 
-
-const isSelected = (selectVal: number | string | Types.ObjectId) => {
-  return campaignData.template === selectVal ? '2px solid #007BFF' : '1px solid #ddd';
-  // return templateName === selectVal ? '2px solid #007BFF' : '1px solid #ddd';
-};
+  const isSelected = (selectVal: number | string | Types.ObjectId) => {
+    return campaignData.template === selectVal ? '2px solid #007BFF' : '1px solid #ddd';
+  };
 
 
   return (
@@ -101,7 +96,7 @@ const isSelected = (selectVal: number | string | Types.ObjectId) => {
           justifyContent: { md: "space-between", xs: "flex-start" },
           flexDirection: { xs: "column", md: "row" },
           alignItems: { xs: "flex-start", sm: "flex-start", md: "center" }
-        }} mt={2} mb={2} > 
+        }} mt={2} mb={2} >
         <Box>
           <Typography variant="h6" >Select  Template</Typography>
           <Typography sx={{ color: "#626262" }}>Choose from saved templates or create new template.</Typography>
@@ -118,8 +113,11 @@ const isSelected = (selectVal: number | string | Types.ObjectId) => {
             <FormControl component="fieldset" sx={{ mb: 2 }}>
               <RadioGroup
 
-                value={selectedType}
-                onChange={(e) => setSelectedType(e.target.value as "Email" | "SMS" | "Push Notifications")}
+                value={templateData.type}
+                onChange={(e) => setTemplateData((prev) => ({
+                  ...prev, type: e.target.value as "Email" | "SMS" | "Push Notifications",
+                })
+                )}
               >
                 <FormControlLabel value="Email" control={<Radio />} label="Email" />
                 <FormControlLabel value="SMS" control={<Radio />} label="SMS" />
@@ -131,18 +129,17 @@ const isSelected = (selectVal: number | string | Types.ObjectId) => {
             {/* Display only filtered templates */}
             <Typography sx={{ borderBottom: '2px solid #ECEEF6', mb: 1.5, p: 1 }}>TEMPLATE</Typography>
             {filteredTemplates.map((template) => (
-              <Card key={template.id.toString()} 
-                  onClick={() =>{
-                    handleChange({ target: { name: "template", value: template.id.toString() } } as any);
-                    setTemplateName(template.type+" - "+template.title);
-                  }}
-                                       
-                   sx={{
-                    border: isSelected(template.id.toString()),
-                    // border: isSelected(template.type+" - "+template.title),
-                     display: "flex", mb: 2, p: 1, bgcolor: '#FAF9F9', shadow: 0, borderRadius: 1, 
-                  
-                    boxShadow: 'none' }}>
+              <Card key={template.id.toString()}
+                onClick={() => {
+                  handleChange({ target: { name: "template", value: template.id.toString() } } as any);
+                  setTemplateData({name: template.title, type: template.type})
+                }}
+
+                sx={{
+                  border: isSelected(template.id.toString()),
+                  display: "flex", mb: 2, p: 1, bgcolor: '#FAF9F9', shadow: 0, borderRadius: 1,
+                  boxShadow: 'none'
+                }}>
                 <CardMedia
                   component="img"
                   sx={{ width: { xs: 80, sm: 120 }, height: { xs: 80, sm: 120 }, color: '#626262', objectFit: 'cover', flexShrink: '0' }}
@@ -163,9 +160,7 @@ const isSelected = (selectVal: number | string | Types.ObjectId) => {
             ))}
           </Grid>
         </Grid>
-
       </Container>
-
     </Box>
   );
 };

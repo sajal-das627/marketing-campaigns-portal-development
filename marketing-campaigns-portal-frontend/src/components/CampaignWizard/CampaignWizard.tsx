@@ -1,6 +1,4 @@
 import React, { useState } from 'react';
-import VisibilityIcon from '@mui/icons-material/Visibility';
-import CampaignIcon from '@mui/icons-material/Campaign';
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 import PeopleIcon from '@mui/icons-material/People';
 import TvIcon from '@mui/icons-material/Tv';
@@ -11,18 +9,16 @@ import { useAppDispatch } from "../../hooks/useAppDispatch";
 import { Types } from 'mongoose';
 import {
   Container,
-  Typography,
-  TextField,
+  Typography,  
   Box,
   Button,
   Grid2 as Grid,
-  Card,
-  CardActionArea,
+  Card,  
   CardContent,
   Stepper, StepConnector, stepConnectorClasses,
   Step,
   StepLabel,
-  IconButton,
+  Alert,
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import Step2Templates from './Step2Templates';
@@ -30,12 +26,9 @@ import Step3Schedule from './Step3Schedule';
 import Step4Review from './Step4Review';
 import Step0CampaignType from './Step0CampaignType';
 import { CampaignData } from '../../types/campaign';
-import { createCampaign } from 'features/campaign/campaignSlice';
+import { createCampaign } from '../../redux/slices/campaignSlice';
 import Step1Audience from './Step1Audience';
-import { Formik, Form } from "formik";
-import { campaignValidationSchema } from '../../validation/campaignSchema';
 import SuccessModal from './SuccessModal';
-// import { MessageProvider } "./MessageContext"
 
 const SpacedBox = styled(Box)(({ theme }) => ({
   marginTop: theme.spacing(2),
@@ -85,18 +78,25 @@ const stepIcons = [TvIcon, PeopleIcon, DescriptionIcon, CalendarTodayIcon, RateR
 export default function CampaignCreator() {
   
   const [open, setOpen] = useState(false);
+  const [validationErrors, setValidationErrors] = useState<string[]>([]);
   const dispatch = useAppDispatch();
-  const [activeStep, setActiveStep] = useState<number>(0);
+  const [activeStep, setActiveStep] = useState<number>(0);  
+  const [audienceName ,setAudienceName] = useState<string>('');
+  const [templateData ,setTemplateData] = useState<{name: string; type: string}>({
+    name: '',
+    type: 'Email',
+  });
   const [campaignData, setCampaignData] = useState<CampaignData>({
+    _id:"",
     name: '',
     type: "",
-    // type: "Criteria-Based",
     audience:  null as Types.ObjectId | null,
     template:  null as Types.ObjectId | null,
     schedule: {      
       frequency: '',
       time: '09:00',
       startDate:  new Date(new Date().setDate(new Date().getDate() + 1)),
+      endDate: new Date(),
     },
     status: "Draft",
     openRate: 0,
@@ -105,6 +105,50 @@ export default function CampaignCreator() {
   });
 
   const handleNextStep = async() => {
+  let errors: string[] = [];
+
+  switch(activeStep) {    
+    case 0:
+      if (!campaignData.name || !/^[a-zA-Z0-9\s]{3,50}$/.test(campaignData.name)) {
+        errors.push("Campaign name should be 3-50 characters and contain only letters, numbers, and spaces. ");
+      }
+      if (!campaignData.type) {
+        errors.push("Please select a campaign type.");
+      }
+      break;
+
+    case 1:
+      if (!campaignData.audience) {
+        errors.push("Please select an audience.");
+      }
+      break;
+
+    case 2:
+      if (!campaignData.template) {
+        errors.push("Please select a template.");
+      }
+      break;
+
+    case 3:
+      if (!campaignData.schedule?.frequency) {
+        errors.push("Schedule frequency is required.");
+      }
+      if (!campaignData.schedule?.startDate) {
+        errors.push("Start date is required.");
+      }
+      // if (campaignData.schedule?.endDate && new Date(campaignData.schedule.startDate) > new Date(campaignData.schedule.endDate)) {
+      //   errors.push("End date must be after start date.");
+      // }
+      break;
+    default:
+      break;
+    }
+      if (errors.length > 0) {
+        setValidationErrors(errors);
+      return ;
+    }
+    setValidationErrors([]);
+      
     console.log('Moving to next step:', activeStep);
     if (activeStep < steps.length - 1) {
       setActiveStep((prevStep) => prevStep + 1);
@@ -167,33 +211,19 @@ export default function CampaignCreator() {
     }));
   }
 };
-
   console.log('campaignData: ', campaignData);
-
-  const isSelected = (selectVal: string) => campaignData.type === selectVal /*|| campaignData.audience.toString() === selectVal*/ ? '2px solid #007BFF' : '1px solid #ddd';
-
   const renderStepContent = (step: number) => {
     switch (step) {
       case 0:
-        return (
-          <Step0CampaignType handleChange={handleChange} campaignData={campaignData} />
-        );
+        return <Step0CampaignType handleChange={handleChange} campaignData={campaignData} />;
       case 1:
-        return (
-          <>
-              <Step1Audience handleChange={handleChange}  />           
-          </>
-        )
+        return <Step1Audience handleChange={handleChange}  campaignData={campaignData} setAudienceName={setAudienceName}  />
       case 2:
-        return (
-          <SpacedBox>
-            <Step2Templates handleChange={handleChange} campaignData={campaignData} />
-          </SpacedBox>
-        );
+        return <Step2Templates handleChange={handleChange} campaignData={campaignData} templateData={templateData} setTemplateData={setTemplateData} />;
       case 3:
         return <Step3Schedule handleChange={handleChange} campaignData={campaignData} handleDateChange={handleDateChange} />;
       case 4:
-        return <Step4Review campaignData={campaignData}  />;
+        return <Step4Review campaignData={campaignData} audienceName={audienceName} templateData={templateData} />;
       default:
         return <Typography variant="h6">Unknown Step</Typography>;
     }
@@ -204,6 +234,12 @@ export default function CampaignCreator() {
       <Typography sx={{ fontSize: "26px" }} gutterBottom>
         Create a New Campaign
       </Typography>
+      
+      {validationErrors.length > 0 &&(
+        <Alert variant='outlined' severity="warning">
+          {validationErrors[0]}
+        </Alert>
+      )}
 
       <Box sx={{ p: 2 }}>
         <Card>
@@ -239,8 +275,8 @@ export default function CampaignCreator() {
                             color: activeStep >= index ? '#fff' : '#B8B8B8',
                             bgcolor: activeStep >= index ? '#0057D9' : '#F5F5F5',
                             '&.Mui-completed': { color: '#0057D9' },
-                            width: { xs: '18px', sm: '24px' },
-                            height: { xs: '18px', sm: '24px' },
+                            width: { xs: '24px', sm: '30px', md: '35px' },
+                            height: { xs: '24px', sm: '30px', md: '35px' },
                           }}
                         />
                       }
@@ -275,10 +311,12 @@ export default function CampaignCreator() {
                 </Grid>
                 <Grid>
                   <Button sx={{ bgcolor: "#0057D9" }} variant="contained" onClick={handleNextStep}>
-                    {activeStep === steps.length - 1 ? 'Launch Campaign' : 'Save & Continue'}
+                    {(activeStep === steps.length - 1) ? 'Launch Campaign' : activeStep === 0 ? 'Next' : 'Save & Continue'}
                   </Button>
 
                   <SuccessModal open={open} onClose={() => setOpen(false)} />
+
+                    
                 </Grid>
               </Grid>
               

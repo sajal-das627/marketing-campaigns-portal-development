@@ -2,10 +2,8 @@ import React, {useState} from "react";
 import { Grid2 as Grid, Card, CardActionArea, CardContent, Box, Typography, Button } from "@mui/material";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import { Types } from "mongoose";
-import { Audience } from "../../types/campaign";
-// Define the type for our audience demo data
+import { Audience, CampaignData } from "../../types/campaign";
 
-// Demo data array with multiple audiences
 const audienceOptions: Audience[] = [
   {
     id: new Types.ObjectId("65f8e3c5a9b7d1a8f4e12345"),
@@ -29,14 +27,15 @@ const audienceOptions: Audience[] = [
 
 interface AudienceSelectorProps {
   handleChange: (event: any) => void;
-//   isSelected: (audienceName: string) => string;
+  campaignData: CampaignData;
+  setAudienceName: React.Dispatch<React.SetStateAction<string>>;
 }
 
-const AudienceSelector: React.FC<AudienceSelectorProps> = ({ handleChange }) => {
-    const [audienceName, setAudienceName] = useState('');
+const AudienceSelector: React.FC<AudienceSelectorProps> = ({ handleChange, campaignData, setAudienceName}) => {
 
-    //************use another state to display audience and 
-const isSelected = (selectVal: string) =>  audienceName === selectVal ? '2px solid #007BFF' : '1px solid #ddd';
+   const isSelected = (selectVal: number | string | Types.ObjectId) => {
+      return campaignData.audience === selectVal ? '2px solid #007BFF' : '1px solid #ddd';
+    };
 
   return (
     
@@ -61,7 +60,7 @@ const isSelected = (selectVal: string) =>  audienceName === selectVal ? '2px sol
         <Grid size={{ xs: 12 }} key={audience.id.toString()}>
           <Card
             variant="outlined"
-            sx={{ border: isSelected(audience.name) }}
+            sx={{ border: isSelected(audience.id) }}
             onClick={() =>{
               handleChange({
                 target: { name: "audience", value: audience.id },

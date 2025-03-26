@@ -9,17 +9,18 @@ export interface Schedule{
 }
 
 export interface CampaignData {  
+    _id: string;
     name: string;
-    type: "Criteria-Based" | "Real-Time Triggered" | "Scheduled" | "";
+    type: "Criteria Based" | "Real Time" | "Scheduled" | "";
     audience: Types.ObjectId | null;
     template: Types.ObjectId | null;  
-    schedule: Schedule;
     status: "Draft" | "Scheduled" | "Active" | "On Going" | "Completed" | "Expired" | "Paused";
+    publishedDate?: Date;
+    createdAt?: Date;
     openRate: number;
     ctr: number;
     delivered: number;
-    publishedDate?: Date;
-    createdAt?: Date;
+    schedule: Schedule;
 } 
 
 export interface Audience {

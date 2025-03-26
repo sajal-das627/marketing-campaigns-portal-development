@@ -120,8 +120,8 @@ const Sidebar = (props:any) => {
         [`& .MuiDrawer-paper`]: { width: drawerWidth, boxSizing: 'border-box' },
       }}
     >
-      <Box sx={{ padding: "20px", marginBottom: "20px" }}>
-        <img src="/logo192.png" alt="logo" />
+      <Box sx={{ padding: "20px", marginBottom: "5px" }}>
+        <img src="https://request.cutx.org/cutx.svg" alt="logo" width={'50px'} height={'50px'} />
       </Box>
       <Box sx={{ overflow: 'auto' }}>
         <CollapsibleMenu />
