@@ -149,6 +149,29 @@ export const applyFilter = async (req: Request, res: Response) => {
       res.status(500).json({ message: "Internal Server Error" });
     }
   };
+
+    // ✅ Get All Filters for a User
+    export const getSingleFilter = async (req: Request, res: Response) => {
+      try {
+        const filterId = req.params.filterId;
+        const filter = await Filter.findById(filterId);
+    
+        if (!filter) {
+          return res.status(404).json({ message: "Filter not found" });
+        }
+    
+        res.status(200).json({
+          id: filter._id,
+          name: filter.name,
+          description: filter.description,
+          tags: filter.tags,
+          createdOn: filter.createdAt,
+          audienceCount: filter.estimatedAudience,
+        });
+      } catch (error) {
+        res.status(500).json({ error: "Internal server error" });
+      }
+    };
   
   // ✅ Preview Estimated Audience Based on Conditions
   export const previewAudience = async (req: Request, res: Response) => {
@@ -168,6 +191,36 @@ export const applyFilter = async (req: Request, res: Response) => {
       res.status(500).json({ message: "Internal Server Error" });
     }
   };
+
+  // Apply filter to get matching users
+export const applyFilter = async (req: Request, res: Response) => {
+  try {
+    const { filterId } = req.params;
+    const filter = await Filter.findById(filterId);
+    if (!filter) return res.status(404).json({ message: "Filter not found" });
+
+    let query: any = {};
+    let andConditions: any[] = [];
+    let orConditions: any[] = [];
+
+    filter.conditions.forEach((cond: any) => {
+      if (cond.operator === "AND") {
+        query["$and"] = andConditions;
+      } else if (cond.operator === "OR") {
+        query["$or"] = orConditions;
+      } else {
+        const condition = { [cond.field]: { [`$${cond.operator}`]: cond.value } };
+        andConditions.push(condition);
+        orConditions.push(condition);
+      }
+    });
+
+    const users = await User.find(query);
+    res.json(users);
+  } catch (error) {
+    res.status(500).json({ message: "Error applying filter", error });
+  }
+};
   
   // ✅ Delete a Filter
   export const deleteFilter = async (req: Request, res: Response) => {
