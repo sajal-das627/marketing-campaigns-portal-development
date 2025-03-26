@@ -111,6 +111,8 @@ const getSingleFilter = (req, res) => __awaiter(void 0, void 0, void 0, function
             name: filter.name,
             description: filter.description,
             tags: filter.tags,
+            lastUsed: filter.lastUsed,
+            ctr: filter.ctr,
             createdOn: filter.createdAt,
             audienceCount: filter.estimatedAudience,
         });

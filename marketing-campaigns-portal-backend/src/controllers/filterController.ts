@@ -165,6 +165,8 @@ export const applyFilter = async (req: Request, res: Response) => {
           name: filter.name,
           description: filter.description,
           tags: filter.tags,
+          lastUsed: filter.lastUsed,
+          ctr: filter.ctr,
           createdOn: filter.createdAt,
           audienceCount: filter.estimatedAudience,
         });
