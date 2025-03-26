@@ -198,6 +198,28 @@ export const editCampaign = async (req: Request, res: Response) => {
   }
 };
 
+// ✅ Get Campaign Details by campaignId
+export const getCampaignById = async (req: Request, res: Response) => {
+  try {
+    const { campaignId } = req.params; // Extract campaignId from request parameters
+
+    // ✅ Find campaign by ID
+    const campaign = await Campaign.findById(campaignId);
+
+    if (!campaign) {
+      return res.status(404).json({ message: "Campaign not found" });
+    }
+
+    res.status(200).json({
+      success: true,
+      campaign,
+    });
+  } catch (error) {
+    console.error("Error fetching campaign details:", error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+};
+
 // ✅ Pause/Resume Campaign
 export const toggleCampaignStatus = async (req: Request, res: Response) => {
   try {

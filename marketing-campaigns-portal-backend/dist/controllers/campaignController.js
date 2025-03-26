@@ -82,7 +82,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.deleteCampaign = exports.launchCampaign = exports.duplicateCampaign = exports.toggleCampaignStatus = exports.editCampaign = exports.createOrUpdateCampaign = exports.getCampaigns = void 0;
+exports.deleteCampaign = exports.launchCampaign = exports.duplicateCampaign = exports.toggleCampaignStatus = exports.getCampaignById = exports.editCampaign = exports.createOrUpdateCampaign = exports.getCampaigns = void 0;
 const Campaign_1 = __importDefault(require("../models/Campaign")); // ✅ Import `ICampaign`
 const getCampaigns = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
@@ -183,6 +183,26 @@ const editCampaign = (req, res) => __awaiter(void 0, void 0, void 0, function* (
     }
 });
 exports.editCampaign = editCampaign;
+// ✅ Get Campaign Details by campaignId
+const getCampaignById = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { campaignId } = req.params; // Extract campaignId from request parameters
+        // ✅ Find campaign by ID
+        const campaign = yield Campaign_1.default.findById(campaignId);
+        if (!campaign) {
+            return res.status(404).json({ message: "Campaign not found" });
+        }
+        res.status(200).json({
+            success: true,
+            campaign,
+        });
+    }
+    catch (error) {
+        console.error("Error fetching campaign details:", error);
+        res.status(500).json({ message: "Internal Server Error" });
+    }
+});
+exports.getCampaignById = getCampaignById;
 // ✅ Pause/Resume Campaign
 const toggleCampaignStatus = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
