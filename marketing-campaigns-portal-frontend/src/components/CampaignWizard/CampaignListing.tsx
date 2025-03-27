@@ -138,7 +138,7 @@
 //     {/* <TableCell colSpan={7}></TableCell> */}
 //   </TableRow>
 //   {filteredCampaign.map((campaign) => (
-//     <React.Fragment key={campaign.id}>
+//     <React.Fragment key={campaign._id  + campaign.status}>
 //       <TableRow sx={{ borderRadius: '10px', border: '2px solid #ECEEF6', '& td, & th': { padding: '3px 5px' } }}>
 //         <TableCell>
 //           <Button sx={{ color: "#0057D9", bgcolor: "#F2F7FF", fontSize: "12px" }}>

@@ -36,14 +36,15 @@ const App = () => {
           <Toolbar />
           <Routes>
             <Route path="/" element={<Dashboard />} />
-            <Route path="/campaigns" element={<Campaigns />} />
+            <Route path="/manage-campaign" element={<Campaigns />} />
             <Route path="/campaign-listing" element={<CampaignListing />} />
             <Route path="/campaign-listing1" element={<CampaignListing1 />} />
             <Route path="/analytics" element={<Analytics />} />
             <Route path="/activity-logs" element={<ActivityLogs />} />
             <Route path="/login" element={<Login />} />
             <Route path="/filter-builder" element={<FilterBuilder />} />
-            <Route path="/create-campaign" element={<CampaignWizard />} />
+            {/* <Route path="/create-campaign" element={<CampaignWizard />} /> */}
+            <Route path="/create-campaign/:campaignId?" element={<CampaignWizard />} />
             <Route path="/saved-filters" element={<SavedFilters />} />
             <Route path="/templates" element={<TemplateManagement />} />
             <Route path="/manage-filters" element={<ManageFilter />} />

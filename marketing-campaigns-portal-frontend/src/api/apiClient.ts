@@ -81,6 +81,11 @@ const apiClient = axios.create({
     return campaignId;
   };
 
+      // ✅ Update Campaign
+  export const updateCampaignApi = async (campaignId: string, updatedData: any) => {
+    const response = await axios.put(`${process.env.REACT_APP_API_BASE_URL}/campaigns/${campaignId}/edit`, updatedData);
+    return response.data;
+  };
   
 
 

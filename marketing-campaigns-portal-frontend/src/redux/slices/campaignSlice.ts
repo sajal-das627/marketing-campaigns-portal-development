@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
-import { createCampaign as createCampaignAPI, fetchCampaigns, toggleCampaignStatus, duplicateCampaignApi, deleteCampaignApi } from "../../api/apiClient";
+import { createCampaign as createCampaignAPI, fetchCampaigns, toggleCampaignStatus, duplicateCampaignApi, deleteCampaignApi, updateCampaignApi } from "../../api/apiClient";
 
 // ✅ Define Campaign Interface
 interface Campaign {
@@ -86,6 +86,13 @@ export const deleteCampaign = createAsyncThunk(
     return campaignId;
   }
 );
+//update campaign
+export const updateCampaign = createAsyncThunk(
+  "campaigns/update",
+  async ({ campaignId, updatedData }: { campaignId: string; updatedData: any }) => {
+    return await updateCampaignApi(campaignId, updatedData);
+  }
+);
 
 // ✅ Create Campaign
 export const createCampaign = createAsyncThunk(
@@ -103,16 +110,22 @@ export const createCampaign = createAsyncThunk(
 
 // ✅ Unified Redux Slice for Campaigns
 const campaignSlice = createSlice({
-  name: "campaigns",
+  name: "campaign",
   initialState,
-  reducers: {},
+  reducers: {
+    //copy campaign
+    updateCampaignList: (state, action: PayloadAction<any[]>) => {
+      state.campaigns = action.payload;
+    },
+  },
   extraReducers: (builder) => {
     // --- Load Campaigns ---
-    builder.addCase(loadCampaigns.pending, (state) => {
+    builder
+    .addCase(loadCampaigns.pending, (state) => {
       state.loading = true;
       state.error = null;
-    });
-    builder.addCase(loadCampaigns.fulfilled, (state, action) => {
+    })
+    .addCase(loadCampaigns.fulfilled, (state, action) => {
       console.log("API Response Data:", action.payload);
       if (!action.payload || !action.payload.data) {
         console.error("Error: API did not return campaigns data");
@@ -124,14 +137,21 @@ const campaignSlice = createSlice({
       state.loading = false;
       state.campaigns = action.payload.data;
       state.pagination = action.payload.pagination;
-    });
-    builder.addCase(loadCampaigns.rejected, (state, action) => {
+    })
+    .addCase(loadCampaigns.rejected, (state, action) => {
       state.loading = false;
       state.error = action.error.message ?? "An error occurred";
-    });
+    })
+    // --- Update Campaign ---
+    .addCase(updateCampaign.fulfilled, (state, action) => {
+      const index = state.campaigns.findIndex((c) => c._id === action.payload._id);
+      if (index !== -1) {
+        state.campaigns[index] = action.payload;
+      }
+    })
 
     // --- Pause/Resume Campaign ---
-    builder.addCase(pauseResumeCampaign.fulfilled, (state, action) => {
+    .addCase(pauseResumeCampaign.fulfilled, (state, action) => {
       console.log("Redux State Update:", action.payload);
       if (!action.payload || !action.payload._id) {
         console.error("Error: API did not return updated campaign");
@@ -140,34 +160,35 @@ const campaignSlice = createSlice({
       state.campaigns = state.campaigns.map((c) =>
         c._id === action.payload._id ? { ...c, status: action.payload.status } : c
       );
-    });
+    })
 
     // --- Duplicate Campaign ---
-    builder.addCase(duplicateCampaign.fulfilled, (state, action) => {
+    .addCase(duplicateCampaign.fulfilled, (state, action) => {
       state.campaigns = [...state.campaigns, action.payload];
-    });
+    })
 
     // --- Delete Campaign ---
-    builder.addCase(deleteCampaign.fulfilled, (state, action) => {
+    .addCase(deleteCampaign.fulfilled, (state, action) => {
       state.campaigns = state.campaigns.filter((c) => c._id !== action.payload);
-    });
+    })
 
     // --- Create Campaign ---
-    builder.addCase(createCampaign.pending, (state) => {
+    .addCase(createCampaign.pending, (state) => {
       state.createLoading = true;
       state.createError = null;
-    });
-    builder.addCase(createCampaign.fulfilled, (state, action: PayloadAction<any>) => {
+    })
+    .addCase(createCampaign.fulfilled, (state, action: PayloadAction<any>) => {
       state.createLoading = false;
       state.createCampaignData = action.payload;
       // Optionally, you could also add the created campaign to your campaigns array:
       state.campaigns.push(action.payload);
-    });
-    builder.addCase(createCampaign.rejected, (state, action) => {
+    })
+    .addCase(createCampaign.rejected, (state, action) => {
       state.createLoading = false;
       state.createError = (action.payload as string) || "Something went wrong";
-    });
+    })
   },
 });
 
+export const { updateCampaignList } = campaignSlice.actions;
 export default campaignSlice.reducer;

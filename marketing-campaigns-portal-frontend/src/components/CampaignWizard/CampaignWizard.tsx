@@ -230,18 +230,18 @@ export default function CampaignCreator() {
   };
 
   return (
-    <Container maxWidth="md" sx={{ py: 4, bgcolor: '#F8F9FE' }}>
-      <Typography sx={{ fontSize: "26px" }} gutterBottom>
+    <Container sx={{ py: 4, bgcolor: '#F8F9FE', maxWidth: '80vw' }}>
+      <Typography sx={{ fontSize: "26px", }} gutterBottom>
         Create a New Campaign
       </Typography>
       
       {validationErrors.length > 0 &&(
-        <Alert variant='outlined' severity="warning">
+        <Alert variant='outlined' severity="warning" sx={{mb:1}}>
           {validationErrors[0]}
         </Alert>
       )}
 
-      <Box sx={{ p: 2 }}>
+      <Box >
         <Card>
           <CardContent>
             <Stepper
@@ -313,10 +313,7 @@ export default function CampaignCreator() {
                   <Button sx={{ bgcolor: "#0057D9" }} variant="contained" onClick={handleNextStep}>
                     {(activeStep === steps.length - 1) ? 'Launch Campaign' : activeStep === 0 ? 'Next' : 'Save & Continue'}
                   </Button>
-
-                  <SuccessModal open={open} onClose={() => setOpen(false)} />
-
-                    
+                  <SuccessModal open={open} onClose={() => setOpen(false)} />                    
                 </Grid>
               </Grid>
               

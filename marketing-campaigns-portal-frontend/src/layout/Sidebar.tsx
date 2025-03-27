@@ -121,7 +121,7 @@ const Sidebar = (props:any) => {
       }}
     >
       <Box sx={{ padding: "20px", marginBottom: "5px" }}>
-        <img src="https://request.cutx.org/cutx.svg" alt="logo" width={'50px'} height={'50px'} />
+        <img src="/icons/logo.png" alt="logo" width={'auto'} height={'35px'} />
       </Box>
       <Box sx={{ overflow: 'auto' }}>
         <CollapsibleMenu />
