@@ -14,7 +14,7 @@ router.delete("/:id", authenticateToken, deleteCampaign);
 export default router; */
 
 import express from "express";
-import {  createOrUpdateCampaign, editCampaign, toggleCampaignStatus, duplicateCampaign,  getCampaigns, launchCampaign, deleteCampaign } from "../controllers/campaignController";
+import { getCampaigns, getCampaignById, createOrUpdateCampaign, editCampaign, toggleCampaignStatus, duplicateCampaign,  launchCampaign, deleteCampaign } from "../controllers/campaignController";
 import { authenticateToken } from "../middleware/authMiddleware";
 
 const router = express.Router();
@@ -25,6 +25,7 @@ router.get("/", /*authenticateToken,*/  getCampaigns); // Get All Campaigns
 router.put("/:campaignId/launch", /*authenticateToken,*/ launchCampaign); // Launch Campaign
 router.delete("/:campaignId", /*authenticateToken,*/  deleteCampaign); // Delete Campaign
 router.put("/:campaignId/edit", /*authenticateToken,*/ editCampaign); // ✅ Edit Campaign
+router.get("/:campaignId", /*authenticateToken,*/ getCampaignById); // ✅ Get Campaign By ID
 router.put("/:campaignId/pause-resume", /*authenticateToken,*/ toggleCampaignStatus); // ✅ Pause/Resume Campaign
 router.post("/:campaignId/duplicate", /*authenticateToken,*/ duplicateCampaign); // ✅ Duplicate Campaign
 

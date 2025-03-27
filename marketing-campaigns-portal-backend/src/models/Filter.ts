@@ -23,7 +23,7 @@ const FilterSchema = new mongoose.Schema({
   description: { type: String },  
   tags: [{ type: String }],  
   // createdBy: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
-   userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },  
+  userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },  
   conditions: [ConditionSchema],  
   logicalOperator: { type: String, enum: ["AND", "OR", "BOTH"], required: true },  
   estimatedAudience: { type: Number, default: 0 },  

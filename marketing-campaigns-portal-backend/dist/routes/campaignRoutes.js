@@ -26,6 +26,7 @@ router.get("/", /*authenticateToken,*/ campaignController_1.getCampaigns); // Ge
 router.put("/:campaignId/launch", /*authenticateToken,*/ campaignController_1.launchCampaign); // Launch Campaign
 router.delete("/:campaignId", /*authenticateToken,*/ campaignController_1.deleteCampaign); // Delete Campaign
 router.put("/:campaignId/edit", /*authenticateToken,*/ campaignController_1.editCampaign); // ✅ Edit Campaign
+router.get("/:campaignId", /*authenticateToken,*/ campaignController_1.getCampaignById); // ✅ Get Campaign By ID
 router.put("/:campaignId/pause-resume", /*authenticateToken,*/ campaignController_1.toggleCampaignStatus); // ✅ Pause/Resume Campaign
 router.post("/:campaignId/duplicate", /*authenticateToken,*/ campaignController_1.duplicateCampaign); // ✅ Duplicate Campaign
 exports.default = router;
