@@ -350,9 +350,9 @@ exports.permanentlyDeleteTemplate = permanentlyDeleteTemplate;
 // ✅ Fetch Recently Used Templates
 const getRecentlyUsedTemplates = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const templates = yield Template_1.default.find({ lastUsed: { $ne: null } })
-            .sort({ lastUsed: -1 })
-            .limit(5);
+        const templates = yield Template_1.default.find({ lastUsed: { $ne: null } }) // ✅ Fetch non-null lastUsed
+            .sort({ lastUsed: -1 }) // ✅ Order by latest used
+            .limit(5); // ✅ Get only top 5
         res.status(200).json(templates);
     }
     catch (error) {

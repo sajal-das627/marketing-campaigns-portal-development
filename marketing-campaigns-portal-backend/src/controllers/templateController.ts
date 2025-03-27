@@ -378,15 +378,17 @@ export const permanentlyDeleteTemplate = async (req: Request, res: Response) => 
 // ✅ Fetch Recently Used Templates
 export const getRecentlyUsedTemplates = async (req: Request, res: Response) => {
   try {
-    const templates = await Template.find({ lastUsed: { $ne: null } })
-      .sort({ lastUsed: -1 })
-      .limit(5);
+    const templates = await Template.find({ lastUsed: { $ne: null } }) // ✅ Fetch non-null lastUsed
+      .sort({ lastUsed: -1 }) // ✅ Order by latest used
+      .limit(5); // ✅ Get only top 5
+
     res.status(200).json(templates);
   } catch (error) {
     console.error("Error fetching recently used templates:", error);
     res.status(500).json({ message: "Internal Server Error" });
   }
 };
+
 
 // ✅ Fetch Past Campaign Templates
 export const getPastCampaignTemplates = async (req: Request, res: Response) => {
