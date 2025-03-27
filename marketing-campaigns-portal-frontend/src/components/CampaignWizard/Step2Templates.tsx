@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useEffect} from "react";
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import { Types } from "mongoose";
 import {
@@ -87,7 +87,27 @@ const Step2Templates: React.FC<Step2TemplatesProps> = ({ handleChange, campaignD
     return campaignData.template === selectVal ? '2px solid #007BFF' : '1px solid #ddd';
   };
 
-
+  useEffect(() => {
+    if (campaignData.template) {
+      const selectedAudience = templates.find(
+        (template) => template.id?.toString() === campaignData.template?.toString()
+      );  
+      if (selectedAudience) {
+        setTemplateData((prev) => {
+          if (prev.name === selectedAudience.title && prev.type === selectedAudience.type) {
+            return prev;
+          }
+          return {
+            name: selectedAudience.title,
+            type: selectedAudience.type,
+          };
+        });
+      } else {
+        console.warn("No matching template found for campaignData.template");
+      }
+    }
+  }, [campaignData.template, filteredTemplates]);
+  
   return (
     <Box sx={{ boxSizing: 'border-box' }}>
       <Box

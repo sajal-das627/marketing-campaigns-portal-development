@@ -44,7 +44,7 @@ const App = () => {
             <Route path="/login" element={<Login />} />
             <Route path="/filter-builder" element={<FilterBuilder />} />
             {/* <Route path="/create-campaign" element={<CampaignWizard />} /> */}
-            <Route path="/create-campaign/:campaignId?" element={<CampaignWizard />} />
+            <Route path="/create-campaign/:id?" element={<CampaignWizard />} />
             <Route path="/saved-filters" element={<SavedFilters />} />
             <Route path="/templates" element={<TemplateManagement />} />
             <Route path="/manage-filters" element={<ManageFilter />} />

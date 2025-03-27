@@ -95,6 +95,7 @@ export const getFilters = () => apiClient.get("/filters");
 export const applyFilter = (filterId: string) => apiClient.get(`/filters/apply/${filterId}`);
 export const createCampaign = (campaignData: CampaignData) => apiClient.post("/campaigns", campaignData);
 export const getCampaigns = () => apiClient.get("/campaigns"); 
+export const apiFetchCampaignById  = (campaignId: string) => apiClient.get(`/campaigns/${campaignId}`);
 
 // Update API Client for Templates
 export const createTemplate = (templateData: any) => apiClient.post("/templates", templateData);

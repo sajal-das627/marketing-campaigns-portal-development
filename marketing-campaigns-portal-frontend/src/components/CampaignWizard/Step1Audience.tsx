@@ -1,4 +1,4 @@
-import React, {useState} from "react";
+import React, {useEffect, useState} from "react";
 import { Grid2 as Grid, Card, CardActionArea, CardContent, Box, Typography, Button } from "@mui/material";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import { Types } from "mongoose";
@@ -33,6 +33,17 @@ interface AudienceSelectorProps {
 
 const AudienceSelector: React.FC<AudienceSelectorProps> = ({ handleChange, campaignData, setAudienceName}) => {
 
+  useEffect(()=>{
+    if(campaignData.audience){
+      const selectedAudience = audienceOptions.find(
+        (audience)=> audience.id?.toString() === campaignData.audience?.toString()
+      );
+      if (selectedAudience) {
+        setAudienceName(selectedAudience.name);
+      }
+    }
+  })
+  
    const isSelected = (selectVal: number | string | Types.ObjectId) => {
       return campaignData.audience === selectVal ? '2px solid #007BFF' : '1px solid #ddd';
     };
@@ -57,13 +68,13 @@ const AudienceSelector: React.FC<AudienceSelectorProps> = ({ handleChange, campa
 
     <Grid container spacing={2}>
       {audienceOptions.map((audience) => (
-        <Grid size={{ xs: 12 }} key={audience.id.toString()}>
+        <Grid size={{ xs: 12 }} key={audience.id?.toString()}>
           <Card
             variant="outlined"
-            sx={{ border: isSelected(audience.id) }}
+            sx={{ border: isSelected(audience.id.toString()) }}
             onClick={() =>{
               handleChange({
-                target: { name: "audience", value: audience.id },
+                target: { name: "audience", value: audience.id?.toString() },
               } as any);
               setAudienceName(audience.name);   
             }}

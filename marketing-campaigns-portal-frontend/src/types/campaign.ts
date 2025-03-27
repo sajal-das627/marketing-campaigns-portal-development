@@ -2,7 +2,7 @@ import { Types } from 'mongoose';
 
 
 export interface Schedule{
-  frequency:  "Daily" | "Weekly" | "Monthly" | "";
+  frequency: "Once" | "Daily" | "Weekly" | "Monthly" | "";
   time: string,
   startDate: Date;
   endDate?: Date;

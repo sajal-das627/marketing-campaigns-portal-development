@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 import PeopleIcon from '@mui/icons-material/People';
 import TvIcon from '@mui/icons-material/Tv';
@@ -7,6 +7,7 @@ import RateReviewIcon from "@mui/icons-material/RateReview";
 import dayjs, { Dayjs } from 'dayjs';
 import { useAppDispatch } from "../../hooks/useAppDispatch";
 import { Types } from 'mongoose';
+import { useParams } from 'react-router-dom';
 import {
   Container,
   Typography,  
@@ -26,9 +27,13 @@ import Step3Schedule from './Step3Schedule';
 import Step4Review from './Step4Review';
 import Step0CampaignType from './Step0CampaignType';
 import { CampaignData } from '../../types/campaign';
-import { createCampaign } from '../../redux/slices/campaignSlice';
+import { createCampaign, fetchCampaignById } from '../../redux/slices/campaignSlice';
 import Step1Audience from './Step1Audience';
 import SuccessModal from './SuccessModal';
+import { useSelector } from 'react-redux';
+import { RootState } from "../../redux/store";
+import { updateCampaign } from "../../redux/slices/campaignSlice";
+
 
 const SpacedBox = styled(Box)(({ theme }) => ({
   marginTop: theme.spacing(2),
@@ -76,7 +81,7 @@ const stepIcons = [TvIcon, PeopleIcon, DescriptionIcon, CalendarTodayIcon, RateR
 //   '/icons/rate-review.png',
 // ];
 export default function CampaignCreator() {
-  
+  const [isEditMode, setIsEditMode] = useState<boolean>(false);
   const [open, setOpen] = useState(false);
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
   const dispatch = useAppDispatch();
@@ -96,13 +101,62 @@ export default function CampaignCreator() {
       frequency: '',
       time: '09:00',
       startDate:  new Date(new Date().setDate(new Date().getDate() + 1)),
-      endDate: new Date(),
+      endDate: new Date(new Date().setDate(new Date().getDate() + 1)),
     },
     status: "Draft",
     openRate: 0,
     ctr: 0,
     delivered: 0,
   });
+
+  const { id } = useParams<{id: string}>();
+  console.log("id: ", id);
+  const campaignFromStore = useSelector((state: RootState) => state.campaign.selectedCampaign); 
+
+  useEffect(() => {
+    if (id) {
+      dispatch(fetchCampaignById(id));
+      setIsEditMode(true);
+    }
+  }, [id, dispatch]);
+
+  // Update local state when the store updates
+  useEffect(() => {
+    if (campaignFromStore) {
+      setCampaignData(campaignFromStore);
+    }
+  }, [campaignFromStore]);
+
+  const resetState = () => {
+    setCampaignData({
+      _id: "",
+      name: '',
+      type: "",
+      audience: null,
+      template: null,
+      schedule: {      
+        frequency: '',
+        time: '09:00',
+        startDate: new Date(new Date().setDate(new Date().getDate() + 1)),
+        endDate: new Date(new Date().setDate(new Date().getDate() + 1)),
+      },
+      status: "Draft",
+      openRate: 0,
+      ctr: 0,
+      delivered: 0,
+    });
+  };
+  
+  useEffect(() => {
+    if (!id) resetState();
+  }, [id]);
+
+
+  // useEffect(() => {
+  //   if (campaignFromStore) {
+  //     setCampaignData(campaignFromStore);
+  //   }
+  // }, [campaignFromStore]); 
 
   const handleNextStep = async() => {
   let errors: string[] = [];
@@ -136,9 +190,9 @@ export default function CampaignCreator() {
       if (!campaignData.schedule?.startDate) {
         errors.push("Start date is required.");
       }
-      // if (campaignData.schedule?.endDate && new Date(campaignData.schedule.startDate) > new Date(campaignData.schedule.endDate)) {
-      //   errors.push("End date must be after start date.");
-      // }
+      if (campaignData.schedule?.endDate && new Date(campaignData.schedule.startDate) > new Date(campaignData.schedule.endDate)) {
+        errors.push("End date must be after start date.");
+      }
       break;
     default:
       break;
@@ -154,10 +208,19 @@ export default function CampaignCreator() {
       setActiveStep((prevStep) => prevStep + 1);
     } else {
       try{
-        const result = await dispatch(createCampaign(campaignData)).unwrap();
+        handleChange({target: {name: "status", value: "Scheduled" }}as any);
+        //navigate to dashbord
+        if(isEditMode){
+          const result =  dispatch(updateCampaign({ campaignId: String(id), updatedData: campaignData })).unwrap(); 
+          setIsEditMode(false);
+          console.log('Submitting final data: ', result);
+          }
+        else{
+          const result = await dispatch(createCampaign(campaignData)).unwrap();
+          console.log('Submitting final data: ', result);
+        }        
         setOpen(true);
-        console.log("ShowSuccessModal:", open)
-        console.log('Submitting final data: ', result);
+        // console.log("ShowSuccessModal:", open)
       }catch(error){
         console.log('Error');
       }
@@ -199,17 +262,24 @@ export default function CampaignCreator() {
 
  const handleDateChange = (
   value: Dayjs | null,
+  type: "startDate"| "endDate",
   context: { validationError: any }
-) => {
-  if (value) {
-    setCampaignData((prev) => ({
+) => {  if (value) {
+  setCampaignData((prev) => {
+    if (type === "endDate" && prev.schedule.startDate && value.isBefore(dayjs(prev.schedule.startDate))) {
+      alert("End date cannot be before start date!");
+      return prev; // Do not update state
+    }
+
+    return {
       ...prev,
       schedule: {
         ...prev.schedule,
-        startDate: value.toDate(),
+        [type]: value.toDate(), // Dynamically update startDate or endDate
       },
-    }));
-  }
+    };
+  });
+}
 };
   console.log('campaignData: ', campaignData);
   const renderStepContent = (step: number) => {
@@ -313,7 +383,9 @@ export default function CampaignCreator() {
                   <Button sx={{ bgcolor: "#0057D9" }} variant="contained" onClick={handleNextStep}>
                     {(activeStep === steps.length - 1) ? 'Launch Campaign' : activeStep === 0 ? 'Next' : 'Save & Continue'}
                   </Button>
-                  <SuccessModal open={open} onClose={() => setOpen(false)} />                    
+                  <SuccessModal open={open} onClose={() => setOpen(false)}
+                  title={"Success"}
+                  message={`"${audienceName}" Filter Saved Successfully`} />                    
                 </Grid>
               </Grid>
               

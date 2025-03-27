@@ -400,7 +400,7 @@ const Campaigns: React.FC<CampaignProp> = () => {
             </Typography>
             <Typography sx={{ color: "#626262", fontSize: "12px",  pt: 0.25, pb: 0.25 }}>
               <DoneIcon sx={{ fontSize: "11px",  pt: 0.25, pb: 0.25 }} /> Published on&nbsp;
-              {campaign.createdAt.toString().split('-').join(' ').slice(0,10)}
+              {campaign.createdAt?.toString().split('-').join(' ').slice(0,10)}
               {/* publihshed date should be added instead of crea */}
             </Typography>
           </TableCell>

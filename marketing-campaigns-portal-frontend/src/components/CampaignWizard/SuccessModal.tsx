@@ -9,7 +9,7 @@ import {
   Typography
 } from '@mui/material';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
-
+import { useNavigate } from 'react-router-dom';
 interface SuccessModalProps {
   open: boolean;
   onClose: () => void;
@@ -18,11 +18,12 @@ interface SuccessModalProps {
 }
 
 const SuccessModal: React.FC<SuccessModalProps> = ({
-  open,
-  onClose,
-  title = 'Success',
-  message = '"Young High-Spenders" Filter Saved Successfully',
-}) => {
+  open, onClose, title, message,}) => {
+  const navigation = useNavigate();
+
+  const handleNavigation =() =>{
+    navigation("/");
+  }
   return (
     <Dialog
       open={open}
@@ -32,20 +33,20 @@ const SuccessModal: React.FC<SuccessModalProps> = ({
     >
       <DialogTitle id="success-dialog-title" sx={{ display: 'flex', alignItems: 'center' }}>
         <CheckCircleIcon  sx={{ marginRight: 1, color:"#0057D9", fontSize:"34px" }} />
-        <Typography variant="h6" sx={{fontWeight:"semi-bold"}}>{title}</Typography>
+        <Typography variant="h6" sx={{fontWeight:"semi-bold"}}>{title || "Success"}</Typography>
       </DialogTitle>
 
       <DialogContent>
         <DialogContentText id="success-dialog-description" sx={{color: '#A3AABC', fontSize:'12px'}}>
-          {message}
+          {message || "Saved Successfully"}
         </DialogContentText>
       </DialogContent>
 
       <DialogActions>
-      <Button onClick={onClose} variant="outlined">
+      <Button onClick={()=>{onClose(); handleNavigation()}} variant="outlined">
           Cancel
         </Button>
-        <Button onClick={onClose} variant="contained"  sx={{bgcolor:"#0057D9"}}>
+        <Button onClick={()=>{onClose(); handleNavigation()}} variant="contained"  sx={{bgcolor:"#0057D9"}}>
           Ok
         </Button>        
       </DialogActions>
