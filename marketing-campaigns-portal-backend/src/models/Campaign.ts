@@ -54,7 +54,7 @@ export interface ICampaign extends Document {
   ctr: Number;
   delivered: Number;
   schedule?: {
-    frequency?: "Daily" | "Weekly" | "Monthly"; // ✅ Ensure these values match the request payload
+    frequency?: "Once" |"Daily" | "Weekly" | "Monthly"; // ✅ Ensure these values match the request payload
     time?: string;
     startDate: Date;
     endDate?: Date;
@@ -73,7 +73,7 @@ const CampaignSchema: Schema = new Schema({
   ctr: { type: Number, default: 0 },  
   delivered: { type: Number, default: 0 },  
   schedule: {
-    frequency: { type: String, enum: ["Daily", "Weekly", "Monthly"], required: true }, // ✅ Make optional
+    frequency: { type: String, enum: ["Once", "Daily", "Weekly", "Monthly"], required: true }, // ✅ Make optional
     time: { type: String, required: true }, // ✅ Make optional
     startDate: { type: Date, required: true }, // ✅ Allow missing startDate for drafts
     endDate: { type: Date, required: true },
