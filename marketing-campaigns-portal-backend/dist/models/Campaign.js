@@ -86,7 +86,7 @@ const CampaignSchema = new mongoose_1.Schema({
     ctr: { type: Number, default: 0 },
     delivered: { type: Number, default: 0 },
     schedule: {
-        frequency: { type: String, enum: ["Daily", "Weekly", "Monthly"], required: true }, // ✅ Make optional
+        frequency: { type: String, enum: ["Once", "Daily", "Weekly", "Monthly"], required: true }, // ✅ Make optional
         time: { type: String, required: true }, // ✅ Make optional
         startDate: { type: Date, required: true }, // ✅ Allow missing startDate for drafts
         endDate: { type: Date, required: true },

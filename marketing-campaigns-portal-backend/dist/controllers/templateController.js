@@ -92,7 +92,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.toggleFavoriteTemplate = exports.getPastCampaignTemplates = exports.getRecentlyUsedTemplates = exports.permanentlyDeleteTemplate = exports.deleteTemplate = exports.duplicateTemplate = exports.updateTemplate = exports.getAllTemplates = exports.createTemplate = void 0;
+exports.toggleFavoriteTemplate = exports.getPastCampaignTemplates = exports.getRecentlyUsedTemplates = exports.permanentlyDeleteTemplate = exports.deleteTemplate = exports.duplicateTemplate = exports.updateTemplate = exports.previewShowTemplate = exports.previewTemplate = exports.getTemplateById = exports.getAllTemplates = exports.createTemplate = void 0;
 const Template_1 = __importDefault(require("../models/Template"));
 // Create a new template
 const createTemplate = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
@@ -187,6 +187,56 @@ const getAllTemplates = (req, res) => __awaiter(void 0, void 0, void 0, function
     }
 });
 exports.getAllTemplates = getAllTemplates;
+//   Get a Single Template
+const getTemplateById = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const template = yield Template_1.default.findById(req.params.id);
+        if (!template)
+            return res.status(404).json({ message: "Template not found" });
+        res.json(template);
+    }
+    catch (error) {
+        res.status(500).json({ message: "Error fetching template", error });
+    }
+});
+exports.getTemplateById = getTemplateById;
+//   Get Preview Template
+const previewTemplate = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const templateId = req.params.id;
+        const template = yield Template_1.default.findById(templateId);
+        if (!template) {
+            return res.status(404).json({ message: "Template not found" });
+        }
+        res.status(200).json({
+            id: template._id,
+            name: template.name,
+            content: template.content, // Assuming content stores HTML or JSON structure
+            createdAt: template.createdAt,
+        });
+    }
+    catch (error) {
+        console.error("Error fetching template preview:", error);
+        res.status(500).json({ message: "Internal Server Error" });
+    }
+});
+exports.previewTemplate = previewTemplate;
+// Preview template before savings
+const previewShowTemplate = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { htmlContent } = req.body;
+        if (!htmlContent) {
+            return res.status(400).json({ error: "HTML content is required for preview." });
+        }
+        // Send back the HTML content as response for preview
+        res.status(200).json({ previewHtml: htmlContent });
+    }
+    catch (error) {
+        console.error("Error previewing template:", error);
+        res.status(500).json({ error: "Internal Server Error" });
+    }
+});
+exports.previewShowTemplate = previewShowTemplate;
 // ✅ Update Template with Versioning & Modification Tracking
 const updateTemplate = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {

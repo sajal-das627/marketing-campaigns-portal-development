@@ -20,7 +20,7 @@ export default router; */
 
 
 import express from "express";
-import { createTemplate, getAllTemplates, updateTemplate, permanentlyDeleteTemplate, duplicateTemplate, getRecentlyUsedTemplates, getPastCampaignTemplates, toggleFavoriteTemplate, deleteTemplate } from "../controllers/templateController";
+import { createTemplate, getAllTemplates, getTemplateById,previewShowTemplate,previewTemplate, updateTemplate, permanentlyDeleteTemplate, duplicateTemplate, getRecentlyUsedTemplates, getPastCampaignTemplates, toggleFavoriteTemplate, deleteTemplate } from "../controllers/templateController";
 import { authenticateToken } from "../middleware/authMiddleware";
 
 const router = express.Router();
@@ -28,7 +28,10 @@ const router = express.Router();
 router.post("/", /*authenticateToken,*/ createTemplate);
 router.get("/", /*authenticateToken,*/ getAllTemplates); // ✅ Fetch All Templates
 router.put("/:id", /*authenticateToken,*/ updateTemplate);
-router.post("/:id/duplicate", duplicateTemplate); // ✅ Duplicate Template Route
+router.get("/:id", /*authenticateToken,*/ getTemplateById); // ✅ Fetch Template by ID
+router.get("/:id/preview", /*authenticateToken,*/ previewTemplate); // ✅ Preview  Template by ID
+router.post("/preview", /*authenticateToken,*/ previewShowTemplate); // Preview template
+router.post("/:id/duplicate", /*authenticateToken,*/ duplicateTemplate); // ✅ Duplicate Template Route
 router.delete("/:id", /*authenticateToken,*/ deleteTemplate);
 router.delete("/:id", /*authenticateToken,*/ permanentlyDeleteTemplate);
 router.get("/recent", /*authenticateToken,*/ getRecentlyUsedTemplates); // ✅ Fetch Recently Used Templates

@@ -198,6 +198,60 @@ export const getAllTemplates = async (req: Request, res: Response) => {
 };
 
 
+//   Get a Single Template
+export const getTemplateById = async (req: Request, res: Response) => {
+  try {
+    const template = await Template.findById(req.params.id);
+    if (!template) return res.status(404).json({ message: "Template not found" });
+    res.json(template);
+  } catch (error) {
+    res.status(500).json({ message: "Error fetching template", error });
+  }
+};
+
+
+//   Get Preview Template
+export const previewTemplate = async (req: Request, res: Response) => {
+  try {
+    const templateId = req.params.id;
+    const template = await Template.findById(templateId);
+
+    if (!template) {
+      return res.status(404).json({ message: "Template not found" });
+    }
+
+    res.status(200).json({
+      id: template._id,
+      name: template.name,
+      content: template.content, // Assuming content stores HTML or JSON structure
+      createdAt: template.createdAt,
+    });
+  } catch (error) {
+    console.error("Error fetching template preview:", error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+};
+
+// Preview template before savings
+
+export const previewShowTemplate = async (req: Request, res: Response) => {
+  try {
+      const { htmlContent } = req.body;
+
+      if (!htmlContent) {
+          return res.status(400).json({ error: "HTML content is required for preview." });
+      }
+
+      // Send back the HTML content as response for preview
+      res.status(200).json({ previewHtml: htmlContent });
+  } catch (error) {
+      console.error("Error previewing template:", error);
+      res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
+
+
 // ✅ Update Template with Versioning & Modification Tracking
 export const updateTemplate = async (req: Request, res: Response) => {
   try {
