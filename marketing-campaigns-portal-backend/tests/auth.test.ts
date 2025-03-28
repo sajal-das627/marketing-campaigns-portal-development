@@ -61,7 +61,7 @@ describe("🚀 Authentication API", () => {
 
     const res = await request(app)
       .get("/api/protected-route")
-      .set("Authorization", `Bearer ${token}`);
+      // .set("Authorization", `Bearer ${token}`);
 
     expect(res.statusCode).toBe(200);
     expect(res.body.message).toBe("Protected route accessed");

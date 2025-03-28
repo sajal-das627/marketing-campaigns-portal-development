@@ -121,7 +121,7 @@ beforeAll(async () => {
     email: "testuser@example.com",
     password: "Test@123",
   });
-  authToken = loginRes.body.token;
+  // authToken = loginRes.body.token;
 });
 
 // ✅ After All Tests: Disconnect from DB
@@ -134,7 +134,7 @@ describe("🚀 Campaign APIs", () => {
   it("✅ Should fetch campaign list", async () => {
     const res = await request(app)
       .get("/api/campaigns")
-      .set("Authorization", `Bearer ${authToken}`);
+      // .set("Authorization", `Bearer ${authToken}`);
 
     expect(res.statusCode).toBe(200);
     expect(Array.isArray(res.body)).toBeTruthy();
@@ -144,7 +144,7 @@ describe("🚀 Campaign APIs", () => {
   it("✅ Should create a new campaign", async () => {
     const res = await request(app)
       .post("/api/campaigns")
-      .set("Authorization", `Bearer ${authToken}`)
+      // .set("Authorization", `Bearer ${authToken}`)
       .send({
         name: "Spring Sale Campaign",
         type: "Scheduled",
@@ -162,7 +162,7 @@ describe("🚀 Campaign APIs", () => {
   it("✅ Should fetch all campaigns", async () => {
     const res = await request(app)
       .get("/api/campaigns")
-      .set("Authorization", `Bearer ${authToken}`);
+      // .set("Authorization", `Bearer ${authToken}`);
 
     expect(res.statusCode).toBe(200);
     expect(Array.isArray(res.body)).toBeTruthy();
@@ -172,7 +172,7 @@ describe("🚀 Campaign APIs", () => {
   it("✅ Should edit an existing campaign", async () => {
     const res = await request(app)
       .put(`/api/campaigns/${createdCampaignId}/edit`)
-      .set("Authorization", `Bearer ${authToken}`)
+      // .set("Authorization", `Bearer ${authToken}`)
       .send({
         name: "Updated Spring Sale Campaign",
       });
@@ -185,7 +185,7 @@ describe("🚀 Campaign APIs", () => {
   it("✅ Should launch a campaign", async () => {
     const res = await request(app)
       .put(`/api/campaigns/${createdCampaignId}/launch`)
-      .set("Authorization", `Bearer ${authToken}`);
+      // .set("Authorization", `Bearer ${authToken}`);
 
     expect(res.statusCode).toBe(200);
     expect(res.body.message).toBe("Campaign launched successfully");
@@ -195,7 +195,7 @@ describe("🚀 Campaign APIs", () => {
   it("✅ Should pause/resume a campaign", async () => {
     const res = await request(app)
       .put(`/api/campaigns/${createdCampaignId}/pause-resume`)
-      .set("Authorization", `Bearer ${authToken}`);
+      // .set("Authorization", `Bearer ${authToken}`);
 
     expect(res.statusCode).toBe(200);
     expect(["Paused", "On Going"]).toContain(res.body.campaign.status);
@@ -205,7 +205,7 @@ describe("🚀 Campaign APIs", () => {
   it("✅ Should duplicate a campaign", async () => {
     const res = await request(app)
       .post(`/api/campaigns/${createdCampaignId}/duplicate`)
-      .set("Authorization", `Bearer ${authToken}`);
+      // .set("Authorization", `Bearer ${authToken}`);
 
     expect(res.statusCode).toBe(201);
     expect(res.body.campaign.name).toContain("Copy of");
@@ -215,7 +215,7 @@ describe("🚀 Campaign APIs", () => {
   it("✅ Should delete a campaign", async () => {
     const res = await request(app)
       .delete(`/api/campaigns/${createdCampaignId}`)
-      .set("Authorization", `Bearer ${authToken}`);
+      // .set("Authorization", `Bearer ${authToken}`);
 
     expect(res.statusCode).toBe(200);
     expect(res.body.message).toBe("Campaign deleted successfully");

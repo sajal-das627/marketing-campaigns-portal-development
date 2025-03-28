@@ -146,7 +146,7 @@ exports.getCampaigns = getCampaigns;
 const createOrUpdateCampaign = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { name, type, audience, template, schedule, status } = req.body;
-        if (!name || !type || !audience || !template || !schedule) {
+        if (!name || !type || !audience || !template /*|| !schedule*/) {
             return res.status(400).json({ message: "All fields are required" });
         }
         const newCampaign = new Campaign_1.default({
@@ -154,7 +154,7 @@ const createOrUpdateCampaign = (req, res) => __awaiter(void 0, void 0, void 0, f
             type,
             audience,
             template,
-            schedule,
+            schedule: schedule || null, // ✅ Allow null schedule
             status: status || "Draft",
         });
         yield newCampaign.save();

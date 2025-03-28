@@ -154,7 +154,7 @@ export const createOrUpdateCampaign = async (req: Request, res: Response) => {
   try {
     const { name, type, audience, template, schedule, status } = req.body;
 
-    if (!name || !type || !audience || !template || !schedule) {
+    if (!name || !type || !audience || !template /*|| !schedule*/) {
       return res.status(400).json({ message: "All fields are required" });
     }
 
@@ -163,7 +163,7 @@ export const createOrUpdateCampaign = async (req: Request, res: Response) => {
       type,
       audience,
       template,
-      schedule,
+      schedule: schedule || null, // ✅ Allow null schedule
       status: status || "Draft",
     });
 

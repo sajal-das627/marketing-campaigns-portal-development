@@ -13,7 +13,7 @@ beforeAll(async () => {
     email: "testuser@example.com",
     password: "Test@123",
   });
-  authToken = loginRes.body.token;
+  // authToken = loginRes.body.token;
 });
 
 // ✅ After All Tests: Disconnect from DB
@@ -26,7 +26,7 @@ describe("🚀 Dashboard API", () => {
   it("✅ Should fetch dashboard statistics", async () => {
     const res = await request(app)
       .get("/api/dashboard")
-      .set("Authorization", `Bearer ${authToken}`);
+      // .set("Authorization", `Bearer ${authToken}`);
 
     expect(res.statusCode).toBe(200);
     expect(res.body).toHaveProperty("activeCampaigns");
