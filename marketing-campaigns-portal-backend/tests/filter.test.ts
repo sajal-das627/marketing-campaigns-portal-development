@@ -15,7 +15,7 @@ beforeAll(async () => {
     email: "testuser@example.com",
     password: "Test@123",
   });
-  authToken = loginRes.body.token;
+  // authToken = loginRes.body.token;
 });
 
 // ✅ After All Tests: Disconnect from DB
@@ -28,7 +28,7 @@ describe("🚀 Filter Builder APIs", () => {
   it("✅ Should create a new filter", async () => {
     const res = await request(app)
       .post("/api/filters")
-      .set("Authorization", `Bearer ${authToken}`)
+      // .set("Authorization", `Bearer ${authToken}`)
       .send({
         name: "VIP Customers",
         conditions: [{ field: "age", operator: ">", value: "25" }],
@@ -43,7 +43,7 @@ describe("🚀 Filter Builder APIs", () => {
   it("✅ Should edit an existing filter", async () => {
     const res = await request(app)
       .put(`/api/filters/${createdFilterId}`)
-      .set("Authorization", `Bearer ${authToken}`)
+      // .set("Authorization", `Bearer ${authToken}`)
       .send({
         name: "Updated VIP Customers",
       });
@@ -56,7 +56,7 @@ describe("🚀 Filter Builder APIs", () => {
   it("✅ Should duplicate a filter", async () => {
     const res = await request(app)
       .post(`/api/filters/${createdFilterId}/duplicate`)
-      .set("Authorization", `Bearer ${authToken}`);
+      // .set("Authorization", `Bearer ${authToken}`);
 
     expect(res.statusCode).toBe(201);
     expect(res.body.filter.name).toContain("Copy of");
@@ -66,7 +66,7 @@ describe("🚀 Filter Builder APIs", () => {
   it("✅ Should fetch all filters", async () => {
     const res = await request(app)
       .get("/api/filters")
-      .set("Authorization", `Bearer ${authToken}`);
+      // .set("Authorization", `Bearer ${authToken}`);
 
     expect(res.statusCode).toBe(200);
     expect(Array.isArray(res.body)).toBeTruthy();
@@ -76,7 +76,7 @@ describe("🚀 Filter Builder APIs", () => {
   it("✅ Should get an estimated audience", async () => {
     const res = await request(app)
       .post("/api/filters/preview")
-      .set("Authorization", `Bearer ${authToken}`)
+      // .set("Authorization", `Bearer ${authToken}`)
       .send({
         conditions: [{ field: "location", operator: "==", value: "USA" }],
       });
@@ -89,7 +89,7 @@ describe("🚀 Filter Builder APIs", () => {
   it("✅ Should delete a filter", async () => {
     const res = await request(app)
       .delete(`/api/filters/${createdFilterId}`)
-      .set("Authorization", `Bearer ${authToken}`);
+      // .set("Authorization", `Bearer ${authToken}`);
 
     expect(res.statusCode).toBe(200);
     expect(res.body.message).toBe("Filter deleted successfully");

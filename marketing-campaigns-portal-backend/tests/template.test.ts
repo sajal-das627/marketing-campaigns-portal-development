@@ -55,7 +55,7 @@ beforeAll(async () => {
     email: "testuser@example.com",
     password: "Test@123",
   });
-  authToken = loginRes.body.token;
+  // authToken = loginRes.body.token;
 });
 
 // ✅ After All Tests: Disconnect from DB
@@ -68,7 +68,7 @@ describe("🚀 Template APIs", () => {
   it("✅ Should fetch all templates", async () => {
     const res = await request(app)
       .get("/api/templates")
-      .set("Authorization", `Bearer ${authToken}`);
+      // .set("Authorization", `Bearer ${authToken}`);
 
     expect(res.statusCode).toBe(200);
     expect(Array.isArray(res.body)).toBeTruthy();
@@ -78,7 +78,7 @@ describe("🚀 Template APIs", () => {
   it("✅ Should fetch recently used templates", async () => {
     const res = await request(app)
       .get("/api/templates/recent")
-      .set("Authorization", `Bearer ${authToken}`);
+      // .set("Authorization", `Bearer ${authToken}`);
 
     expect(res.statusCode).toBe(200);
     expect(Array.isArray(res.body)).toBeTruthy();
@@ -88,7 +88,7 @@ describe("🚀 Template APIs", () => {
   it("✅ Should fetch past campaign templates", async () => {
     const res = await request(app)
       .get("/api/templates/past")
-      .set("Authorization", `Bearer ${authToken}`);
+      // .set("Authorization", `Bearer ${authToken}`);
 
     expect(res.statusCode).toBe(200);
     expect(Array.isArray(res.body)).toBeTruthy();
@@ -99,7 +99,7 @@ describe("🚀 Template APIs", () => {
     // Create a sample template first
     const templateRes = await request(app)
       .post("/api/templates")
-      .set("Authorization", `Bearer ${authToken}`)
+      // .set("Authorization", `Bearer ${authToken}`)
       .send({
         name: "New Template",
         category: "Marketing",
@@ -113,7 +113,7 @@ describe("🚀 Template APIs", () => {
     // Toggle favorite status
     const res = await request(app)
       .put(`/api/templates/${createdTemplateId}/favorite`)
-      .set("Authorization", `Bearer ${authToken}`);
+      // .set("Authorization", `Bearer ${authToken}`);
 
     expect(res.statusCode).toBe(200);
     expect(res.body.message).toBe("Template favorite status updated");

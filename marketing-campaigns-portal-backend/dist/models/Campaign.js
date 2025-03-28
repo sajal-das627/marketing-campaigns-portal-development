@@ -81,15 +81,17 @@ const CampaignSchema = new mongoose_1.Schema({
     template: { type: mongoose_1.default.Schema.Types.ObjectId, ref: "Template", required: true },
     status: { type: String, enum: ["Scheduled", "Draft", "Active", "Completed", "On Going", "Expired", "Paused", "Not Yet Started"], required: true },
     createdAt: { type: Date, default: Date.now },
+    updatedAt: { type: Date, default: Date.now },
     publishedDate: { type: Date, default: null }, // ✅ Ensure `publishedDate` is optional & defaults to null
     openRate: { type: Number, default: 0 },
     ctr: { type: Number, default: 0 },
     delivered: { type: Number, default: 0 },
+    // ✅ Make schedule optional
     schedule: {
-        frequency: { type: String, enum: ["Once", "Daily", "Weekly", "Monthly"], required: true }, // ✅ Make optional
-        time: { type: String, required: true }, // ✅ Make optional
-        startDate: { type: Date, required: true }, // ✅ Allow missing startDate for drafts
-        endDate: { type: Date, required: true },
+        frequency: { type: String, enum: ["Once", "Daily", "Weekly", "Monthly"], required: false }, // ✅ Make optional
+        time: { type: String, required: false }, // ✅ Make optional
+        startDate: { type: Date, required: false }, // ✅ Allow missing startDate for drafts
+        endDate: { type: Date, required: false },
     },
 });
 const Campaign = mongoose_1.default.model("Campaign", CampaignSchema);

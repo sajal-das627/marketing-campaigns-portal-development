@@ -25,7 +25,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>13/13</span>
+                <span class='fraction'>12/12</span>
             </div>
         
             
@@ -46,7 +46,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>13/13</span>
+                <span class='fraction'>12/12</span>
             </div>
         
             
@@ -96,7 +96,8 @@
 <a name='L31'></a><a href='#L31'>31</a>
 <a name='L32'></a><a href='#L32'>32</a>
 <a name='L33'></a><a href='#L33'>33</a>
-<a name='L34'></a><a href='#L34'>34</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L34'></a><a href='#L34'>34</a>
+<a name='L35'></a><a href='#L35'>35</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -111,22 +112,23 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">4x</span>
-<span class="cline-any cline-yes">4x</span>
-<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-yes">5x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">4x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">4x</span>
-<span class="cline-any cline-yes">4x</span>
-<span class="cline-any cline-yes">4x</span>
-<span class="cline-any cline-yes">4x</span>
-<span class="cline-any cline-yes">4x</span>
-<span class="cline-any cline-yes">4x</span>
-<span class="cline-any cline-yes">4x</span>
-<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-yes">5x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">5x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">/*import express from "express";
@@ -145,19 +147,20 @@ router.delete("/:id", authenticateToken, deleteCampaign);
 export default router; */
 &nbsp;
 import express from "express";
-import { getCampaignList, createOrUpdateCampaign, editCampaign, toggleCampaignStatus, duplicateCampaign,  getCampaigns, launchCampaign, deleteCampaign } from "../controllers/campaignController";
+import { getCampaigns, getCampaignById, createOrUpdateCampaign, editCampaign, toggleCampaignStatus, duplicateCampaign,  launchCampaign, deleteCampaign } from "../controllers/campaignController";
 import { authenticateToken } from "../middleware/authMiddleware";
 &nbsp;
 const router = express.Router();
 &nbsp;
-router.get("/campaigns", authenticateToken, getCampaignList); // ✅ Get Campaign List
-router.post("/", authenticateToken, createOrUpdateCampaign); // Create/Update Campaign
-router.get("/", authenticateToken, getCampaigns); // Get All Campaigns
-router.put("/:campaignId/launch", authenticateToken, launchCampaign); // Launch Campaign
-router.delete("/:campaignId", authenticateToken, deleteCampaign); // Delete Campaign
-router.put("/:campaignId/edit", authenticateToken, editCampaign); // ✅ Edit Campaign
-router.put("/:campaignId/pause-resume", authenticateToken, toggleCampaignStatus); // ✅ Pause/Resume Campaign
-router.post("/:campaignId/duplicate", authenticateToken, duplicateCampaign); // ✅ Duplicate Campaign
+// router.get("/campaigns", /*authenticateToken,*/ getCampaignList); // ✅ Get Campaign List
+router.post("/", /*authenticateToken,*/ createOrUpdateCampaign); // Create/Update Campaign
+router.get("/", /*authenticateToken,*/  getCampaigns); // Get All Campaigns
+router.put("/:campaignId/launch", /*authenticateToken,*/ launchCampaign); // Launch Campaign
+router.delete("/:campaignId", /*authenticateToken,*/  deleteCampaign); // Delete Campaign
+router.put("/:campaignId/edit", /*authenticateToken,*/ editCampaign); // ✅ Edit Campaign
+router.get("/:campaignId", /*authenticateToken,*/ getCampaignById); // ✅ Get Campaign By ID
+router.put("/:campaignId/pause-resume", /*authenticateToken,*/ toggleCampaignStatus); // ✅ Pause/Resume Campaign
+router.post("/:campaignId/duplicate", /*authenticateToken,*/ duplicateCampaign); // ✅ Duplicate Campaign
 &nbsp;
 export default router;
 &nbsp;
@@ -169,7 +172,7 @@ export default router;
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-03-20T13:30:40.569Z
+                at 2025-03-27T17:00:56.736Z
             </div>
         <script src="../../prettify.js"></script>
         <script>

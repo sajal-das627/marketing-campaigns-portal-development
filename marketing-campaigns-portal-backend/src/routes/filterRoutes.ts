@@ -21,7 +21,7 @@ router.put("/:filterId", /*authenticateToken,*/ editFilter); // Edit Filter
 router.post("/:filterId/duplicate", /*authenticateToken,*/ duplicateFilter); // Duplicate Filter
 router.get("/", /*authenticateToken,*/ getFilters); // Get All Filters
 router.get("/:filterId", /*authenticateToken,*/ getSingleFilter); // Get Single Filters
-router.get("/apply/:filterId", /*authenticateToken,*/ applyFilter);
+router.get("/apply/:filterId", /*authenticateToken,*/ /*applyFilter*/ getSingleFilter);
 router.post("/preview", /*authenticateToken,*/ previewAudience); // Get Estimated Audience
 router.delete("/:filterId", /*authenticateToken,*/ deleteFilter); // Delete Filter
 
