@@ -50,7 +50,13 @@ const FilterSchema = new mongoose.Schema({
   lastUsed: { type: String, default: "Never" },  
   ctr: { type: Number, default: 0 },  
   createdAt: { type: Date, default: Date.now },  
-  lastModified: { type: Date, default: Date.now }
+  lastModified: { type: Date, default: Date.now },
+   // ✅ Add customFields as a flexible object (key-value pairs)
+   customFields: { 
+    type: Map, 
+    of: String, // or `mongoose.Schema.Types.Mixed` for flexibility 
+    default: {} 
+  }
 });
 
 const Filter = mongoose.model("Filter", FilterSchema);
