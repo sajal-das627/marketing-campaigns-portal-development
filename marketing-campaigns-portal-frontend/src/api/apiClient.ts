@@ -86,8 +86,8 @@ const apiClient = axios.create({
     const response = await axios.put(`${process.env.REACT_APP_API_BASE_URL}/campaigns/${campaignId}/edit`, updatedData);
     return response.data;
   };
-  
-
+  // filter data for view on create campaign
+  export const fetchFilterData = (filterId: string) => apiClient.get(`/filters/${filterId}`);
 
   // Filters API
 export const createFilter = (filterData: any) => apiClient.post("/filters", filterData);

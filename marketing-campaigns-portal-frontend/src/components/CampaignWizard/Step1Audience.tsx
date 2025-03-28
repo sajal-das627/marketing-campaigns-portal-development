@@ -1,8 +1,14 @@
 import React, {useEffect, useState} from "react";
-import { Grid2 as Grid, Card, CardActionArea, CardContent, Box, Typography, Button } from "@mui/material";
+import { Grid2 as Grid, Card, IconButton, CardActionArea, CardContent, Box, Typography, Button } from "@mui/material";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import { Types } from "mongoose";
 import { Audience, CampaignData } from "../../types/campaign";
+import FilterModal from './FilterModal'
+
+import { fetchFiltersData } from "../../redux/slices/filterSlice"
+import { RootState } from "../../redux/store";
+import { useSelector } from "react-redux";
+import { useAppDispatch } from "../../redux/hooks"
 
 const audienceOptions: Audience[] = [
   {
@@ -33,6 +39,7 @@ interface AudienceSelectorProps {
 
 const AudienceSelector: React.FC<AudienceSelectorProps> = ({ handleChange, campaignData, setAudienceName}) => {
 
+  const [isfilterModalOpen, setIsfilterModalOpen] = useState<boolean>(false);
   useEffect(()=>{
     if(campaignData.audience){
       const selectedAudience = audienceOptions.find(
@@ -43,27 +50,41 @@ const AudienceSelector: React.FC<AudienceSelectorProps> = ({ handleChange, campa
       }
     }
   })
+
+  const dispatch = useAppDispatch();
+  const filterState = useSelector((state: RootState) => state.filter)
+  useEffect(()=>{
+    dispatch(fetchFiltersData("67db0375cb74b80253d14af7"));
+    console.log()
+  }, [dispatch]);
   
-   const isSelected = (selectVal: number | string | Types.ObjectId) => {
+  const handleClose = () =>{
+    setIsfilterModalOpen(false)
+  }
+
+  const isSelected = (selectVal: number | string | Types.ObjectId) => {
       return campaignData.audience === selectVal ? '2px solid #007BFF' : '1px solid #ddd';
     };
+
+  const handleFilterModal=()=>{
+    setIsfilterModalOpen(true);
+  }
 
   return (
     
     <Box sx={{ boxSizing: 'border-box' }}>
+      {JSON.stringify(filterState.data, null, 2)}
         <Box display="flex"
         sx={{
             justifyContent: { md: "space-between", xs: "flex-start" },
             flexDirection: { xs: "column", md: "row" },
             alignItems: { xs: "flex-start", sm: "flex-start", md: "center" }
-        }}
-        mt={2}
-        mb={2}>
+        }} mt={2} mb={2}>
         <Box>
             <Typography variant="h6">Select Audience Filter</Typography>
             <Typography sx={{ color: "#626262", }}>Choose from saved filters or create new filter.</Typography>
         </Box>
-        <Button variant="contained" sx={{ bgcolor: '#0057D9', color: '#fff', fontSize: { xs: '12px', sm: '14px' }, p: 1, ":hover": { bgcolor: '#2068d5' } }}> +&nbsp;Create&nbsp;Campaign  </Button>
+        <Button variant="contained" sx={{ bgcolor: '#0057D9', color: '#fff', fontSize: { xs: '12px', sm: '14px' }, p: 1, ":hover": { bgcolor: '#2068d5' } }}> +&nbsp;Create&nbsp;New&nbsp;Filter  </Button>
         </Box>
 
     <Grid container spacing={2}>
@@ -106,7 +127,13 @@ const AudienceSelector: React.FC<AudienceSelectorProps> = ({ handleChange, campa
                     paddingLeft: "8px",
                   }}
                 >
-                    <VisibilityIcon />
+                  <IconButton 
+                  onClick={(e) => {
+                    e.stopPropagation();  
+                    handleFilterModal();
+                  }} ><VisibilityIcon />
+                  </IconButton>
+                    
                   <span>View</span>
                 </Typography>
               </CardContent>
@@ -115,6 +142,18 @@ const AudienceSelector: React.FC<AudienceSelectorProps> = ({ handleChange, campa
         </Grid>
       ))}
     </Grid>
+    {filterState.data && (
+  <FilterModal 
+    open={isfilterModalOpen} 
+    onClose={handleClose}
+    name={filterState.data.name ?? ""} 
+    description={filterState.data.description ?? ""} 
+    tags={filterState.data.tags?? ""}  // Ensure it's an array if needed
+    createdOn={filterState.data.createdOn ?? ""} 
+    audience={filterState.data.audienceCount ?? 0}  
+  />
+)}
+  
 
     </Box>
   );

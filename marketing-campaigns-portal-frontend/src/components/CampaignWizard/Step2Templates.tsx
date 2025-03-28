@@ -1,4 +1,4 @@
-import React, {useEffect} from "react";
+import React, {useState, useEffect} from "react";
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import { Types } from "mongoose";
 import {
@@ -17,8 +17,7 @@ import {
   Container,
   Grid2 as Grid,
 } from "@mui/material";
-import { CampaignData, Template } from '../../types/campaign'
-
+import { CampaignData, Template } from '../../types/campaign';
 interface Step2TemplatesProps {
   handleChange: (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => void;
   campaignData: CampaignData;
@@ -77,9 +76,10 @@ const templates: Template[] = [
   },
 ];
 
+
+
 const Step2Templates: React.FC<Step2TemplatesProps> = ({ handleChange, campaignData, templateData, setTemplateData }) => {
 
-  // const [selectedType, setSelectedType] = useState<"Email" | "SMS" | "Push Notifications">("Email");
   // Filter templates based on the selected type
   const filteredTemplates = templates.filter((template) => template.type === templateData.type);
 
@@ -106,7 +106,8 @@ const Step2Templates: React.FC<Step2TemplatesProps> = ({ handleChange, campaignD
         console.warn("No matching template found for campaignData.template");
       }
     }
-  }, [campaignData.template, filteredTemplates]);
+  }, [campaignData.template]);
+
   
   return (
     <Box sx={{ boxSizing: 'border-box' }}>
@@ -166,14 +167,18 @@ const Step2Templates: React.FC<Step2TemplatesProps> = ({ handleChange, campaignD
                   image={template.image}
                   alt={template.title}
                 />
-                <CardContent sx={{}}>
+                <CardContent>
                   <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, justifyContent: { sx: 'none', md: 'center' }, alignItems: { sx: 'none', md: 'center' } }}>
                     <Typography variant="h6" sx={{ fontSize: { xs: '14px', sm: '15px', md: '18px' } }} >{template.title}&nbsp; </Typography>
                     <Typography component="span" sx={{ fontSize: { xs: '10px', sm: '12px', md: '12px', lg: '14px' }, color: '#ABABAB' }}>Created on {template.created_at}</Typography>
                   </Box>
                   <Typography variant="body2" sx={{ color: "#626262" }}>{template.description}</Typography>
 
-                  <Typography sx={{ alignItems: "baseline", color: "#495057", fontSize: { xs: '12px', sm: '14px' }, }}><IconButton><VisibilityIcon /></IconButton>View Template</Typography>
+                  <Typography sx={{ alignItems: "baseline", color: "#495057", fontSize: { xs: '12px', sm: '14px' }, }}>
+                    <IconButton  onClick={(e) => {
+                        e.stopPropagation();  
+                      
+                      }} ><VisibilityIcon /></IconButton>View Template</Typography>
 
                 </CardContent>
               </Card>

@@ -71,8 +71,6 @@ const CustomConnector = styled(StepConnector)(({ theme }) => ({
   },
 }));
 
-const steps = ['Campaign Type', 'Audience', 'Template', 'Schedule', 'Review & Launch'];
-const stepIcons = [TvIcon, PeopleIcon, DescriptionIcon, CalendarTodayIcon, RateReviewIcon];
 // const stepIcons = [
 //   '/icons/presention-chart.png',
 //   '/icons/people.png',
@@ -108,6 +106,16 @@ export default function CampaignCreator() {
     ctr: 0,
     delivered: 0,
   });
+
+  let steps = [], stepIcons: React.ElementType[] = [];
+  if(campaignData.type == "Real Time"){  
+     steps = ['Campaign Type', 'Audience', 'Template', 'Review & Launch'];
+     stepIcons = [TvIcon, PeopleIcon, DescriptionIcon, RateReviewIcon];
+  }
+  else{    
+       steps = ['Campaign Type', 'Audience', 'Template', 'Schedule', 'Review & Launch'];
+       stepIcons = [TvIcon, PeopleIcon, DescriptionIcon, CalendarTodayIcon, RateReviewIcon];
+  }
 
   const { id } = useParams<{id: string}>();
   console.log("id: ", id);
@@ -184,16 +192,19 @@ export default function CampaignCreator() {
       break;
 
     case 3:
-      if (!campaignData.schedule?.frequency) {
-        errors.push("Schedule frequency is required.");
-      }
-      if (!campaignData.schedule?.startDate) {
-        errors.push("Start date is required.");
-      }
-      if (campaignData.schedule?.endDate && new Date(campaignData.schedule.startDate) > new Date(campaignData.schedule.endDate)) {
-        errors.push("End date must be after start date.");
-      }
+      if(campaignData.type !== "Real Time"){
+        if (!campaignData.schedule?.frequency) {
+          errors.push("Schedule frequency is required.");
+        }
+        if (!campaignData.schedule?.startDate) {
+          errors.push("Start date is required.");
+        }
+        if (campaignData.schedule?.endDate && new Date(campaignData.schedule.startDate) > new Date(campaignData.schedule.endDate)) {
+          errors.push("End date must be after start date.");
+        }
+      }      
       break;
+      
     default:
       break;
     }
@@ -208,19 +219,18 @@ export default function CampaignCreator() {
       setActiveStep((prevStep) => prevStep + 1);
     } else {
       try{
-        handleChange({target: {name: "status", value: "Scheduled" }}as any);
-        //navigate to dashbord
+        const updatedData = { ...campaignData, status: "Scheduled" };
+        
         if(isEditMode){
-          const result =  dispatch(updateCampaign({ campaignId: String(id), updatedData: campaignData })).unwrap(); 
-          setIsEditMode(false);
+          const result = await dispatch(updateCampaign({ campaignId: String(id), updatedData })).unwrap();           
           console.log('Submitting final data: ', result);
           }
         else{
-          const result = await dispatch(createCampaign(campaignData)).unwrap();
+          const result = await dispatch(createCampaign(updatedData)).unwrap();
           console.log('Submitting final data: ', result);
         }        
         setOpen(true);
-        // console.log("ShowSuccessModal:", open)
+        setIsEditMode(false);
       }catch(error){
         console.log('Error');
       }
@@ -281,9 +291,15 @@ export default function CampaignCreator() {
   });
 }
 };
+
   console.log('campaignData: ', campaignData);
+  console.log("isEditMode", isEditMode);
   const renderStepContent = (step: number) => {
-    switch (step) {
+    let adjustedStep = step;
+    if(campaignData.type === "Real Time" && step >= 3){
+      adjustedStep = step + 1;
+    }
+    switch (adjustedStep) {
       case 0:
         return <Step0CampaignType handleChange={handleChange} campaignData={campaignData} />;
       case 1:
@@ -384,7 +400,7 @@ export default function CampaignCreator() {
                     {(activeStep === steps.length - 1) ? 'Launch Campaign' : activeStep === 0 ? 'Next' : 'Save & Continue'}
                   </Button>
                   <SuccessModal open={open} onClose={() => setOpen(false)}
-                  title={"Success"}
+                  title={id? "Campaign Updated Successfully" : "Campaign Created Successfully"}
                   message={`"${audienceName}" Filter Saved Successfully`} />                    
                 </Grid>
               </Grid>

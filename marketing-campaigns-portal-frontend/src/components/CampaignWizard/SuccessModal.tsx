@@ -22,7 +22,7 @@ const SuccessModal: React.FC<SuccessModalProps> = ({
   const navigation = useNavigate();
 
   const handleNavigation =() =>{
-    navigation("/");
+    navigation("/manage-campaign");
   }
   return (
     <Dialog
@@ -31,10 +31,18 @@ const SuccessModal: React.FC<SuccessModalProps> = ({
       aria-labelledby="success-dialog-title"
       aria-describedby="success-dialog-description"
     >
-      <DialogTitle id="success-dialog-title" sx={{ display: 'flex', alignItems: 'center' }}>
-        <CheckCircleIcon  sx={{ marginRight: 1, color:"#0057D9", fontSize:"34px" }} />
-        <Typography variant="h6" sx={{fontWeight:"semi-bold"}}>{title || "Success"}</Typography>
-      </DialogTitle>
+      <DialogTitle
+  id="success-dialog-title"
+  sx={{ display: 'flex', alignItems: 'center' }}
+>
+  <CheckCircleIcon
+    sx={{ marginRight: 1, color: "#0057D9", fontSize: "34px" }}
+  />
+  <Typography variant="h6" component="span" sx={{ fontWeight: "semi-bold" }}>
+    {title || "Success"}
+  </Typography>
+</DialogTitle>
+
 
       <DialogContent>
         <DialogContentText id="success-dialog-description" sx={{color: '#A3AABC', fontSize:'12px'}}>
