@@ -22,7 +22,7 @@ router.put("/:filterId", /*authenticateToken,*/ filterController_1.editFilter); 
 router.post("/:filterId/duplicate", /*authenticateToken,*/ filterController_1.duplicateFilter); // Duplicate Filter
 router.get("/", /*authenticateToken,*/ filterController_1.getFilters); // Get All Filters
 router.get("/:filterId", /*authenticateToken,*/ filterController_1.getSingleFilter); // Get Single Filters
-router.get("/apply/:filterId", /*authenticateToken,*/ filterController_1.applyFilter);
+router.get("/apply/:filterId", /*authenticateToken,*/ /*applyFilter*/ filterController_1.getSingleFilter);
 router.post("/preview", /*authenticateToken,*/ filterController_1.previewAudience); // Get Estimated Audience
 router.delete("/:filterId", /*authenticateToken,*/ filterController_1.deleteFilter); // Delete Filter
 exports.default = router;

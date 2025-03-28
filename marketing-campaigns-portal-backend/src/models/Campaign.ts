@@ -68,6 +68,7 @@ const CampaignSchema: Schema = new Schema({
   template: { type: mongoose.Schema.Types.ObjectId, ref: "Template", required: true },
   status: { type: String, enum: ["Scheduled", "Draft", "Active", "Completed", "On Going", "Expired", "Paused", "Not Yet Started"], required: true },
   createdAt: { type: Date, default: Date.now },
+  updatedAt: { type: Date, default: Date.now },
   publishedDate: { type: Date, default: null }, // ✅ Ensure `publishedDate` is optional & defaults to null
   openRate: { type: Number, default: 0 },  
   ctr: { type: Number, default: 0 },  
