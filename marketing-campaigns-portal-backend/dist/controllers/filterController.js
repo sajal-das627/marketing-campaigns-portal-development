@@ -49,7 +49,7 @@ const Filter_1 = __importDefault(require("../models/Filter"));
 };*/
 const createOrUpdateFilter = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const { name, description, tags, conditions, logicalOperator, isDraft } = req.body;
+        const { name, description, tags, conditions, logicalOperator, customFields, isDraft } = req.body;
         if (!name || !conditions || !logicalOperator) {
             return res.status(400).json({ message: "Name, conditions, and logicalOperator are required" });
         }
@@ -59,6 +59,11 @@ const createOrUpdateFilter = (req, res) => __awaiter(void 0, void 0, void 0, fun
         }
         // ✅ Dummy Audience Estimation Logic (Replace with real logic)
         const estimatedAudience = Math.floor(Math.random() * 10000);
+        // ✅ Handle Custom Fields (Adding new custom fields)
+        let updatedCustomFields = {};
+        if (customFields && typeof customFields === "object") {
+            updatedCustomFields = customFields; // Store custom fields if provided
+        }
         const newFilter = new Filter_1.default({
             name,
             description,
@@ -66,6 +71,7 @@ const createOrUpdateFilter = (req, res) => __awaiter(void 0, void 0, void 0, fun
             userId: "67daedeaff85ef645f71206f",
             conditions, // ✅ Now storing grouped conditions
             logicalOperator,
+            customFields: updatedCustomFields, // Store custom fields
             estimatedAudience,
             isDraft,
         });
@@ -105,27 +111,43 @@ exports.createOrUpdateFilter = createOrUpdateFilter;
 const editFilter = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { filterId } = req.params;
-        const { name, description, tags, groups, isDraft } = req.body;
+        const { name, description, tags, groups, isDraft, customFields } = req.body;
+        // Validation: Ensure required fields are present
         if (!name || !groups || !Array.isArray(groups) || groups.length === 0) {
-            return res.status(400).json({ message: "Invalid filter structure" });
+            return res.status(400).json({ message: "Invalid filter structure. Groups must be provided." });
         }
         // Ensure each group contains at least one condition
         for (const group of groups) {
             if (!group.conditions || !Array.isArray(group.conditions) || group.conditions.length === 0) {
-                return res.status(400).json({ message: "Each group must contain at least one condition" });
+                return res.status(400).json({ message: `Each group must contain at least one condition.` });
             }
+        }
+        // Processing groups to maintain the AND/OR structure
+        const updatedGroups = groups.map((group) => ({
+            groupId: group.groupId || `Group_${Date.now()}`, // Assign a unique Group ID if missing
+            conditions: group.conditions.map((condition) => ({
+                field: condition.field,
+                operator: condition.operator,
+                value: condition.value
+            })),
+        }));
+        // Handle Custom Fields: Adding & Updating
+        let updatedCustomFields = {};
+        if (customFields && typeof customFields === "object") {
+            updatedCustomFields = customFields; // Store custom fields if provided
         }
         // Calculate estimated audience size (Dummy Logic)
         const estimatedAudience = Math.floor(Math.random() * 10000);
-        // Update the filter document
+        // Update the filter document in the database
         const updatedFilter = yield Filter_1.default.findOneAndUpdate({ _id: filterId, userId: "67daedeaff85ef645f71206f" }, {
             name,
             description,
             tags,
-            groups, // Store groups with conditions inside them
+            groups: updatedGroups, // Store structured groups
             estimatedAudience,
             isDraft,
-            lastModified: new Date()
+            customFields: updatedCustomFields, // Store updated custom fields
+            lastModified: new Date(),
         }, { new: true });
         if (!updatedFilter) {
             return res.status(404).json({ message: "Filter not found" });
