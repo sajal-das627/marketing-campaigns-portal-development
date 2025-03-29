@@ -40,13 +40,16 @@ const Step4Review: React.FC<Step4ReviewProps> = ({ campaignData , audienceName, 
                                 <Typography sx={{ color: '#ABABAB' }}>Template</Typography>
                                 <Typography> {templateData.type + " - " + templateData.name}</Typography>
                             </Grid>
-                            <Grid size={5}>
+                            {campaignData.schedule && campaignData.type !== "Real Time" &&(
+                                <Grid size={5}>
                                 <Typography sx={{ color: '#ABABAB' }}>Schedule</Typography>
-                                <Typography>{campaignData.schedule.frequency} at &nbsp;
-                                    {String(campaignData.schedule.time)}, starting from {String(campaignData.schedule.startDate).slice(0, 10)}.<br />
-                                    Ends on {String(campaignData.schedule.endDate).slice(0, 10)}
+                                <Typography>{campaignData.schedule?.frequency} at &nbsp;
+                                    {String(campaignData.schedule?.time)}, starting from {String(campaignData.schedule?.startDate).slice(0, 10)}.<br />
+                                    Ends on {String(campaignData.schedule?.endDate).slice(0, 10)}
                                 </Typography>
-                            </Grid>
+                            </Grid>                            
+                            )}
+                            
                         </Grid>
                     </CardContent>
                 </Card>

@@ -44,7 +44,7 @@ const ScheduleForm: React.FC<ScheduleFormProps> = ({ handleChange, campaignData,
             Select Frequency
           </FormLabel>
           <RadioGroup
-            value={campaignData.schedule.frequency}
+            value={campaignData.schedule?.frequency}
             onChange={(e) => handleChange({ target: { name: "frequency", value: e.target.value } } as any)}>
 
             {/* <FormControlLabel value="Once" control={<Radio sx={{color:'#A2A2A2'}} />} label="Once" sx={{border:'solid 1px #ECEEF6', color:'#626262', mb:1}} /> */}
@@ -63,7 +63,7 @@ const ScheduleForm: React.FC<ScheduleFormProps> = ({ handleChange, campaignData,
               name="time"
               label="Time*"
               type="time"
-              value={campaignData.schedule.time}
+              value={campaignData.schedule?.time}
               onChange={(e) => handleChange(e)}
               InputLabelProps={{ shrink: true }}
               inputProps={{
@@ -75,7 +75,7 @@ const ScheduleForm: React.FC<ScheduleFormProps> = ({ handleChange, campaignData,
           <DatePicker
             name="startDate"
             label="Start Date*"
-            value={campaignData.schedule.startDate ? dayjs(campaignData.schedule.startDate) : null}
+            value={campaignData.schedule?.startDate ? dayjs(campaignData.schedule?.startDate) : null}
             onChange={(value, context) => handleDateChange(value, "startDate", context)}            format="MM/DD/YYYY"
             slotProps={{
               textField: {
@@ -89,7 +89,7 @@ const ScheduleForm: React.FC<ScheduleFormProps> = ({ handleChange, campaignData,
           <DatePicker
             name="endDate"
             label="End Date*"
-            value={campaignData.schedule.endDate ? dayjs(campaignData.schedule.endDate) : null}
+            value={campaignData.schedule?.endDate ? dayjs(campaignData.schedule?.endDate) : null}
             onChange={(value, context) => handleDateChange(value, "endDate", context)}            format="MM/DD/YYYY"
             slotProps={{
               textField: {

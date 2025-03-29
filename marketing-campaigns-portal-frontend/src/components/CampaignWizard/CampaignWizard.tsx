@@ -26,7 +26,7 @@ import Step2Templates from './Step2Templates';
 import Step3Schedule from './Step3Schedule';
 import Step4Review from './Step4Review';
 import Step0CampaignType from './Step0CampaignType';
-import { CampaignData } from '../../types/campaign';
+import { CampaignData, Schedule } from '../../types/campaign';
 import { createCampaign, fetchCampaignById } from '../../redux/slices/campaignSlice';
 import Step1Audience from './Step1Audience';
 import SuccessModal from './SuccessModal';
@@ -39,16 +39,16 @@ const SpacedBox = styled(Box)(({ theme }) => ({
   marginTop: theme.spacing(2),
   marginBottom: theme.spacing(2),
 }));
-const StyledCard = styled(Card)({
-  display: "flex",
-  alignItems: "center",
-  padding: "16px",
-  marginBottom: "16px",
-  "@media (max-width:600px)": {
-    flexDirection: "column",
-    alignItems: "flex-start",
-  },
-});
+// const StyledCard = styled(Card)({
+//   display: "flex",
+//   alignItems: "center",
+//   padding: "16px",
+//   marginBottom: "16px",
+//   "@media (max-width:600px)": {
+//     flexDirection: "column",
+//     alignItems: "flex-start",
+//   },
+// });
 
 const CustomConnector = styled(StepConnector)(({ theme }) => ({
   [`&.${stepConnectorClasses.alternativeLabel}`]: {
@@ -81,6 +81,7 @@ const CustomConnector = styled(StepConnector)(({ theme }) => ({
 export default function CampaignCreator() {
   const [isEditMode, setIsEditMode] = useState<boolean>(false);
   const [open, setOpen] = useState(false);
+  const [backupSchedule, setBackupSchedule] = useState<Schedule>({} as Schedule);
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
   const dispatch = useAppDispatch();
   const [activeStep, setActiveStep] = useState<number>(0);  
@@ -95,12 +96,13 @@ export default function CampaignCreator() {
     type: "",
     audience:  null as Types.ObjectId | null,
     template:  null as Types.ObjectId | null,
-    schedule: {      
-      frequency: '',
-      time: '09:00',
-      startDate:  new Date(new Date().setDate(new Date().getDate() + 1)),
-      endDate: new Date(new Date().setDate(new Date().getDate() + 1)),
-    },
+    schedule: null,
+    // {      
+    //   frequency: '',
+    //   time: '09:00',
+    //   startDate:  new Date(new Date().setDate(new Date().getDate() + 1)),
+    //   endDate: new Date(new Date().setDate(new Date().getDate() + 1)),
+    // },
     status: "Draft",
     openRate: 0,
     ctr: 0,
@@ -108,7 +110,7 @@ export default function CampaignCreator() {
   });
 
   let steps = [], stepIcons: React.ElementType[] = [];
-  if(campaignData.type == "Real Time"){  
+  if(campaignData.type === "Real Time"){  
      steps = ['Campaign Type', 'Audience', 'Template', 'Review & Launch'];
      stepIcons = [TvIcon, PeopleIcon, DescriptionIcon, RateReviewIcon];
   }
@@ -120,7 +122,7 @@ export default function CampaignCreator() {
   const { id } = useParams<{id: string}>();
   console.log("id: ", id);
   const campaignFromStore = useSelector((state: RootState) => state.campaign.selectedCampaign); 
-
+  //Edited Mode Data Updates: 
   useEffect(() => {
     if (id) {
       dispatch(fetchCampaignById(id));
@@ -131,7 +133,10 @@ export default function CampaignCreator() {
   // Update local state when the store updates
   useEffect(() => {
     if (campaignFromStore) {
-      setCampaignData(campaignFromStore);
+      setCampaignData({
+        ...campaignFromStore,
+        schedule: campaignFromStore.schedule ? { ...campaignFromStore.schedule } : null,
+      });
     }
   }, [campaignFromStore]);
 
@@ -142,12 +147,13 @@ export default function CampaignCreator() {
       type: "",
       audience: null,
       template: null,
-      schedule: {      
-        frequency: '',
-        time: '09:00',
-        startDate: new Date(new Date().setDate(new Date().getDate() + 1)),
-        endDate: new Date(new Date().setDate(new Date().getDate() + 1)),
-      },
+      schedule: null,
+      // {      
+      //   frequency: '',
+      //   time: '09:00',
+      //   startDate: new Date(new Date().setDate(new Date().getDate() + 1)),
+      //   endDate: new Date(new Date().setDate(new Date().getDate() + 1)),
+      // },
       status: "Draft",
       openRate: 0,
       ctr: 0,
@@ -165,6 +171,28 @@ export default function CampaignCreator() {
   //     setCampaignData(campaignFromStore);
   //   }
   // }, [campaignFromStore]); 
+
+  useEffect(() => {
+    if (campaignData.type === "Real Time") {
+      // Backup current schedule if it's not already null
+      if (campaignData.schedule !== null) {
+        setBackupSchedule(campaignData.schedule);
+      }
+      setCampaignData(prevData => ({
+        ...prevData,
+        schedule: null,
+      }));
+    } else {
+      // Restore schedule when type changes back
+      if (campaignData.schedule === null && backupSchedule) {
+        setCampaignData(prevData => ({
+          ...prevData,
+          schedule: backupSchedule,
+        }));
+      }
+    }
+    console.log("Schedule: ", campaignData.schedule);
+  }, [campaignData.type, campaignData.schedule, backupSchedule]); 
 
   const handleNextStep = async() => {
   let errors: string[] = [];
@@ -199,9 +227,12 @@ export default function CampaignCreator() {
         if (!campaignData.schedule?.startDate) {
           errors.push("Start date is required.");
         }
-        if (campaignData.schedule?.endDate && new Date(campaignData.schedule.startDate) > new Date(campaignData.schedule.endDate)) {
+        if ( campaignData.schedule?.startDate && campaignData.schedule?.endDate && new Date(campaignData.schedule?.startDate) > new Date(campaignData.schedule?.endDate)) {
           errors.push("End date must be after start date.");
         }
+        // if ( campaignData.schedule?.startDate && new Date(campaignData.schedule?.startDate) < new Date()) {
+        //   errors.push("The start date cannot be earlier than today");
+        // }
       }      
       break;
       
@@ -242,7 +273,7 @@ export default function CampaignCreator() {
       setActiveStep((prevStep) => prevStep - 1);
     }
   };
-
+  
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     console.log('Change event:', e.target.name, e.target.value);
     const { name, value } = e.target;
@@ -252,16 +283,15 @@ export default function CampaignCreator() {
       setCampaignData((prevData) => ({
         ...prevData,
         schedule: {
-          ...prevData.schedule,
-          [name]:
-            name === "startDate" ? new Date(value) : value,
+          ...(prevData.schedule || {}),
+          [name]: name === "startDate" ? new Date(value) : value,
         },
       }));
     } else {
       setCampaignData((prevData) => ({
         ...prevData,
         [name]:
-          name === "openRate" || name === "ctr" || name === "deliverd"
+          name === "openRate" || name === "ctr" || name === "delivered"
             ? Number(value)
             : name === "createdAt"
             ? new Date(value).toISOString()
@@ -276,7 +306,7 @@ export default function CampaignCreator() {
   context: { validationError: any }
 ) => {  if (value) {
   setCampaignData((prev) => {
-    if (type === "endDate" && prev.schedule.startDate && value.isBefore(dayjs(prev.schedule.startDate))) {
+    if (type === "endDate" && prev?.schedule?.startDate && value.isBefore(dayjs(prev?.schedule?.startDate))) {
       alert("End date cannot be before start date!");
       return prev; // Do not update state
     }

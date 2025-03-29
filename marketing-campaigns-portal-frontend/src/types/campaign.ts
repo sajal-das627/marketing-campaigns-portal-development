@@ -2,9 +2,9 @@ import { Types } from 'mongoose';
 
 
 export interface Schedule{
-  frequency: "Once" | "Daily" | "Weekly" | "Monthly" | "";
-  time: string,
-  startDate: Date;
+  frequency?: "Once" | "Daily" | "Weekly" | "Monthly" | "";
+  time?: string,
+  startDate?: Date;
   endDate?: Date;
 }
 
@@ -20,7 +20,7 @@ export interface CampaignData {
     openRate: number;
     ctr: number;
     delivered: number;
-    schedule: Schedule;
+    schedule: Schedule | null;
 } 
 
 export interface Audience {
