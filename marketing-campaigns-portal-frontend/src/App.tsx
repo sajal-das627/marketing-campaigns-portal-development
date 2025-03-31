@@ -47,6 +47,7 @@ const App = () => {
             <Route path="/create-campaign/:id?" element={<CampaignWizard />} />
             <Route path="/saved-filters" element={<SavedFilters />} />
             <Route path="/templates" element={<TemplateManagement />} />
+            <Route path="/create-templates" element={<TemplateManagement />} />
             <Route path="/manage-filters" element={<ManageFilter />} />
           </Routes>
         </Box>

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { List, ListItem, ListItemText, ListItemIcon, Collapse, Box, Drawer, useTheme } from "@mui/material";
 import { ExpandLess, ExpandMore, Dashboard as DashboardIcon, Campaign as CampaignIcon, Create as CreateIcon, ViewModule as TemplateIcon, Group as AudienceIcon, ChevronRight } from "@mui/icons-material";
+import DescriptionIcon from "@mui/icons-material/Description";
 
 const CollapsibleMenu = () => {
   const location = useLocation();
@@ -14,11 +15,20 @@ const CollapsibleMenu = () => {
       icon: <CampaignIcon />,
       active: false,
       subItems: [
-        { text: "Create Campaign", icon: <CreateIcon />, path: "/create-campaign", active: false },
         { text: "Manage Campaign", icon: <TemplateIcon />, path: "/manage-campaign", active: false },
+        { text: "Create Campaign", icon: <CreateIcon />, path: "/create-campaign", active: false },
       ],
     },
     { text: "Audience", icon: <AudienceIcon />, path: "/audience", active: false },
+    {
+      text: "Templates",
+      icon: <DescriptionIcon />,
+      active: false,
+      subItems: [
+        { text: "Manage Templates", path: "/templates", active: false },
+        { text: "Create New Templates", path: "/create-templates", active: false },
+      ],
+    },
   ]);
 
 

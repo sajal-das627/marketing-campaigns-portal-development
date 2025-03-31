@@ -8,9 +8,9 @@ import {
   Button,
   Box,
   Divider,
-  Alert,
-  AlertTitle,
+  IconButton,
 } from "@mui/material";
+import CloseIcon from '@mui/icons-material/Close';
 
 interface FilterModalProps {
   open: boolean;
@@ -36,8 +36,11 @@ const FilterModal: React.FC<FilterModalProps> = ({ open, onClose,
       sx={{borderRadius: "10px"}}
     >
       {/* Modal Header */}
-      <Box sx={{ bgcolor: '#0057D9', width:'100%', height: 30 }}> 
+      <Box sx={{ bgcolor: '#0057D9', width:'100%', height: 30, display:'flex', justifyContent:'space-between'}}> 
         <Typography sx={{color: "white", ml:2,}}>{name}&nbsp;Filter</Typography> 
+        <IconButton onClick={onClose}>
+                <CloseIcon sx={{color:"white"}} />
+                </IconButton>
       </Box>
       <DialogTitle id="filter-modal-title" >
         
