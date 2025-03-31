@@ -54,7 +54,7 @@ const AudienceSelector: React.FC<AudienceSelectorProps> = ({ handleChange, campa
   const dispatch = useAppDispatch();
   const filterState = useSelector((state: RootState) => state.filter)
   useEffect(()=>{
-    dispatch(fetchFiltersData("67e6ddfde794068a0244b3f6"));
+    dispatch(fetchFiltersData("67ea7895b30eff640929f379"));
     console.log()
   }, [dispatch]);
   
@@ -73,7 +73,7 @@ const AudienceSelector: React.FC<AudienceSelectorProps> = ({ handleChange, campa
   return (
     
     <Box sx={{ boxSizing: 'border-box' }}>
-      {/* {JSON.stringify(filterState.data, null, 2)} */}
+      {JSON.stringify(filterState.data, null, 2)}
         <Box display="flex"
         sx={{
             justifyContent: { md: "space-between", xs: "flex-start" },
