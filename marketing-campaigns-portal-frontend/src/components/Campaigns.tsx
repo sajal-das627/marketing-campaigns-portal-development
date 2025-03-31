@@ -2,8 +2,8 @@ import React, { useEffect, useState, useRef } from "react";
 import { useSelector } from "react-redux";
 import { loadCampaigns, pauseResumeCampaign, duplicateCampaign, deleteCampaign } from "../redux/slices/campaignSlice";
 import { RootState } from "../redux/store";
-import { Table, TableBody, TableCell, TableHead, TableRow, Button, Card, Typography, TextField, MenuItem, IconButton, TableContainer, Paper,
-Box, InputAdornment, useMediaQuery, useTheme,FormControl, InputLabel, Select, OutlinedInput, Input, InputBase, styled ,Container,
+import { Table, TableBody, TableCell, TableHead, TableRow, Button, Typography, MenuItem, IconButton, TableContainer, Paper,
+Box, useMediaQuery, useTheme,FormControl, InputLabel, Select, InputBase ,Container, Alert,
  } from "@mui/material";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
@@ -23,6 +23,7 @@ import { CampaignData } from "types/campaign";
 import EditCampaignModal from "./EditCampaignModal";
 import DeleteConfirmationModal from "./CampaignWizard/DeleteModal";
 // import { Types } from "mongoose";
+import EmptyCampaign from "./CampaignWizard/EmptyCampaign";
 import { updateCampaignList } from '../redux/slices/campaignSlice'; 
 interface CampaignProp {
 
@@ -31,6 +32,7 @@ interface CampaignProp {
 const Campaigns: React.FC<CampaignProp> = () => {
   const [selectedCampaign, setSelectedCampaign] = useState<CampaignData | null>(null);
   const [isEditModalOpen, setEditModalOpen] = useState(false);
+  const [isEmptyCampaign, setIsEmptyCampaign] = useState(false);
   const [isDeleteModalopen, setIsDeleteModalopen] = useState(false);
   const { campaigns, loading, error, pagination } = useSelector((state: RootState) => state.campaign);
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -79,9 +81,9 @@ const Campaigns: React.FC<CampaignProp> = () => {
     dispatch(loadCampaigns({ page: filters.page, limit: filters.limit })); // ✅ Fetch only paginated data
   }, [filters.page, filters.limit, dispatch]);
 
-
   // ✅ Handle Input Changes
   const handleChange = (e: any) => {
+    setIsEmptyCampaign(true);
     setFilters({ ...filters, [e.target.name]: e.target.value });
   };
 
@@ -115,10 +117,10 @@ const Campaigns: React.FC<CampaignProp> = () => {
   };
 
    // ✅ Handle Edit Button Click
-   const handleEditClick = (campaign: CampaignData) => {
-    setSelectedCampaign({ ...campaign }); // ✅ Ensures the type remains consistent
-    setEditModalOpen(true);
-  };
+  //  const handleEditClick = (campaign: CampaignData) => {
+  //   setSelectedCampaign({ ...campaign }); // ✅ Ensures the type remains consistent
+  //   setEditModalOpen(true);
+  // };
   const handleDeleteClick = (id: string) => {
     setSelectedId(id);
     setIsDeleteModalopen(true);
@@ -172,17 +174,27 @@ const Campaigns: React.FC<CampaignProp> = () => {
   
   
   const isSmallScreen = useMediaQuery(theme.breakpoints.down("lg"));
-
+  
+  // if(isEmptyCampaign === false && campaigns.length === 0) return <EmptyCampaign/>;
+ 
+  
   // if (loading) return <Typography>Loading...</Typography>;
+  
   if (error) return <Typography color="error">{error}</Typography>;
+  if(filters.search==="" && filters.status==="" && filters.startDate===null && filters.endDate===null && campaigns.length === 0) return <EmptyCampaign/>;
+
 
   return (
     <Container sx={{py: 4, bgcolor: '#F8F9FE',  maxWidth: '80vw',}}>
+      <Box sx={{display: 'flex', justifyContent: 'space-between'}}>
       <Typography sx={{ fontSize: "26px", }} gutterBottom>
-              Manage Campaign
-            </Typography>
+        Manage Campaign
+      </Typography>
+      <Button variant="contained" onClick={()=>navigation('/create-campaign')}
+      sx={{ bgcolor: '#0057D9', color: '#fff', fontSize: { xs: '12px', sm: '14px' }, p: 1, ":hover": { bgcolor: '#2068d5' } }}> +&nbsp;Create&nbsp;Campaign  </Button>
+      </Box> 
     
-    <TableContainer component={Paper} ref={tableRef} sx={{ margin: '20px auto', pl:2, pr:2,borderRadius: '10px', overflow: 'x'  }}>
+    <TableContainer component={Paper} ref={tableRef} sx={{ margin: '20px auto', pl:2, pr:2,borderRadius: '6px', overflow: 'x'  }}>
       
     {/* <Card sx={{ padding: 2 }} > ✅ Apply the ref here */}
        {/* Filters */}
@@ -193,7 +205,7 @@ const Campaigns: React.FC<CampaignProp> = () => {
           '&.Mui-focused .MuiOutlinedInput-notchedOutline': { border: 'none' },
         }}>         
          
-      <FormControl variant="outlined" size="small" sx={{ minWidth: 225, bgcolor: "#F8F9FA", borderRadius: "6px", marginRight:"auto" }}>
+      <FormControl variant="outlined" size="small" sx={{ minWidth: {sm:94, md:225}, bgcolor: "#F8F9FA", borderRadius: "6px", marginRight:"auto" }}>
         <InputLabel htmlFor="status-select" sx={{ fontSize: "14px", boxSizing:"border-box", display: "flex", alignItems: "center", }}>
           <SearchIcon />&nbsp;Search for campaigns here...
         </InputLabel>        
@@ -388,7 +400,7 @@ const Campaigns: React.FC<CampaignProp> = () => {
             boxShadow: campaign._id === highlightedId
         ? 'inset 0px 0px 10px #ff9800'
         : 'inset 0px 0px 10px #DCE0F9',
-            '& td, & th': { padding: '10px 10px', },
+            '& td, & th': { padding: '10px 10px', border:"none" },
           }}
         >
           <TableCell>
@@ -400,7 +412,7 @@ const Campaigns: React.FC<CampaignProp> = () => {
             </Typography>
             <Typography sx={{ color: "#626262", fontSize: "12px",  pt: 0.25, pb: 0.25 }}>
               <DoneIcon sx={{ fontSize: "11px",  pt: 0.25, pb: 0.25 }} /> Published on&nbsp;
-              {campaign.createdAt.toString().split('-').join(' ').slice(0,10)}
+              {campaign.createdAt?.toString().split('-').join(' ').slice(0,10)}
               {/* publihshed date should be added instead of crea */}
             </Typography>
           </TableCell>
@@ -414,6 +426,8 @@ const Campaigns: React.FC<CampaignProp> = () => {
                     ? '#0057D9'
                     : campaign.status === 'Draft'
                     ? '#c0b000'
+                    : campaign.status === 'Scheduled'
+                    ? '#04dcd1'
                     : campaign.status === 'Paused'
                     ? '#a7690b'
                     : '#52B141',
@@ -424,6 +438,8 @@ const Campaigns: React.FC<CampaignProp> = () => {
                     ? '#E2ECFC'
                     : campaign.status === 'Draft'
                     ? '#f9f7e2'
+                    : campaign.status === 'Scheduled'
+                    ? '#e2f6f9'
                     : campaign.status === 'Paused'
                     ? '#f8e3c5'
                     : '#E6F5E3',
@@ -495,7 +511,10 @@ const Campaigns: React.FC<CampaignProp> = () => {
   </>)
   
   :(
-    <Typography>No campaigns found.</Typography>
+    <Alert variant="outlined" severity="warning">
+      No&nbsp;campaigns&nbsp;found.
+    </Alert>
+    
   )}
 </TableBody>
       </Table>

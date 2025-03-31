@@ -1,20 +1,22 @@
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
-import { createCampaign as createCampaignAPI, fetchCampaigns, toggleCampaignStatus, duplicateCampaignApi, deleteCampaignApi, updateCampaignApi } from "../../api/apiClient";
-
+import { createCampaign as createCampaignAPI, apiFetchCampaignById, fetchCampaigns, toggleCampaignStatus, duplicateCampaignApi, deleteCampaignApi, updateCampaignApi } from "../../api/apiClient";
+import { CampaignData } from "types/campaign";
+import { CampaignData as Campaign } from "types/campaign";
 // ✅ Define Campaign Interface
-interface Campaign {
-  _id: string;
-  name: string;
-  type: "Criteria Based" | "Real Time" | "Scheduled";
-  status: "Scheduled" | "Draft" | "Active" | "Completed" | "On Going" | "Paused" | "Expired" | "Not Yet Started";
-  openRate: number;
-  ctr: number;
-  delivered: number;
-  createdAt: string;
-}
+// interface Campaign {
+//   _id: string;
+//   name: string;
+//   type: "Criteria Based" | "Real Time" | "Scheduled";
+//   status: "Scheduled" | "Draft" | "Active" | "Completed" | "On Going" | "Paused" | "Expired" | "Not Yet Started";
+//   openRate: number;
+//   ctr: number;
+//   delivered: number;
+//   createdAt: string;
+// }
 
 // ✅ Define Unified State Interface
 interface CampaignState {
+  selectedCampaign: CampaignData | null;
   campaigns: Campaign[];
   loading: boolean;
   error: string | null;
@@ -31,6 +33,7 @@ interface CampaignState {
 
 // ✅ Initial Unified State
 const initialState: CampaignState = {
+  selectedCampaign: null,
   campaigns: [],
   loading: false,
   error: null,
@@ -107,6 +110,14 @@ export const createCampaign = createAsyncThunk(
     }
   }
 );
+
+// Fetch campaign by ID
+export const fetchCampaignById = createAsyncThunk<CampaignData, string>(
+  "campaigns/fetchById",
+   async (id: string) => {
+  const response = await apiFetchCampaignById(id);
+  return response.data.campaign;
+});
 
 // ✅ Unified Redux Slice for Campaigns
 const campaignSlice = createSlice({
@@ -187,6 +198,9 @@ const campaignSlice = createSlice({
       state.createLoading = false;
       state.createError = (action.payload as string) || "Something went wrong";
     })
+    .addCase(fetchCampaignById.fulfilled, (state, action) => {
+      state.selectedCampaign = action.payload;
+    });
   },
 });
 

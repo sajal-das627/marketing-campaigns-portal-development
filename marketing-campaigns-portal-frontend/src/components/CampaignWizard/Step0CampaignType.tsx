@@ -5,7 +5,7 @@ import { Grid2 as Grid, Card, CardActionArea, CardContent, Box, Typography, Text
 import { CampaignData } from 'types/campaign';
 import { styled } from '@mui/material/styles';
 
-interface Step0CampaignType{
+interface Step0CampaignTypeProps{
   handleChange: (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => void;
   campaignData: CampaignData;
 }
@@ -14,9 +14,9 @@ const SpacedBox = styled(Box)(({ theme }) => ({
   marginBottom: theme.spacing(2),
 }));
 
-const Step0CampaignType: React.FC<Step0CampaignType> = ({ handleChange, campaignData }) => {
-  const isSelected = (selectVal: string) => campaignData.type === selectVal  ? '2px solid #007BFF' : '1px solid #ddd';
+const Step0CampaignType: React.FC<Step0CampaignTypeProps> = ({ handleChange, campaignData }) => {
 
+  const isSelected = (selectVal: string) => campaignData.type === selectVal  ? '2px solid #007BFF' : '1px solid #ddd';
   return (
     
     <Box>
