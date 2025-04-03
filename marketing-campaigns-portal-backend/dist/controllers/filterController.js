@@ -1,4 +1,6 @@
 "use strict";
+/*import { Request, Response } from "express";
+import Filter from "../models/Filter";*/
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -13,8 +15,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.deleteFilter = exports.applyFilter = exports.previewAudience = exports.getSingleFilter = exports.getFilters = exports.duplicateFilter = exports.editFilter = exports.createOrUpdateFilter = void 0;
-/*import { Request, Response } from "express";
-import Filter from "../models/Filter";*/
 const User_1 = __importDefault(require("../models/User"));
 const Filter_1 = __importDefault(require("../models/Filter"));
 /*export const createOrUpdateFilter = async (req: Request, res: Response) => {
@@ -344,6 +344,31 @@ const editFilter = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
 });
 exports.editFilter = editFilter;
 // ✅ Duplicate a Filter
+/*export const duplicateFilter = async (req: Request, res: Response) => {
+  try {
+    const { filterId } = req.params;
+    const originalFilter = await Filter.findById(filterId);
+
+    if (!originalFilter) {
+      return res.status(404).json({ message: "Original filter not found" });
+    }
+
+    // ✅ Ensure toObject() returns an object
+    const filterData = originalFilter.toObject() as Record<string, any>;
+
+    delete filterData._id; // ✅ Remove _id to avoid MongoDB conflict
+    filterData.name = `Copy of ${originalFilter.name}`;
+    filterData.createdAt = new Date();
+
+    const duplicatedFilter = new Filter(filterData);
+    await duplicatedFilter.save();
+
+    res.status(201).json({ message: "Filter Duplicated Successfully", filter: duplicatedFilter });
+  } catch (error) {
+    console.error("Error duplicating filter:", error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+}; */
 const duplicateFilter = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { filterId } = req.params;
@@ -351,11 +376,23 @@ const duplicateFilter = (req, res) => __awaiter(void 0, void 0, void 0, function
         if (!originalFilter) {
             return res.status(404).json({ message: "Original filter not found" });
         }
-        // ✅ Ensure toObject() returns an object
+        // ✅ Convert document to plain object
         const filterData = originalFilter.toObject();
         delete filterData._id; // ✅ Remove _id to avoid MongoDB conflict
-        filterData.name = `Copy of ${originalFilter.name}`;
-        filterData.createdAt = new Date();
+        delete filterData.createdAt; // ✅ Remove timestamp to reset creation time
+        // ✅ Generate a unique name to allow multiple duplications
+        filterData.name = `Copy of ${originalFilter.name} (${new Date().getTime()})`;
+        // ✅ Ensure required fields are properly copied
+        if (!filterData.campaignId) {
+            return res.status(400).json({ message: "campaignId is required" });
+        }
+        // ✅ Validate and format conditions array
+        if (Array.isArray(filterData.conditions)) {
+            filterData.conditions = filterData.conditions.map((condition) => (Object.assign(Object.assign({}, condition), { groupOperator: condition.groupOperator || "AND" })));
+        }
+        else {
+            return res.status(400).json({ message: "Invalid conditions format" });
+        }
         const duplicatedFilter = new Filter_1.default(filterData);
         yield duplicatedFilter.save();
         res.status(201).json({ message: "Filter Duplicated Successfully", filter: duplicatedFilter });

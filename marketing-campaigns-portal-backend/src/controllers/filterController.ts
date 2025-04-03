@@ -1,6 +1,6 @@
 /*import { Request, Response } from "express";
 import Filter from "../models/Filter";*/
-import User from "../models/User";
+
 
 // Create a new filter
 /*export const createFilter = async (req: Request, res: Response) => {
@@ -54,6 +54,7 @@ export const applyFilter = async (req: Request, res: Response) => {
   };*/
   
   import { Request, Response } from "express";
+  import User from "../models/User";
   import Filter from "../models/Filter";
 
 
@@ -415,7 +416,7 @@ export const editFilter = async (req: Request, res: Response) => {
   
   
   // ✅ Duplicate a Filter
-  export const duplicateFilter = async (req: Request, res: Response) => {
+  /*export const duplicateFilter = async (req: Request, res: Response) => {
     try {
       const { filterId } = req.params;
       const originalFilter = await Filter.findById(filterId);
@@ -439,7 +440,52 @@ export const editFilter = async (req: Request, res: Response) => {
       console.error("Error duplicating filter:", error);
       res.status(500).json({ message: "Internal Server Error" });
     }
-  };
+  }; */
+
+  export const duplicateFilter = async (req: Request, res: Response) => {
+    try {
+        const { filterId } = req.params;
+        const originalFilter = await Filter.findById(filterId);
+
+        if (!originalFilter) {
+            return res.status(404).json({ message: "Original filter not found" });
+        }
+
+        // ✅ Convert document to plain object
+        const filterData = originalFilter.toObject() as Record<string, any>;
+
+        delete filterData._id; // ✅ Remove _id to avoid MongoDB conflict
+        delete filterData.createdAt; // ✅ Remove timestamp to reset creation time
+
+        // ✅ Generate a unique name to allow multiple duplications
+        filterData.name = `Copy of ${originalFilter.name} (${new Date().getTime()})`;
+
+        // ✅ Ensure required fields are properly copied
+        if (!filterData.campaignId) {
+            return res.status(400).json({ message: "campaignId is required" });
+        }
+
+        // ✅ Validate and format conditions array
+        if (Array.isArray(filterData.conditions)) {
+            filterData.conditions = filterData.conditions.map((condition: any) => ({
+                ...condition,
+                groupOperator: condition.groupOperator || "AND", // Default value
+            }));
+        } else {
+            return res.status(400).json({ message: "Invalid conditions format" });
+        }
+
+        const duplicatedFilter = new Filter(filterData);
+        await duplicatedFilter.save();
+
+        res.status(201).json({ message: "Filter Duplicated Successfully", filter: duplicatedFilter });
+    } catch (error) {
+        console.error("Error duplicating filter:", error);
+        res.status(500).json({ message: "Internal Server Error" });
+    }
+};
+
+  
   
   // ✅ Get All Filters for a User
   // export const getFilters = async (req: Request, res: Response) => {
