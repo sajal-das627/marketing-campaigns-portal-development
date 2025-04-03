@@ -1,5 +1,5 @@
 import { render, screen, fireEvent } from "@testing-library/react";
-import TemplateManagement from "../components/Templates/TemplateManagement";
+import TemplateManagement from "../components/Templates/TemplateManagementOld";
 
 describe("🚀 Template Management", () => {
   it("should render the template management page correctly", () => {

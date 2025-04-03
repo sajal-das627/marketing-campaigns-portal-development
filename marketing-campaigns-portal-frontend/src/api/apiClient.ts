@@ -86,8 +86,8 @@ const apiClient = axios.create({
     const response = await axios.put(`${process.env.REACT_APP_API_BASE_URL}/campaigns/${campaignId}/edit`, updatedData);
     return response.data;
   };
-  
-
+  // filter data for view on create campaign
+  export const fetchFilterData = (filterId: string) => apiClient.get(`/filters/${filterId}`);
 
   // Filters API
 export const createFilter = (filterData: any) => apiClient.post("/filters", filterData);
@@ -95,6 +95,7 @@ export const getFilters = () => apiClient.get("/filters");
 export const applyFilter = (filterId: string) => apiClient.get(`/filters/apply/${filterId}`);
 export const createCampaign = (campaignData: CampaignData) => apiClient.post("/campaigns", campaignData);
 export const getCampaigns = () => apiClient.get("/campaigns"); 
+export const apiFetchCampaignById  = (campaignId: string) => apiClient.get(`/campaigns/${campaignId}`);
 
 // Update API Client for Templates
 export const createTemplate = (templateData: any) => apiClient.post("/templates", templateData);

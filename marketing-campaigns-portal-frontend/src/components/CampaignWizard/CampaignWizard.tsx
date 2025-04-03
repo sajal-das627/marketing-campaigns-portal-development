@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 import PeopleIcon from '@mui/icons-material/People';
 import TvIcon from '@mui/icons-material/Tv';
@@ -7,6 +7,7 @@ import RateReviewIcon from "@mui/icons-material/RateReview";
 import dayjs, { Dayjs } from 'dayjs';
 import { useAppDispatch } from "../../hooks/useAppDispatch";
 import { Types } from 'mongoose';
+import { useParams } from 'react-router-dom';
 import {
   Container,
   Typography,  
@@ -25,25 +26,29 @@ import Step2Templates from './Step2Templates';
 import Step3Schedule from './Step3Schedule';
 import Step4Review from './Step4Review';
 import Step0CampaignType from './Step0CampaignType';
-import { CampaignData } from '../../types/campaign';
-import { createCampaign } from '../../redux/slices/campaignSlice';
+import { CampaignData, Schedule } from '../../types/campaign';
+import { createCampaign, fetchCampaignById } from '../../redux/slices/campaignSlice';
 import Step1Audience from './Step1Audience';
 import SuccessModal from './SuccessModal';
+import { useSelector } from 'react-redux';
+import { RootState } from "../../redux/store";
+import { updateCampaign } from "../../redux/slices/campaignSlice";
+
 
 const SpacedBox = styled(Box)(({ theme }) => ({
   marginTop: theme.spacing(2),
   marginBottom: theme.spacing(2),
 }));
-const StyledCard = styled(Card)({
-  display: "flex",
-  alignItems: "center",
-  padding: "16px",
-  marginBottom: "16px",
-  "@media (max-width:600px)": {
-    flexDirection: "column",
-    alignItems: "flex-start",
-  },
-});
+// const StyledCard = styled(Card)({
+//   display: "flex",
+//   alignItems: "center",
+//   padding: "16px",
+//   marginBottom: "16px",
+//   "@media (max-width:600px)": {
+//     flexDirection: "column",
+//     alignItems: "flex-start",
+//   },
+// });
 
 const CustomConnector = styled(StepConnector)(({ theme }) => ({
   [`&.${stepConnectorClasses.alternativeLabel}`]: {
@@ -66,8 +71,6 @@ const CustomConnector = styled(StepConnector)(({ theme }) => ({
   },
 }));
 
-const steps = ['Campaign Type', 'Audience', 'Template', 'Schedule', 'Review & Launch'];
-const stepIcons = [TvIcon, PeopleIcon, DescriptionIcon, CalendarTodayIcon, RateReviewIcon];
 // const stepIcons = [
 //   '/icons/presention-chart.png',
 //   '/icons/people.png',
@@ -76,8 +79,9 @@ const stepIcons = [TvIcon, PeopleIcon, DescriptionIcon, CalendarTodayIcon, RateR
 //   '/icons/rate-review.png',
 // ];
 export default function CampaignCreator() {
-  
+  const [isEditMode, setIsEditMode] = useState<boolean>(false);
   const [open, setOpen] = useState(false);
+  const [backupSchedule, setBackupSchedule] = useState<Schedule>({} as Schedule);
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
   const dispatch = useAppDispatch();
   const [activeStep, setActiveStep] = useState<number>(0);  
@@ -92,17 +96,103 @@ export default function CampaignCreator() {
     type: "",
     audience:  null as Types.ObjectId | null,
     template:  null as Types.ObjectId | null,
-    schedule: {      
-      frequency: '',
-      time: '09:00',
-      startDate:  new Date(new Date().setDate(new Date().getDate() + 1)),
-      endDate: new Date(),
-    },
+    schedule: null,
+    // {      
+    //   frequency: '',
+    //   time: '09:00',
+    //   startDate:  new Date(new Date().setDate(new Date().getDate() + 1)),
+    //   endDate: new Date(new Date().setDate(new Date().getDate() + 1)),
+    // },
     status: "Draft",
     openRate: 0,
     ctr: 0,
     delivered: 0,
   });
+
+  let steps = [], stepIcons: React.ElementType[] = [];
+  if(campaignData.type === "Real Time"){  
+     steps = ['Campaign Type', 'Audience', 'Template', 'Review & Launch'];
+     stepIcons = [TvIcon, PeopleIcon, DescriptionIcon, RateReviewIcon];
+  }
+  else{    
+       steps = ['Campaign Type', 'Audience', 'Template', 'Schedule', 'Review & Launch'];
+       stepIcons = [TvIcon, PeopleIcon, DescriptionIcon, CalendarTodayIcon, RateReviewIcon];
+  }
+
+  const { id } = useParams<{id: string}>();
+  console.log("id: ", id);
+  const campaignFromStore = useSelector((state: RootState) => state.campaign.selectedCampaign); 
+  //Edited Mode Data Updates: 
+  useEffect(() => {
+    if (id) {
+      dispatch(fetchCampaignById(id));
+      setIsEditMode(true);
+    }
+  }, [id, dispatch]);
+
+  // Update local state when the store updates
+  useEffect(() => {
+    if (campaignFromStore) {
+      setCampaignData({
+        ...campaignFromStore,
+        schedule: campaignFromStore.schedule ? { ...campaignFromStore.schedule } : null,
+      });
+    }
+  }, [campaignFromStore]);
+
+  const resetState = () => {
+    setCampaignData({
+      _id: "",
+      name: '',
+      type: "",
+      audience: null,
+      template: null,
+      schedule: null,
+      // {      
+      //   frequency: '',
+      //   time: '09:00',
+      //   startDate: new Date(new Date().setDate(new Date().getDate() + 1)),
+      //   endDate: new Date(new Date().setDate(new Date().getDate() + 1)),
+      // },
+      status: "Draft",
+      openRate: 0,
+      ctr: 0,
+      delivered: 0,
+    });
+  };
+  
+  useEffect(() => {
+    if (!id) resetState();
+  }, [id]);
+
+
+  // useEffect(() => {
+  //   if (campaignFromStore) {
+  //     setCampaignData(campaignFromStore);
+  //   }
+  // }, [campaignFromStore]); 
+
+  useEffect(() => {
+    if (campaignData.type === "Real Time") {
+      // Backup current schedule if it's not already null
+      if (campaignData.schedule !== null) {
+        setBackupSchedule(campaignData.schedule);
+      }
+      setCampaignData(prevData => ({
+        ...prevData,
+        schedule: null,
+      }));
+    } else {
+      // Restore schedule when type changes back
+      if (campaignData.schedule === null && backupSchedule) {
+        setCampaignData(prevData => ({
+          ...prevData,
+          schedule: backupSchedule,
+        }));
+      }
+    }
+    console.log("Schedule: ", campaignData.schedule);
+  }, [campaignData.type, campaignData.schedule, backupSchedule]); 
 
   const handleNextStep = async() => {
   let errors: string[] = [];
@@ -130,16 +220,22 @@ export default function CampaignCreator() {
       break;
 
     case 3:
-      if (!campaignData.schedule?.frequency) {
-        errors.push("Schedule frequency is required.");
-      }
-      if (!campaignData.schedule?.startDate) {
-        errors.push("Start date is required.");
-      }
-      // if (campaignData.schedule?.endDate && new Date(campaignData.schedule.startDate) > new Date(campaignData.schedule.endDate)) {
-      //   errors.push("End date must be after start date.");
-      // }
+      if(campaignData.type !== "Real Time"){
+        if (!campaignData.schedule?.frequency) {
+          errors.push("Schedule frequency is required.");
+        }
+        if (!campaignData.schedule?.startDate) {
+          errors.push("Start date is required.");
+        }
+        if ( campaignData.schedule?.startDate && campaignData.schedule?.endDate && new Date(campaignData.schedule?.startDate) > new Date(campaignData.schedule?.endDate)) {
+          errors.push("End date must be after start date.");
+        }
+        // if ( campaignData.schedule?.startDate && new Date(campaignData.schedule?.startDate) < new Date()) {
+        //   errors.push("The start date cannot be earlier than today");
+        // }
+      }      
       break;
+      
     default:
       break;
     }
@@ -154,10 +250,18 @@ export default function CampaignCreator() {
       setActiveStep((prevStep) => prevStep + 1);
     } else {
       try{
-        const result = await dispatch(createCampaign(campaignData)).unwrap();
+        const updatedData = { ...campaignData, status: "Scheduled" };
+        
+        if(isEditMode){
+          const result = await dispatch(updateCampaign({ campaignId: String(id), updatedData })).unwrap();           
+          console.log('Submitting final data: ', result);
+          }
+        else{
+          const result = await dispatch(createCampaign(updatedData)).unwrap();
+          console.log('Submitting final data: ', result);
+        }        
         setOpen(true);
-        console.log("ShowSuccessModal:", open)
-        console.log('Submitting final data: ', result);
+        setIsEditMode(false);
       }catch(error){
         console.log('Error');
       }
@@ -169,7 +273,7 @@ export default function CampaignCreator() {
       setActiveStep((prevStep) => prevStep - 1);
     }
   };
-
+  
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     console.log('Change event:', e.target.name, e.target.value);
     const { name, value } = e.target;
@@ -179,16 +283,15 @@ export default function CampaignCreator() {
       setCampaignData((prevData) => ({
         ...prevData,
         schedule: {
-          ...prevData.schedule,
-          [name]:
-            name === "startDate" ? new Date(value) : value,
+          ...(prevData.schedule || {}),
+          [name]: name === "startDate" ? new Date(value) : value,
         },
       }));
     } else {
       setCampaignData((prevData) => ({
         ...prevData,
         [name]:
-          name === "openRate" || name === "ctr" || name === "deliverd"
+          name === "openRate" || name === "ctr" || name === "delivered"
             ? Number(value)
             : name === "createdAt"
             ? new Date(value).toISOString()
@@ -199,21 +302,34 @@ export default function CampaignCreator() {
 
  const handleDateChange = (
   value: Dayjs | null,
+  type: "startDate"| "endDate",
   context: { validationError: any }
-) => {
-  if (value) {
-    setCampaignData((prev) => ({
+) => {  if (value) {
+  setCampaignData((prev) => {
+    if (type === "endDate" && prev?.schedule?.startDate && value.isBefore(dayjs(prev?.schedule?.startDate))) {
+      alert("End date cannot be before start date!");
+      return prev; // Do not update state
+    }
+
+    return {
       ...prev,
       schedule: {
         ...prev.schedule,
-        startDate: value.toDate(),
+        [type]: value.toDate(), // Dynamically update startDate or endDate
       },
-    }));
-  }
+    };
+  });
+}
 };
+
   console.log('campaignData: ', campaignData);
+  console.log("isEditMode", isEditMode);
   const renderStepContent = (step: number) => {
-    switch (step) {
+    let adjustedStep = step;
+    if(campaignData.type === "Real Time" && step >= 3){
+      adjustedStep = step + 1;
+    }
+    switch (adjustedStep) {
       case 0:
         return <Step0CampaignType handleChange={handleChange} campaignData={campaignData} />;
       case 1:
@@ -313,7 +429,9 @@ export default function CampaignCreator() {
                   <Button sx={{ bgcolor: "#0057D9" }} variant="contained" onClick={handleNextStep}>
                     {(activeStep === steps.length - 1) ? 'Launch Campaign' : activeStep === 0 ? 'Next' : 'Save & Continue'}
                   </Button>
-                  <SuccessModal open={open} onClose={() => setOpen(false)} />                    
+                  <SuccessModal open={open} onClose={() => setOpen(false)}
+                  title={id? "Campaign Updated Successfully" : "Campaign Created Successfully"}
+                  message={`"${audienceName}" Filter Saved Successfully`} />                    
                 </Grid>
               </Grid>
               
@@ -324,3 +442,4 @@ export default function CampaignCreator() {
     </Container>
   );
 }
+ 
