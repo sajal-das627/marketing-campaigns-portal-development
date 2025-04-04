@@ -247,7 +247,7 @@ const campaignResponses: Array<{
 <Grid container spacing={3}>
       {/* Main Content */}
       <Grid  size={{ xs: 12, md: 8 }}>
-        <Grid container spacing={2}>
+        <Grid container spacing={3}>
           <Grid  size={{ xs: 12}}>
 
             <EmailSent />
