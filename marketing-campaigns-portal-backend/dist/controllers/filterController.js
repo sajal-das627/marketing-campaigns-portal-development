@@ -381,7 +381,7 @@ const duplicateFilter = (req, res) => __awaiter(void 0, void 0, void 0, function
         delete filterData._id; // ✅ Remove _id to avoid MongoDB conflict
         delete filterData.createdAt; // ✅ Remove timestamp to reset creation time
         // ✅ Generate a unique name to allow multiple duplications
-        filterData.name = `Copy of ${originalFilter.name} (${new Date().getTime()})`;
+        filterData.name = `Copy of ${originalFilter.name}`;
         // ✅ Ensure required fields are properly copied
         if (!filterData.campaignId) {
             return res.status(400).json({ message: "campaignId is required" });
