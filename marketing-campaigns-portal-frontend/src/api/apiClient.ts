@@ -32,6 +32,55 @@ const apiClient = axios.create({
       }
     );
 
+
+
+  // Get all filters with pagination, search, and sorting
+  export const getFilters = async (page = 1, search = "", sortBy = "", order = "asc", limit = 10) => {
+    const params: any = { page, limit };
+  
+    if (search) params.search = search;
+    if (sortBy) {
+      params.sortBy = sortBy;
+      params.order = order; // Default sorting order
+    }
+  
+    const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/filters`, { params });
+    return response.data;
+  };
+// Get single filter by ID
+  export const getSingleFilter = async (filterId: string) => {
+    try {
+      const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/filters/apply/${filterId}`);
+      return response.data;
+    } catch (error) {
+      console.error(`Error fetching filter ${filterId}:`, error);
+      throw error;
+    }
+  };
+// duplicateFilter
+  export const duplicateFilter = async (filterId: string) => {
+    const response = await axios.post(`${process.env.REACT_APP_API_BASE_URL}/filters/${filterId}/duplicate`);
+    return response.data;
+  };
+// deleteFilter
+  export const deleteFilter = async (filterId: string) => {
+    try {
+      const response = await axios.delete(`${process.env.REACT_APP_API_BASE_URL}/filters/${filterId}`);
+      return response.data;
+    } catch (error: any) {
+      throw new Error(error.response?.data?.message || "Error deleting filter");
+    }
+  };
+// updateFilter
+  export const updateFilter = async (filterId: string, updatedData: any) => {
+    try {
+      const response = await axios.put(`${process.env.REACT_APP_API_BASE_URL}/filters/${filterId}`, updatedData);
+      return response.data;
+    } catch (error: any) {
+      throw new Error(error.response?.data?.message || "Error updating filter");
+    }
+  };    
+
 //Campaign Listing & Filter
   export const fetchCampaigns = async (filters: any) => {
     const params: any = {}; // ✅ Only add non-empty values
@@ -53,7 +102,6 @@ const apiClient = axios.create({
  
     return response.data;
   };
-
   
   export const toggleCampaignStatus = async (campaignId: string) => {
     const response = await axios.put(`${process.env.REACT_APP_API_BASE_URL}/campaigns/${campaignId}/pause-resume`);
@@ -91,7 +139,7 @@ const apiClient = axios.create({
 
   // Filters API
 export const createFilter = (filterData: any) => apiClient.post("/filters", filterData);
-export const getFilters = () => apiClient.get("/filters");
+// export const getFilters = () => apiClient.get("/filters");
 export const applyFilter = (filterId: string) => apiClient.get(`/filters/apply/${filterId}`);
 export const createCampaign = (campaignData: CampaignData) => apiClient.post("/campaigns", campaignData);
 export const getCampaigns = () => apiClient.get("/campaigns"); 

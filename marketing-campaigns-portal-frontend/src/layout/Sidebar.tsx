@@ -16,10 +16,18 @@ const CollapsibleMenu = () => {
       active: false,
       subItems: [
         { text: "Manage Campaign", icon: <TemplateIcon />, path: "/manage-campaign", active: false },
-        { text: "Create Campaign", icon: <CreateIcon />, path: "/create-campaign", active: false },
+        { text: "Create New Campaign", icon: <CreateIcon />, path: "/create-campaign", active: false },
       ],
     },
-    { text: "Audience", icon: <AudienceIcon />, path: "/audience", active: false },
+    {
+      text: "Audience",
+      icon: <AudienceIcon />,
+      active: false,
+      subItems: [
+        { text: "Manage Filter",  path: "/filters", active: false },
+        { text: "Create New Filter",  path: "/create-filters", active: false },
+      ],
+    },
     {
       text: "Templates",
       icon: <DescriptionIcon />,

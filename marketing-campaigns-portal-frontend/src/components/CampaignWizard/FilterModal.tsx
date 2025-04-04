@@ -9,6 +9,9 @@ import {
   Box,
   Divider,
   IconButton,
+  Table, TableBody,
+  TableCell,
+  TableRow,
 } from "@mui/material";
 import CloseIcon from '@mui/icons-material/Close';
 
@@ -20,11 +23,10 @@ interface FilterModalProps {
   tags: string; 
   createdOn: string;
   audience: number;
+  summary: [string] | string | null;
 }
 
-const FilterModal: React.FC<FilterModalProps> = ({ open, onClose, 
-  name, 
-  description, tags, createdOn, audience 
+const FilterModal: React.FC<FilterModalProps> = ({ open, onClose, name, description, tags, createdOn, audience, summary,
 }) => {
   return (
     <Dialog
@@ -33,55 +35,79 @@ const FilterModal: React.FC<FilterModalProps> = ({ open, onClose,
       fullWidth
       maxWidth="sm"
       aria-labelledby="filter-modal-title"
-      sx={{borderRadius: "10px"}}
+      sx={{borderRadius: "10px",
+        "& .MuiPaper-root": {
+          // width: '100%',
+          // height: '100%',
+        },
+        "& .MuiDialog-paper": { width: "80vw", maxWidth: "none" , height: "80vh", maxHeight:"none"},
+      }}
     >
       {/* Modal Header */}
-      <Box sx={{ bgcolor: '#0057D9', width:'100%', height: 30, display:'flex', justifyContent:'space-between'}}> 
-        <Typography sx={{color: "white", ml:2,}}>{name}&nbsp;Filter</Typography> 
+      <Box sx={{ bgcolor: '#0057D9', width:'100%', height: 35, display:'flex', justifyContent:'space-between'}}> 
+        <Typography sx={{color: "white", ml:2,mt:0.5}}>{name}&nbsp;Filter</Typography> 
         <IconButton onClick={onClose}>
                 <CloseIcon sx={{color:"white"}} />
                 </IconButton>
       </Box>
-      <DialogTitle id="filter-modal-title" >
-        
+      <DialogTitle id="filter-modal-title" sx={{fontSize: '24px', fontWeight: 'semi-bold'}}>
+      Filter Details
       </DialogTitle>
 
       {/* Modal Content */}
-      <DialogContent>
-        {/* Filter Details Section */}
-        <Typography variant="h6" sx={{ mb: 1 }}>
-          Filter Details
-        </Typography>
-        <Box sx={{ mb: 2 }}>
-          <Typography variant="body1">
-            Name:&nbsp;{name}
-          </Typography>
-          <Typography variant="body1">
-            Description:&nbsp;{description}
-          </Typography>
-          <Typography variant="body1">
-            Tags:&nbsp;{tags}
-          </Typography>
-          <Typography variant="body1">
-            Created On:&nbsp;{createdOn}
-          </Typography>
-        </Box>
-        <Divider />
+      <DialogContent>       
+
+      <Box
+      sx={{
+        display: "grid",
+        gridTemplateColumns: "150px auto",
+        gap: "8px",
+        maxWidth: "500px",
+      }}
+    >
+      <Typography sx={{color:'#A3AABC'}}>Name -</Typography>
+      <Typography>{name}</Typography>
+
+      <Typography sx={{color:'#A3AABC'}}>Description -</Typography>
+      <Typography>{description}</Typography>
+
+      <Typography sx={{color:'#A3AABC'}}>Tags -</Typography>
+      <Typography>{tags.toString().split(",").join(", ")}</Typography>
+
+      <Typography sx={{color:'#A3AABC'}}>Created On -</Typography>
+      <Typography>{createdOn.split('T').join(' at ').slice(0,23)}</Typography>
+    </Box>
+  
+        {/* <Divider /> */}
 
         {/* Filter Summary Section */}
-        <Typography variant="h6" sx={{ mt: 2, mb: 1 }}>
+        <Typography variant="h6" sx={{ mt: 3, mb: 1, fontSize: '24px', fontWeight: 'semi-bold' }}>
           Filter Summary
         </Typography>
-        <Box sx={{ mb: 2,  bgcolor:"#DAE9FF",p:0.5 }}>
+        <Box sx={{ mb: 2,  bgcolor:"#DAE9FF",p:0.5, fontSize:'14px' }}>
         <Typography sx={{color: "#0057D9",}}>
-  The audience will include people over 18 who either made a purchase
-  over $100 or are located in Dallas.</Typography>
-                 
+          "The audience will include {summary}"
+        </Typography>                 
         </Box>
          
-        <Typography variant="body1">
-            <strong>Audience:</strong>{audience}
+         <Box sx={{ display: 'flex'}}>
+            
+         <Box
+      sx={{
+        display: "grid",
+        gridTemplateColumns: "150px auto",
+        gap: "8px",
+        maxWidth: "500px",
+      }}
+    >
+        <Typography variant="body1" sx={{color:'#A3AABC'}}>
+            Audience -&nbsp;
           </Typography>
+        <Typography >
+        {audience}
+          </Typography>
+          </Box>
+         </Box>
       </DialogContent>
 
       {/* Modal Footer/Actions */}
