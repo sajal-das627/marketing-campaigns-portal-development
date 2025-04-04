@@ -261,14 +261,18 @@ exports.createOrUpdateFilter = createOrUpdateFilter;
 const editFilter = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { filterId } = req.params;
-        const { name, description, tags, conditions, logicalOperator, customFields, isDraft, campaignId } = req.body;
+        const { name, description, tags, conditions, logicalOperator, customFields, isDraft, campaignId, } = req.body;
         // ✅ Validate required fields
         if (!name || !conditions || !logicalOperator || !campaignId) {
-            return res.status(400).json({ message: "Name, conditions, logicalOperator, and campaignId are required" });
+            return res.status(400).json({
+                message: "Name, conditions, logicalOperator, and campaignId are required",
+            });
         }
         // ✅ Validate conditions format
         if (!Array.isArray(conditions) || conditions.length === 0) {
-            return res.status(400).json({ message: "Conditions should be an array of groups" });
+            return res.status(400).json({
+                message: "Conditions should be an array of groups",
+            });
         }
         // ✅ Fetch the campaign details to determine filter type
         const campaign = yield Campaign_1.default.findById(campaignId);
@@ -293,8 +297,8 @@ const editFilter = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
                 throw new Error("Each group in Filter Components must have an AND operator.");
             }
             return {
-                groupId: group.groupId || `Group_${Date.now()}`, // Keep existing ID or generate new one
-                groupOperator: isTriggerFilter ? group.groupOperator || "OR" : "AND", // ✅ Ensure AND for Filter Components within the group
+                groupId: group.groupId || `Group_${Date.now()}`,
+                groupOperator: isTriggerFilter ? group.groupOperator || "OR" : "AND",
                 criteria: group.criteria.map((condition) => ({
                     field: condition.field,
                     operator: condition.operator,
@@ -304,7 +308,9 @@ const editFilter = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
         });
         // 🚨 Enforce "OR" operator between groups for Filter Components
         if (!isTriggerFilter && logicalOperator !== "OR") {
-            return res.status(400).json({ message: "Filter Components must have an OR operator between groups." });
+            return res.status(400).json({
+                message: "Filter Components must have an OR operator between groups.",
+            });
         }
         // ✅ Handle Custom Fields
         let updatedCustomFields = {};
@@ -318,22 +324,26 @@ const editFilter = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
             name,
             description,
             tags,
-            campaignId, // ✅ Store campaignId in the filters table
+            campaignId,
             conditions: structuredGroups,
             logicalOperator,
             customFields: updatedCustomFields,
             estimatedAudience,
             isDraft,
             lastModified: new Date(),
-        }, { new: true });
+        }, { new: true }).lean();
         if (!updatedFilter) {
             return res.status(404).json({ message: "Filter not found" });
         }
-        res.status(200).json({ message: "Filter Updated Successfully", filter: updatedFilter });
+        // ✅ Attach campaign type to the response
+        const responseWithType = Object.assign(Object.assign({}, updatedFilter), { campaignType: type });
+        res.status(200).json({
+            message: "Filter Updated Successfully",
+            filter: responseWithType,
+        });
     }
     catch (error) {
         console.error("Error updating filter:", error);
-        // ✅ Ensure error is an instance of Error before accessing `message`
         if (error instanceof Error) {
             res.status(400).json({ message: error.message });
         }
@@ -429,6 +439,7 @@ const getFilters = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
         const sortOrder = order === "asc" ? 1 : -1;
         // Fetch filters with pagination, search & sorting
         const filters = yield Filter_1.default.find(Object.assign({ userId }, searchQuery))
+            .populate("campaignId", "type") // Populate only the campaign type field
             .sort({ [sortBy]: sortOrder }) // Dynamic sorting
             .skip(skip)
             .limit(limitNumber);
