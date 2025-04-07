@@ -478,20 +478,20 @@ const Campaigns: React.FC<CampaignProp> = () => {
             // onClick={() => handleEditClick(campaign)}
             onClick={()=> navigation(`/create-campaign/${campaign._id}`)}
             >
-              <EditIcon sx={{ fontSize: '25px', color: '#6A7075', bgcolor: '#EFEFEF', p: 0.7, borderRadius: '4.5px' }} />
+              <EditIcon sx={{ fontSize: '30px', color: '#6A7075', bgcolor: '#EFEFEF', p: 0.7, borderRadius: '4.5px' }} />
             </IconButton>
             <IconButton sx={{ borderRadius: '25px' }} onClick={() => handlePauseResume(campaign._id, campaign.status)}>
               {campaign.status === "Paused" ? (
-                <PlayArrowIcon sx={{ fontSize: '25px', color: '#6A7075', bgcolor: '#EFEFEF', p: 0.7, borderRadius: '4.5px' }} />
+                <PlayArrowIcon sx={{ fontSize: '30px', color: '#6A7075', bgcolor: '#EFEFEF', p: 0.7, borderRadius: '4.5px' }} />
               ) : (
-                <PauseIcon sx={{ fontSize: '25px', color: '#6A7075', bgcolor: '#EFEFEF', p: 0.7, borderRadius: '4.5px' }} />
+                <PauseIcon sx={{ fontSize: '30px', color: '#6A7075', bgcolor: '#EFEFEF', p: 0.7, borderRadius: '4.5px' }} />
               )}
             </IconButton>
             <IconButton sx={{ borderRadius: '25px' }} onClick={() => handleDuplicate(campaign._id)}>
-              <ContentCopyIcon sx={{ fontSize: '25px', color: '#6A7075', bgcolor: '#EFEFEF', p: 0.7, borderRadius: '4.5px' }} />
+              <ContentCopyIcon sx={{ fontSize: '30px', color: '#6A7075', bgcolor: '#EFEFEF', p: 0.7, borderRadius: '4.5px' }} />
             </IconButton>
             <IconButton sx={{ borderRadius: '25px' }} onClick={() => handleDeleteClick(campaign._id)}>
-              <DeleteIcon sx={{ fontSize: '25px', color: 'white', bgcolor: '#F83738', p: 0.5, borderRadius: '4.5px' }} />
+              <DeleteIcon sx={{ fontSize: '30px', color: 'white', bgcolor: '#F83738', p: {xs:0.7}, borderRadius: '4.5px' }} />
             </IconButton>
             </Box>
           </TableCell>
@@ -534,12 +534,12 @@ const Campaigns: React.FC<CampaignProp> = () => {
       </Box>    
 
       {selectedCampaign && (
-              <EditCampaignModal
-                open={isEditModalOpen}
-                handleClose={() => setEditModalOpen(false)}
-                campaign={selectedCampaign}
-              />
-            )}
+        <EditCampaignModal
+          open={isEditModalOpen}
+          handleClose={() => setEditModalOpen(false)}
+          campaign={selectedCampaign}
+        />
+      )}
 
     </TableContainer>
     </Container>
