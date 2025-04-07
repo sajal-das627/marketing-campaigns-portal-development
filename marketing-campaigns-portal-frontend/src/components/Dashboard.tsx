@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   styled,
@@ -19,6 +19,10 @@ import { Types } from 'mongoose';
 import CampaignPerformanceChart from './Charts/CampaignPerformanceChart';
 import EmailSent from './Charts/EmailSent';
 
+import { RootState } from '../../src/redux/store';
+import { useSelector } from 'react-redux';
+import { useAppDispatch } from '../../src/redux/hooks';
+import { fetchDashboardData } from '../../src/redux/slices/dashboardSlice';
 
 const StyledButton = styled(Button)({
   position: 'relative',
@@ -41,7 +45,6 @@ const StyledButton = styled(Button)({
   },
   '&:hover': {
     backgroundColor: 'transparent',
-
     '& .MuiTypography-root': {
       color: '#fff  '
     },
@@ -53,7 +56,6 @@ const StyledButton = styled(Button)({
 
 const StyledText = styled(Typography)({
   position: 'relative',
-
   lineHeight: '30px',
   color: '#0057D9  ',
   transition: 'all 0.6s ease-out',
@@ -70,7 +72,7 @@ const Dashboard: React.FC<DashboardProps> = () => {
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const [campaignDropdownOption, setCampaignDropdownOption] = useState("weekly");
   const [audienceDropdownOption, setaudienceDropdownOption] = useState("monthly");
-  
+  const dispatch = useAppDispatch();
   const navigation = useNavigate();
   //demo api response
 const campaignResponses: Array<{
@@ -128,14 +130,29 @@ const campaignResponses: Array<{
 
   ];
     console.log(campaignResponses[0].activeCampaigns);
-
+    
+    const { data, loading, error } = useSelector((state: RootState) => state.dashboard);
+    
+    useEffect(() => {
+      const fetchData = async () => {
+        const result = await dispatch(fetchDashboardData());
+        if (fetchDashboardData.fulfilled.match(result)) {
+          console.log("🎯 Data from payload:", result.payload);
+        }
+      };
+      fetchData();
+    }, [dispatch]);
+    
+    
+  if (loading) return <p>Loading dashboard...</p>;
+  if (error) return <p>Error: {error}</p>;
   return (
     <Container>
     <Box sx={{
       p: 3, bgcolor: '#F8F9FE',
       // '& *': { color: '#495057' }
     }}>
-
+      
       <Box
         display="flex"
         flexDirection={{ xs: 'column', md: 'row' }}
@@ -144,7 +161,7 @@ const campaignResponses: Array<{
         mb={3}
       >
         <Typography variant="h4" component="h1" marginBottom={{ xs: 1 }} >
-          Dashboard
+          Dashboard&nbsp;
         </Typography>
 
         <Box display="flex"
@@ -189,7 +206,7 @@ const campaignResponses: Array<{
               </Box>
               <Typography color='#495057' fontSize={'14px'} pb={1} pt={1} >Active Campaigns</Typography>
               <Box display="flex" justifyContent={'space-between'} alignItems={'center'}>
-                <Typography variant="h4" sx={{ fontWeight: 'bold' }}>{campaignResponses[0].activeCampaigns}</Typography>
+                <Typography variant="h4" sx={{ fontWeight: 'bold' }}>{data?.activeCampaigns}</Typography>
                 <Typography variant="body2" color="#2B8A3E" bgcolor="#ECFDF3" display={'inline'} border="1px solid #D3F9D8" borderRadius='6px' p={'4px'} >
                   ↑ 12%
                 </Typography>
@@ -206,7 +223,7 @@ const campaignResponses: Array<{
               </Box>
               <Typography color='#495057' fontSize={'14px'} pb={1} pt={1} >Scheduled Campaigns</Typography>
               <Box display="flex" justifyContent={'space-between'} alignItems={'center'}>
-                <Typography variant="h4" sx={{ fontWeight: 'bold' }}>{campaignResponses[0].scheduledCampaigns}</Typography>
+                <Typography variant="h4" sx={{ fontWeight: 'bold' }}>{data?.scheduledCampaigns}</Typography>
                 <Typography variant="body2" color="#2B8A3E" bgcolor="#ECFDF3" display={'inline'} border="1px solid #D3F9D8" borderRadius='6px' p={'4px'} >
                   ↑ 8%
                 </Typography>
@@ -233,7 +250,7 @@ const campaignResponses: Array<{
               </Box>
               <Typography color='#495057' fontSize={'14px'} pb={1} pt={1} >Total Audience</Typography>
               <Box display="flex" justifyContent={'space-between'} alignItems={'center'}>
-                <Typography variant="h4" sx={{ color: 'black  ', fontWeight: 'bold' }}>{campaignResponses[0].totalAudience}</Typography>
+                <Typography variant="h4" sx={{ color: 'black  ', fontWeight: 'bold' }}>{data?.totalAudience}</Typography>
                 <Typography variant="body2" color="#2B8A3E" bgcolor="#ECFDF3" border="1px solid #D3F9D8" borderRadius='6px' display={'inline'} p={'4px'} >
                   ↑ 12%
                 </Typography>

@@ -16,9 +16,7 @@ import {useAppDispatch} from "../../redux/hooks";
 const ManageFilters = () => {
   
   const dispatch = useAppDispatch();
-  const { filters, currentPage, totalPages, loading, error, appliedFilter } = useSelector(
-    (state: RootState) => state.filter
-  );
+
 
   const [search, setSearch] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState(""); // New state for debounced search
@@ -35,6 +33,11 @@ const ManageFilters = () => {
   
   const [selectedFilters, setSelectedFilters] = useState<string[]>([]);
   const [selectAll, setSelectAll] = useState(false);
+
+  const { filters, currentPage, totalPages, loading, error, appliedFilter,
+    isDraft = tabValue   } = useSelector(
+   (state: RootState) => state.filter
+ );
   // const handleSelectAll = (event: React.ChangeEvent<HTMLInputElement>) => {
   //   const checked = event.target.checked;
   //   setSelectAll(checked);
@@ -90,7 +93,8 @@ const ManageFilters = () => {
   const handleTabChange = (event: React.SyntheticEvent, newValue: boolean) => {
     // let val = boolean(newValue);
     setTabValue(newValue);
-    console.log(tabValue)
+    console.log('tabValue', tabValue);
+    console.log('isDraft', isDraft);
   }
 
 
@@ -103,8 +107,10 @@ const ManageFilters = () => {
   }, [search]);
 
   useEffect(() => {
-    dispatch(fetchFilters({ page, search: debouncedSearch, sortBy, order }));
-  }, [dispatch, page, debouncedSearch, sortBy, order]);
+    dispatch(fetchFilters({ page, search: debouncedSearch, sortBy, order, isDraft: Number(isDraft)
+     }));
+
+  }, [dispatch, page, debouncedSearch, sortBy, order, isDraft ]);
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearch(e.target.value);
@@ -230,7 +236,7 @@ const ManageFilters = () => {
                       onClick={handleDeleteSelectedFilters}
                       disabled={selectedFilters.length === 0}
                     >
-                      Delete
+                      Delete Selected
                     </Button>
                 </TableCell> 
               </TableRow>
@@ -247,8 +253,8 @@ const ManageFilters = () => {
             {filters.length > 0 ? (
                     filters
                       .filter((filter) => filter && filter.name 
-                      // && filter.isDraft==tabValue
-                    ) 
+                      // && filter.isDraft == tabValue
+                    )
                       .map((filter, index) => (
                 <TableRow key={index}>
                   <TableCell>

@@ -23,6 +23,7 @@ import { fetchFilterData,getFilters, getSingleFilter, duplicateFilter, deleteFil
     loading: boolean;
     error: string | null;
     appliedFilter: any | null;
+    isDraft: boolean;
   }
   
   const initialState: FilterState = {
@@ -33,9 +34,10 @@ import { fetchFilterData,getFilters, getSingleFilter, duplicateFilter, deleteFil
     loading: false,
     error: null,
     appliedFilter: null,
+    isDraft: false,
   };
   
-  
+  //remove this later
   export const fetchFiltersData = createAsyncThunk(
     "filters/fetchFilterData",
     async(filterId: string, {rejectWithValue})=>{   
@@ -54,22 +56,29 @@ import { fetchFilterData,getFilters, getSingleFilter, duplicateFilter, deleteFil
 export const fetchFilters = createAsyncThunk(
   "filters/fetchFilters",
   async (
-    { page, search, sortBy, order }: { page: number; search: string; sortBy: string; order: string },
+    { page, search, sortBy, order, 
+      isDraft
+     }: { page: number; search: string; sortBy: string; order: string; 
+     isDraft?: boolean | number 
+    },
     { rejectWithValue }
   ) => {
     try {
-      const response = await getFilters(page, search, sortBy, order);
+      const response = await getFilters(page, search, sortBy, order, 
+        isDraft ? Number(isDraft) : 0
+      );
 
       console.log("API Response:", response);
 
       if (!response || !response.filters || !response.pagination) {
         throw new Error("Invalid API response: Missing pagination data");
       }
-
+      console.log(response.pagination.totalPages);
       return {
         filters: response.filters,
         currentPage: response.pagination.page,
         totalPages: response.pagination.totalPages,
+        isDraft: response.isDraft,
       };
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || "Failed to fetch filters");
@@ -147,9 +156,11 @@ export const updateFilterAsync = createAsyncThunk(
       })
       .addCase(fetchFilters.fulfilled, (state, action) => {
         state.loading = false;
+        console.log("isDraft",action.payload.isDraft);
         state.filters = action.payload.filters;
         state.currentPage = action.payload.currentPage;
         state.totalPages = action.payload.totalPages;
+        state.isDraft = action.payload.isDraft;
       })
       .addCase(fetchFilters.rejected, (state, action) => {
         state.loading = false;
