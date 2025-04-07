@@ -18,6 +18,7 @@ const filterRoutes_1 = __importDefault(require("./routes/filterRoutes"));
 const templateRoutes_1 = __importDefault(require("./routes/templateRoutes"));
 const dashboardRoutes_1 = __importDefault(require("./routes/dashboardRoutes"));
 const emailRoutes_1 = __importDefault(require("./routes/emailRoutes"));
+const criteriaBlockRoutes_1 = __importDefault(require("./routes/criteriaBlockRoutes")); // Import Criteria Block Routes
 const dotenv_1 = __importDefault(require("dotenv"));
 dotenv_1.default.config();
 const app = (0, express_1.default)();
@@ -39,6 +40,7 @@ app.use("/api/filters", filterRoutes_1.default);
 app.use("/api/templates", templateRoutes_1.default);
 app.use("/api/dashboard", dashboardRoutes_1.default); // Register Dashboard Routes
 app.use("/api/emails", emailRoutes_1.default);
+app.use('/api/criteria-blocks', criteriaBlockRoutes_1.default);
 // Global Error Handler
 app.use(errorHandler_1.errorHandler);
 exports.default = app;
