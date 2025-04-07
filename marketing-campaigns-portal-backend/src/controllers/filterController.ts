@@ -524,49 +524,121 @@ export const editFilter = async (req: Request, res: Response) => {
 // ✅ Get All Filters for a User with Pagination, Search & Sorting 
 export const getFilters = async (req: Request, res: Response) => {
   try {
-      const userId = "67daedeaff85ef645f71206f"; // Static userId (Replace with actual user authentication)
+    const userId = "67daedeaff85ef645f71206f"; // Static userId (Replace with actual user authentication)
 
-      // Extract query parameters
-      let { page = "1", limit = "10", search = "", sortBy = "createdAt", order = "desc" } = req.query;
+    // Extract query parameters
+    let { page = "1", limit = "10", search = "", sortBy = "createdAt", order = "desc", isDraft } = req.query;
 
-      // Convert page & limit to numbers
-      const pageNumber = parseInt(page as string, 10);
-      const limitNumber = parseInt(limit as string, 10);
-      const skip = (pageNumber - 1) * limitNumber;
+    // Convert page & limit to numbers
+    const pageNumber = parseInt(page as string, 10);
+    const limitNumber = parseInt(limit as string, 10);
+    const skip = (pageNumber - 1) * limitNumber;
 
-      // Search filter (case-insensitive search by name)
-      const searchQuery = search ? { name: { $regex: search, $options: "i" } } : {};
+    // Search filter (case-insensitive search by name)
+    const searchQuery = search ? { name: { $regex: search, $options: "i" } } : {};
 
-      // Sorting order (ascending or descending)
-      const sortOrder = order === "asc" ? 1 : -1;
+    // Draft filter logic
+    let draftFilter = {};
+    if (isDraft !== undefined) {
+      draftFilter = { isDraft: isDraft === "true" }; // Convert string to boolean
+    }
 
-      // Fetch filters with pagination, search & sorting
-      const filters = await Filter.find({ userId, ...searchQuery })
-          .populate("campaignId", "type") // Populate only the campaign type field
-          .sort({ [sortBy as string]: sortOrder }) // Dynamic sorting
-          .skip(skip)
-          .limit(limitNumber);
+    // Sorting order (ascending or descending)
+    const sortOrder = order === "asc" ? 1 : -1;
 
-      // Get total count for pagination
-      const totalFilters = await Filter.countDocuments({ userId, ...searchQuery });
-      const totalPages = Math.ceil(totalFilters / limitNumber);
+    // Combine all filters
+    const query = {
+      userId,
+      ...searchQuery,
+      ...draftFilter
+    };
 
-      res.status(200).json({
-        success: true,
-        message: "Filters fetched successfully",
-          filters,
-          pagination: {
-              total: totalFilters,
-              page: pageNumber,
-              limit: limitNumber,
-              totalPages
-          }
-      });
+    // Fetch filters
+    const filters = await Filter.find(query)
+      .populate("campaignId", "type") // Populate only the campaign type field
+      .sort({ [sortBy as string]: sortOrder })
+      .skip(skip)
+      .limit(limitNumber);
+
+    // Get total count for pagination
+    const totalFilters = await Filter.countDocuments(query);
+    const totalPages = Math.ceil(totalFilters / limitNumber);
+
+    res.status(200).json({
+      success: true,
+      message: "Filters fetched successfully",
+      filters,
+      pagination: {
+        total: totalFilters,
+        page: pageNumber,
+        limit: limitNumber,
+        totalPages
+      }
+    });
   } catch (error) {
-      console.error("Error fetching filters:", error);
-      res.status(500).json({ message: "Internal Server Error" });
+    console.error("Error fetching filters:", error);
+    res.status(500).json({ message: "Internal Server Error" });
   }
 };
+
+/*export const getFilters = async (req: Request, res: Response) => {
+  try {
+    const userId = "67daedeaff85ef645f71206f"; // Static userId (Replace with actual user authentication)
+
+    // Extract query parameters
+    let { page = "1", limit = "10", search = "", sortBy = "createdAt", order = "desc", isDraft } = req.query;
+
+    // Convert page & limit to numbers
+    const pageNumber = parseInt(page as string, 10);
+    const limitNumber = parseInt(limit as string, 10);
+    const skip = (pageNumber - 1) * limitNumber;
+
+    // Search filter (case-insensitive search by name)
+    const searchQuery = search ? { name: { $regex: search, $options: "i" } } : {};
+
+    // Draft filter logic
+    let draftFilter = {};
+    if (isDraft !== undefined) {
+      draftFilter = { isDraft: isDraft === "true" }; // Convert string to boolean
+    }
+
+    // Sorting order (ascending or descending)
+    const sortOrder = order === "asc" ? 1 : -1;
+
+    // Combine all filters
+    const query = {
+      userId,
+      ...searchQuery,
+      ...draftFilter
+    };
+
+    // Fetch filters
+    const filters = await Filter.find(query)
+      .populate("campaignId", "type") // Populate only the campaign type field
+      .sort({ [sortBy as string]: sortOrder })
+      .skip(skip)
+      .limit(limitNumber);
+
+    // Get total count for pagination
+    const totalFilters = await Filter.countDocuments(query);
+    const totalPages = Math.ceil(totalFilters / limitNumber);
+
+    res.status(200).json({
+      success: true,
+      message: "Filters fetched successfully",
+      filters,
+      pagination: {
+        total: totalFilters,
+        page: pageNumber,
+        limit: limitNumber,
+        totalPages
+      }
+    });
+  } catch (error) {
+    console.error("Error fetching filters:", error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+};*/
 
 // ✅ Get a Single Filter with Grouping Logic
 /*export const getSingleFilter = async (req: Request, res: Response) => {
