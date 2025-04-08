@@ -70,6 +70,7 @@ export const deleteCampaign = async (req: Request, res: Response) => {
 //   };*/
 
 import { Request, Response } from "express";
+import User from "../models/User";
 import Campaign, { ICampaign } from "../models/Campaign"; // ✅ Import `ICampaign`
 
 export const getCampaigns = async (req: Request, res: Response) => {
@@ -163,6 +164,7 @@ export const createOrUpdateCampaign = async (req: Request, res: Response) => {
       type,
       audience,
       template,
+      userId: "67daedeaff85ef645f71206f",
       schedule: schedule || null, // ✅ Allow null schedule
       status: status || "Draft",
     });

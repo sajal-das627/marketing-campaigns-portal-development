@@ -80,6 +80,7 @@ const CampaignSchema = new mongoose_1.Schema({
     audience: { type: mongoose_1.default.Schema.Types.ObjectId, ref: "Filter", required: true },
     template: { type: mongoose_1.default.Schema.Types.ObjectId, ref: "Template", required: true },
     status: { type: String, enum: ["Scheduled", "Draft", "Active", "Completed", "On Going", "Expired", "Paused", "Not Yet Started"], required: true },
+    userId: { type: mongoose_1.default.Schema.Types.ObjectId, ref: "User", required: true },
     createdAt: { type: Date, default: Date.now },
     updatedAt: { type: Date, default: Date.now },
     publishedDate: { type: Date, default: null }, // ✅ Ensure `publishedDate` is optional & defaults to null

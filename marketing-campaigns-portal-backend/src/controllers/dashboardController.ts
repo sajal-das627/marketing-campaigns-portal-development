@@ -1,116 +1,152 @@
 import { Request, Response } from "express";
-import Campaign from "../models/Campaign";
+import Campaign, { ICampaign } from "../models/Campaign";
 import Filter from "../models/Filter";
-import EmailLog from "../models/EmailLog";
-import ActivityLog from "../models/ActivityLog";
+import User from "../models/User";
 
+const getDateRange = (days: number) => new Date(Date.now() - days * 24 * 60 * 60 * 1000);
 const getStartOfMonth = (month: number, year: number) => new Date(year, month, 1);
 const getEndOfMonth = (month: number, year: number) => new Date(year, month + 1, 0, 23, 59, 59, 999);
-const getDateRange = (daysAgo: number) => new Date(Date.now() - daysAgo * 24 * 60 * 60 * 1000);
+const getStartOfYear = (year: number) => new Date(year, 0, 1);
+const getEndOfYear = (year: number) => new Date(year, 11, 31, 23, 59, 59, 999);
+
 const getThisMonthDates = () => {
-  const now = new Date(); const year = now.getFullYear();
-  const month = now.getMonth(); return { start: getStartOfMonth(month, year), end: getEndOfMonth(month, year) };
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = now.getMonth();
+  return { start: getStartOfMonth(month, year), end: getEndOfMonth(month, year) };
 };
+
+type TimeFilterKey = "daily" | "weekly" | "monthly" | "yearly";
 
 export const getDashboardStats = async (req: Request, res: Response) => {
   try {
-    const [activeCampaigns, scheduledCampaigns, totalAudience] = await Promise.all([Campaign.countDocuments({ status: "Active" }), Campaign.countDocuments({ status: "Scheduled" }), Filter.countDocuments(),]);
-
-    const emailsSentDaily = await EmailLog.countDocuments({ dateSent: { $gte: getDateRange(1) } });
-    const emailsSentWeekly = await EmailLog.countDocuments({ dateSent: { $gte: getDateRange(7) } });
-    const emailsSentMonthly = await EmailLog.countDocuments({ dateSent: { $gte: getDateRange(30) } });
-
     const now = new Date();
-    const year = now.getFullYear();
+    const currentYear = now.getFullYear();
+
+    const timeFilters: Record<TimeFilterKey, Date> = {
+      daily: getDateRange(1),
+      weekly: getDateRange(7),
+      monthly: getDateRange(30),
+      yearly: getStartOfYear(currentYear),
+    };
+
+    const totalCampaigns = await Campaign.countDocuments();
+    const totalFilters = await Filter.countDocuments();
+
+    const getCountAndPercentage = async (
+      query: any,
+      total: number
+    ): Promise<{ count: number; percentage: number }> => {
+      const count = await Campaign.countDocuments(query);
+      const percentage = total > 0 ? +(count / total * 100).toFixed(2) : 0;
+      return { count, percentage };
+    };
+
+    const activeCampaigns: Record<TimeFilterKey, any> = {
+      daily: await getCountAndPercentage({ status: "Active", createdAt: { $gte: timeFilters.daily } }, totalCampaigns),
+      weekly: await getCountAndPercentage({ status: "Active", createdAt: { $gte: timeFilters.weekly } }, totalCampaigns),
+      monthly: await getCountAndPercentage({ status: "Active", createdAt: { $gte: timeFilters.monthly } }, totalCampaigns),
+      yearly: await getCountAndPercentage({ status: "Active", createdAt: { $gte: timeFilters.yearly } }, totalCampaigns),
+    };
+
+    const scheduledCampaigns: Record<TimeFilterKey, any> = {
+      daily: await getCountAndPercentage({ status: "Scheduled", startDate: { $gte: timeFilters.daily } }, totalCampaigns),
+      weekly: await getCountAndPercentage({ status: "Scheduled", startDate: { $gte: timeFilters.weekly } }, totalCampaigns),
+      monthly: await getCountAndPercentage({ status: "Scheduled", startDate: { $gte: timeFilters.monthly } }, totalCampaigns),
+      yearly: await getCountAndPercentage({ status: "Scheduled", startDate: { $gte: timeFilters.yearly } }, totalCampaigns),
+    };
+
+    const totalAudience: Record<TimeFilterKey, any> = {
+      daily: await getCountAndPercentage({ createdAt: { $gte: timeFilters.daily } }, totalFilters),
+      weekly: await getCountAndPercentage({ createdAt: { $gte: timeFilters.weekly } }, totalFilters),
+      monthly: await getCountAndPercentage({ createdAt: { $gte: timeFilters.monthly } }, totalFilters),
+      yearly: await getCountAndPercentage({ createdAt: { $gte: timeFilters.yearly } }, totalFilters),
+    };
+
+    const emailsSentStats: any = {};
+    for (const key of Object.keys(timeFilters) as TimeFilterKey[]) {
+      const campaigns: ICampaign[] = await Campaign.find({ createdAt: { $gte: timeFilters[key] } });
+      const count = campaigns.length;
+      const totalOpens = campaigns.reduce((sum, c) => sum + Number(c.openRate ?? 0), 0);
+      const totalClicks = campaigns.reduce((sum, c) => sum + Number(c.ctr ?? 0), 0);
+      const openRate = count ? +(totalOpens / count).toFixed(2) : 0;
+      const clickRate = count ? +(totalClicks / count).toFixed(2) : 0;
+      emailsSentStats[key] = { emailsSent: count, openRate, clickRate };
+    }
 
     const monthlyEmailStats = await Promise.all(
       Array.from({ length: 12 }, async (_, month) => {
-        const from = getStartOfMonth(month, year);
-        const to = getEndOfMonth(month, year);
+        const from = getStartOfMonth(month, currentYear);
+        const to = getEndOfMonth(month, currentYear);
+        const logs = await Campaign.find({ createdAt: { $gte: from, $lte: to } });
 
-        const dailyLogs = await EmailLog.find({ dateSent: { $gte: new Date(to.getTime() - 24 * 60 * 60 * 1000), $lte: to } });
-        const weeklyLogs = await EmailLog.find({ dateSent: { $gte: new Date(to.getTime() - 7 * 24 * 60 * 60 * 1000), $lte: to } });
-        const monthlyLogs = await EmailLog.find({ dateSent: { $gte: from, $lte: to } });
-
-        const formatStats = (logs: typeof monthlyLogs) => {
-          const opens = logs.reduce((sum, log) => sum + log.opens, 0);
-          const clicks = logs.reduce((sum, log) => sum + log.clicks, 0);
-          const total = logs.length;
-          return {
-            emailsSent: total,
-            openRate: total ? Number(((opens / total) * 100).toFixed(2)) : 0,
-            clickRate: total ? Number(((clicks / total) * 100).toFixed(2)) : 0,
-          };
-        };
+        const openRate = logs.length
+          ? +(logs.reduce((sum, c) => sum + Number(c.openRate ?? 0), 0) / logs.length).toFixed(2)
+          : 0;
+        const clickRate = logs.length
+          ? +(logs.reduce((sum, c) => sum + Number(c.ctr ?? 0), 0) / logs.length).toFixed(2)
+          : 0;
 
         return {
           month: from.toLocaleString("default", { month: "short" }),
-          daily: formatStats(dailyLogs),
-          weekly: formatStats(weeklyLogs),
-          monthly: formatStats(monthlyLogs),
+          daily: emailsSentStats.daily,
+          weekly: emailsSentStats.weekly,
+          monthly: { emailsSent: logs.length, openRate, clickRate },
         };
       })
     );
 
-    // Updated Campaign Performance (Daily/Weekly/Monthly) for current month only
     const { start, end } = getThisMonthDates();
-    const emailLogsThisMonth = await EmailLog.find({ dateSent: { $gte: start, $lte: end } });
+    const currentMonthCampaigns: ICampaign[] = await Campaign.find({ createdAt: { $gte: start, $lte: end } });
 
-    const getPerformanceStats = (logs: typeof emailLogsThisMonth) => {
-      const dateMap: { [date: string]: { opens: number; clicks: number; total: number } } = {};
-
+    const aggregatePerformance = (logs: ICampaign[]) => {
+      const grouped: Record<string, { opens: number; clicks: number; total: number }> = {};
       logs.forEach((log) => {
-        const dateKey = log.dateSent.toISOString().slice(0, 10);
-        if (!dateMap[dateKey]) {
-          dateMap[dateKey] = { opens: 0, clicks: 0, total: 0 };
-        }
-        dateMap[dateKey].opens += log.opens;
-        dateMap[dateKey].clicks += log.clicks;
-        dateMap[dateKey].total += 1;
+        const dateKey = log.createdAt.toISOString().slice(0, 10);
+        if (!grouped[dateKey]) grouped[dateKey] = { opens: 0, clicks: 0, total: 0 };
+        grouped[dateKey].opens += Number(log.openRate ?? 0);
+        grouped[dateKey].clicks += Number(log.ctr ?? 0);
+        grouped[dateKey].total += 1;
       });
 
-      return Object.entries(dateMap)
-        .map(([date, { opens, clicks, total }]) => ({
-          date,
-          openRate: total ? Number(((opens / total) * 100).toFixed(2)) : 0,
-          clickRate: total ? Number(((clicks / total) * 100).toFixed(2)) : 0,
-        }))
-        .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+      return Object.entries(grouped).map(([date, data]) => ({
+        date,
+        openRate: data.total ? +(data.opens / data.total).toFixed(2) : 0,
+        clickRate: data.total ? +(data.clicks / data.total).toFixed(2) : 0,
+      }));
     };
 
     const campaignPerformance = {
-      daily: getPerformanceStats(emailLogsThisMonth.filter((log) => log.dateSent >= getDateRange(1))),
-      weekly: getPerformanceStats(emailLogsThisMonth.filter((log) => log.dateSent >= getDateRange(7))),
-      monthly: getPerformanceStats(emailLogsThisMonth.filter((log) => log.dateSent >= getDateRange(30))),
+      daily: aggregatePerformance(currentMonthCampaigns.filter((c) => c.createdAt >= timeFilters.daily)),
+      weekly: aggregatePerformance(currentMonthCampaigns.filter((c) => c.createdAt >= timeFilters.weekly)),
+      monthly: aggregatePerformance(currentMonthCampaigns),
       yAxisMax: 1000,
     };
 
-    const emailLogsLast30Days = await EmailLog.find({ dateSent: { $gte: getDateRange(30) } });
-    const totalEmails = emailLogsLast30Days.length;
-    const totalOpens = emailLogsLast30Days.reduce((sum, log) => sum + log.opens, 0);
-    const totalClicks = emailLogsLast30Days.reduce((sum, log) => sum + log.clicks, 0);
-    const openRate = totalEmails ? ((totalOpens / totalEmails) * 100).toFixed(2) : "0";
-    const clickRate = totalEmails ? ((totalClicks / totalEmails) * 100).toFixed(2) : "0";
-
-    const recentActivity = await ActivityLog.find().sort({ createdAt: -1 }).limit(10);
+    const recentActivity = await Campaign.find({})
+      .sort({ createdAt: 1 })
+      .limit(10)
+      .populate("userId", "firstName lastName email")
+      .select("name createdAt userId");
 
     res.status(200).json({
       activeCampaigns,
       scheduledCampaigns,
       totalAudience,
       emailsSent: {
-        daily: emailsSentDaily,
-        weekly: emailsSentWeekly,
-        monthly: emailsSentMonthly,
+        ...emailsSentStats,
         monthlyStats: monthlyEmailStats,
         yAxisMax: 2000,
       },
       campaignPerformance,
       engagementMetrics: {
-        openRate: `${openRate}%`,
-        clickRate: `${clickRate}%`,
+        openRate: `${emailsSentStats.monthly?.openRate || 0}%`,
+        clickRate: `${emailsSentStats.monthly?.clickRate || 0}%`,
       },
       recentActivity,
     });
-  } catch (error) { console.error("Error fetching dashboard data:", error); res.status(500).json({ message: "Internal Server Error" }); }
+  } catch (error) {
+    console.error("Error fetching dashboard data:", error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
 };
