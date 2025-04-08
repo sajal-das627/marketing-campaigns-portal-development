@@ -1,31 +1,59 @@
 import { Request, Response } from 'express';
 import { CriteriaBlock } from '../models/criteriaBlock';
 
-// ✅ Create Criteria Block
+type CriteriaType = 'string' | 'number' | 'date';
+
+const allowedOperatorsMap: Record<CriteriaType, string[]> = {
+  string: ['equals', 'not equals', 'contains', 'startsWith', 'endsWith'],
+  number: ['equals', 'not equals', 'greaterThan', 'lessThan', 'between'],
+  date: ['before', 'after', 'on', 'between'],
+};
+
 export const createCriteriaBlock = async (req: Request, res: Response) => {
   try {
-    const { name, type, category } = req.body;
+    const { name, type, category, operators } = req.body;
 
-    if (!name || !type || !category) {
+    if (!name || !type || !category || !operators) {
       return res.status(400).json({ success: false, message: 'Missing required fields.' });
     }
 
-    // Check for duplicate name within the same category (case-insensitive)
+    if (!Array.isArray(operators) || operators.length === 0) {
+      return res.status(400).json({ success: false, message: 'Operators must be a non-empty array.' });
+    }
+
+    // ✅ Validate type safely
+    if (!['string', 'number', 'date'].includes(type)) {
+      return res.status(400).json({ success: false, message: `Invalid type: ${type}` });
+    }
+
+    const allowedOperators = allowedOperatorsMap[type as CriteriaType];
+    const invalidOperators = operators.filter((op: string) => !allowedOperators.includes(op));
+    if (invalidOperators.length > 0) {
+      return res.status(400).json({
+        success: false,
+        message: `Invalid operator(s) for type "${type}": ${invalidOperators.join(', ')}`,
+      });
+    }
+
     const existingBlock = await CriteriaBlock.findOne({
       name: { $regex: `^${name}$`, $options: 'i' },
-      category
+      category,
     });
 
     if (existingBlock) {
       return res.status(409).json({
         success: false,
-        message: 'A Criteria Block with the same name already exists in this category.'
+        message: 'A Criteria Block with the same name already exists in this category.',
       });
     }
 
-    const newBlock = await CriteriaBlock.create({ name, type, category });
+    const newBlock = await CriteriaBlock.create({ name, type, category, operators });
 
-    return res.status(201).json({ success: true, message: 'Criteria Block created.', data: newBlock });
+    return res.status(201).json({
+      success: true,
+      message: 'Criteria Block created.',
+      data: newBlock,
+    });
   } catch (error) {
     console.error('Error creating criteria block:', error);
     return res.status(500).json({ success: false, message: 'Internal Server Error' });

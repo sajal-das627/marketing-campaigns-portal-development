@@ -48,6 +48,7 @@ export interface ICampaign extends Document {
   audience: mongoose.Types.ObjectId;
   template: mongoose.Types.ObjectId;
   status: "Scheduled" | "Draft" | "Active" | "Completed" | "On Going" | "Expired" | "Paused";
+  userId?: mongoose.Types.ObjectId;
   createdAt: Date;
   publishedDate?: Date; // ✅ Ensure publishedDate is optional
   openRate: Number; 
@@ -67,6 +68,7 @@ const CampaignSchema: Schema = new Schema({
   audience: { type: mongoose.Schema.Types.ObjectId, ref: "Filter", required: true },
   template: { type: mongoose.Schema.Types.ObjectId, ref: "Template", required: true },
   status: { type: String, enum: ["Scheduled", "Draft", "Active", "Completed", "On Going", "Expired", "Paused", "Not Yet Started"], required: true },
+  userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },  
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now },
   publishedDate: { type: Date, default: null }, // ✅ Ensure `publishedDate` is optional & defaults to null

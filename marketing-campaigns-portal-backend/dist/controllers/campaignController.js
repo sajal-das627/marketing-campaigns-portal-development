@@ -154,6 +154,7 @@ const createOrUpdateCampaign = (req, res) => __awaiter(void 0, void 0, void 0, f
             type,
             audience,
             template,
+            userId: "67daedeaff85ef645f71206f",
             schedule: schedule || null, // ✅ Allow null schedule
             status: status || "Draft",
         });
