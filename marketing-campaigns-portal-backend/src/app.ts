@@ -14,6 +14,7 @@ import filterRoutes from "./routes/filterRoutes";
 import templateRoutes from "./routes/templateRoutes";
 import dashboardRoutes from "./routes/dashboardRoutes";
 import emailRoutes from "./routes/emailRoutes";
+import criteriaBlockRoutes from './routes/criteriaBlockRoutes'; // Import Criteria Block Routes
 
 import dotenv from "dotenv";
 
@@ -41,6 +42,7 @@ app.use("/api/filters", filterRoutes);
 app.use("/api/templates", templateRoutes);
 app.use("/api/dashboard", dashboardRoutes); // Register Dashboard Routes
 app.use("/api/emails", emailRoutes);
+app.use('/api/criteria-blocks', criteriaBlockRoutes);
 // Global Error Handler
 app.use(errorHandler);
 
