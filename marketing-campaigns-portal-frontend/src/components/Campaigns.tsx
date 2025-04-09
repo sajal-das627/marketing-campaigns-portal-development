@@ -22,6 +22,8 @@ import { ThemeContext } from "@emotion/react";
 import { CampaignData } from "types/campaign";
 import EditCampaignModal from "./EditCampaignModal";
 import DeleteConfirmationModal from "./Modals/DeleteModal";
+import dayjs, { Dayjs } from 'dayjs';
+
 // import { Types } from "mongoose";
 import EmptyCampaign from "./CampaignWizard/EmptyCampaign";
 import { updateCampaignList } from '../redux/slices/campaignSlice'; 
@@ -42,8 +44,8 @@ const Campaigns: React.FC<CampaignProp> = () => {
     search: string;
     status: string;
     type: string;
-    startDate: Date | null;
-    endDate: Date | null;
+    startDate: Dayjs | null;
+    endDate: Dayjs | null;
     sortBy: string;
     page: number;
     limit: number;
@@ -187,7 +189,7 @@ const Campaigns: React.FC<CampaignProp> = () => {
 
 
   return (
-    <Container sx={{py: 4, bgcolor: '#F8F9FE',  maxWidth:  {xs: '100%', lg: '100%', xl:'80%'}, }}>
+    <Container sx={{py: 4, bgcolor: '#F8F9FE',  maxWidth:  {xs: '100%',}, }}>
       <Box sx={{display: 'flex', justifyContent: 'space-between'}}>
       <Typography sx={{ fontSize: "26px", }} gutterBottom>
         Manage Campaign
@@ -307,7 +309,7 @@ const Campaigns: React.FC<CampaignProp> = () => {
  <DatePicker
         label={isSmallScreen ? "Start" : "Start Date"}
         value={filters.startDate}
-        onChange={(date: Date | null) =>
+        onChange={(date: Dayjs | null) =>
           setFilters((prev) => ({ ...prev, startDate: date }))
         }
         slotProps={{
@@ -336,7 +338,7 @@ const Campaigns: React.FC<CampaignProp> = () => {
       <DatePicker
         label={isSmallScreen ? "End" : "End Date"}
         value={filters.endDate}
-        onChange={(date: Date | null) =>
+        onChange={(date: Dayjs | null) =>
           setFilters((prev) => ({ ...prev, endDate: date }))
         }
         slotProps={{

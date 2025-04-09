@@ -30,11 +30,14 @@ import { CampaignData, Schedule } from '../../types/campaign';
 import { createCampaign, fetchCampaignById } from '../../redux/slices/campaignSlice';
 import Step1Audience from './Step1Audience';
 import SuccessModal from './SuccessModal';
+import { useNavigate } from 'react-router-dom';
+// import useUnsavedChangesWarning from '../../hooks/usePrompt';
+
 import { useSelector } from 'react-redux';
 import { RootState } from "../../redux/store";
 import { updateCampaign } from "../../redux/slices/campaignSlice";
-
-
+import DeleteModal from '../Modals/DeleteModal';
+import {DynamicIconProps} from '../../types/modal';
 const SpacedBox = styled(Box)(({ theme }) => ({
   marginTop: theme.spacing(2),
   marginBottom: theme.spacing(2),
@@ -108,6 +111,15 @@ export default function CampaignCreator() {
     ctr: 0,
     delivered: 0,
   });
+  const [isDeleteModalopen, setIsDeleteModalopen] = useState(false);
+
+  const navigate = useNavigate();
+  // useUnsavedChangesWarning(!isFormSaved);
+  const handleExit = () => {
+      // const leave = window.confirm('You have unsaved changes. Do you really want to leave?');
+      // if (!leave) return;
+    navigate('/'); 
+  };
 
   let steps = [], stepIcons: React.ElementType[] = [];
   if(campaignData.type === "Real Time"){  
@@ -346,7 +358,7 @@ export default function CampaignCreator() {
   };
 
   return (
-    <Container sx={{ py: 4, bgcolor: '#F8F9FE', maxWidth: {xs: '100%', md: '80%',}, }}>
+    <Container sx={{ display:'flex', flexDirection:'column', flexGrow:10, py: 4, bgcolor: '#F8F9FE', maxWidth: {xs: '100%',}, }}>
       <Typography sx={{ fontSize: "26px", }} gutterBottom>
         Create a New Campaign
       </Typography>
@@ -356,6 +368,17 @@ export default function CampaignCreator() {
           {validationErrors[0]}
         </Alert>
       )}
+
+      <DeleteModal
+        open={isDeleteModalopen}
+        handleClose={() => setIsDeleteModalopen(false)}
+        handleConfirm={handleExit}
+        title="Exit Campaign"
+        message="You have unsaved changes. Do you really want to leave?"
+        btntxt = "Discard"
+        icon = { { type: "cancel" } as DynamicIconProps }
+        color = "warning"
+      />
 
       <Box >
         <Card>
@@ -413,7 +436,17 @@ export default function CampaignCreator() {
                 );
               })}
             </Stepper>
+            <Box
+          sx={{
+            minwidth: '100%',
+            minHeight: { xs: '300px', md: '400px' },
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'flex-start',
+          }}
+        >
             {renderStepContent(activeStep)}
+            </Box>
             <SpacedBox sx={{ width: "100%", borderTop: '2px solid #E5E5E5', pt: 2 }}>
               <Grid container sx={{ justifyContent: "space-between" }}  >
                 <Grid>
@@ -426,6 +459,9 @@ export default function CampaignCreator() {
                   </Button>
                 </Grid>
                 <Grid>
+                          <Button onClick={()=>setIsDeleteModalopen(true)} color="error" variant="contained" sx={{mr:1.5}}>exit</Button>
+                  
+                
                   <Button sx={{ bgcolor: "#0057D9" }} variant="contained" onClick={handleNextStep}>
                     {(activeStep === steps.length - 1) ? 'Launch Campaign' : activeStep === 0 ? 'Next' : 'Save & Continue'}
                   </Button>

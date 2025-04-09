@@ -177,7 +177,6 @@ const campaignResponses: Array<{
   if (loading) return <p>Loading dashboard...</p>;
   if (error) return <p>Error: {error}</p>;
   return (
-    <Container>
     <Box sx={{
       p: 3, bgcolor: '#F8F9FE', maxWidth: '100%', overflow: 'hidden',
       // '& *': { color: '#495057' }
@@ -251,7 +250,7 @@ const campaignResponses: Array<{
                 <Box sx={{ m: 1 }} component="img" src="/icons/schedule_campaigns.png" alt="Active Campaigns Icon" />
                 <FormControl sx={{ width: 100 }}>
                   <Select
-                    value={audienceDropdownOption}
+                    value={scheduleDropdownOption}
                     onChange={(e) => setScheduleDropdownOption(e.target.value as ScheduledKey)}
                     sx={{ fontSize: 10, height: 30, color: '#495057' }}
                   >
@@ -360,7 +359,6 @@ const campaignResponses: Array<{
       </Grid>
     </Grid>
     </Box>
-    </Container>
   );
 };
 

@@ -16,6 +16,7 @@ import {
   Badge,
   
 } from "@mui/material";
+import { Outlet } from 'react-router-dom';
 
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import SearchIcon from '@mui/icons-material/Search';
@@ -167,11 +168,20 @@ const ResponsiveLayout: React.FC = () => {
         </Drawer>
       </Hidden>
 
-      {/* <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
+       {/* <Box
+        component="main"
+        sx={{
+          flexGrow: 1,
+          // bgcolor: 'red',
+          bgcolor: 'background.default',
+          p: 1,
+          width: { sm: `calc(100% - ${drawerWidth}px)` },
+          marginTop: '20px', // Adjust this based on AppBar height
+          minHeight: '100vh',
+        }}
+      >
         <Toolbar />
-        <Typography paragraph>
-          Welcome to your responsive layout!
-        </Typography>
+        <Outlet />
       </Box> */}
     </Box>
   );

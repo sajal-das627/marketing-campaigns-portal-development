@@ -83,7 +83,7 @@ const Step2Templates: React.FC<Step2TemplatesProps> = ({ handleChange, campaignD
   // Filter templates based on the selected type
   const filteredTemplates = templates.filter((template) => template.type === templateData.type);
 
-  const isSelected = (selectVal: number | string | Types.ObjectId) => {
+  const isSelected = (selectVal: string | Types.ObjectId) => {
     return campaignData.template === selectVal ? '2px solid #007BFF' : '1px solid #ddd';
   };
 
@@ -122,8 +122,10 @@ const Step2Templates: React.FC<Step2TemplatesProps> = ({ handleChange, campaignD
           <Typography variant="h6" >Select  Template</Typography>
           <Typography sx={{ color: "#626262" }}>Choose from saved templates or create new template.</Typography>
         </Box>
-        <Button variant="contained" sx={{ bgcolor: '#0057D9', color: '#fff', fontSize: { xs: '12px', md: '14px' }, p: 1, ":hover": { bgcolor: '#2068d5' } }}> +&nbsp;Create&nbsp;New&nbsp;Template  </Button>
-      </Box>
+        <Button variant="contained"
+                  sx={{ bgcolor: '#0057D9', color: '#fff', fontSize: { xs: '12px', sm: '14px' }, p: 1, mt:{xs:1, md:0}, ":hover": { bgcolor: '#2068d5' } }}> 
+                  +&nbsp;Create&nbsp;New&nbsp;Template</Button>
+            </Box>
       <Typography variant="h6">Choose Template</Typography>
 
       <Container maxWidth="md" sx={{ p: 2 }}>
