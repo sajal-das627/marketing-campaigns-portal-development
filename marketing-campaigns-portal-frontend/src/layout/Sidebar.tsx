@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { List, ListItem, ListItemText, ListItemIcon, Collapse, Box, Drawer, useTheme } from "@mui/material";
+import { List, ListItem, ListItemText, ListItemIcon, Collapse, Box, Drawer, useTheme, IconButton } from "@mui/material";
 import { ExpandLess, ExpandMore, Dashboard as DashboardIcon, Campaign as CampaignIcon, Create as CreateIcon, ViewModule as TemplateIcon, Group as AudienceIcon, ChevronRight } from "@mui/icons-material";
 import DescriptionIcon from "@mui/icons-material/Description";
+import MenuIcon from "@mui/icons-material/Menu";
 
 const CollapsibleMenu = () => {
   const location = useLocation();
@@ -126,8 +127,14 @@ const CollapsibleMenu = () => {
   );
 };
 
-const Sidebar = (props:any) => {
-  const {drawerWidth} = props;
+interface SidebarProps {
+  drawerWidth : number;
+  mobileOpen: boolean;
+  handleDrawerToggle: () => void;
+}
+
+const Sidebar: React.FC<SidebarProps> = ({drawerWidth, mobileOpen, handleDrawerToggle}) => {
+  // const {drawerWidth, mobileOpen, handleDrawerToggle} = props;
 
   return (
     <Drawer
@@ -138,9 +145,20 @@ const Sidebar = (props:any) => {
         [`& .MuiDrawer-paper`]: { width: drawerWidth, boxSizing: 'border-box' },
       }}
     >
-      <Box sx={{ padding: "20px", marginBottom: "5px" }}>
-        <img src="/icons/logo.png" alt="logo" width={'auto'} height={'35px'} />
-      </Box>
+      <Box sx={{ display: 'flex',padding: "20px", marginBottom: "5px" }}>
+          <Box component='img' src="/icons/logo.png" alt="logo" width={'auto'} height={'35px'} />
+          <Box sx={{ display: { md: 'none' } }}>
+              <IconButton
+                  color="inherit"
+                  edge="start"
+                  onClick={handleDrawerToggle}
+                  sx={{ ml: 2 }}
+                >
+              <MenuIcon />
+              </IconButton>
+          </Box>
+        </Box>
+      
       <Box sx={{ overflow: 'auto' }}>
         <CollapsibleMenu />
       </Box>

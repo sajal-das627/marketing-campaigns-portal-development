@@ -35,13 +35,16 @@ const apiClient = axios.create({
 
 
   // Get all filters with pagination, search, and sorting
-  export const getFilters = async (page = 1, search = "", sortBy = "", order = "asc", limit = 10) => {
-    const params: any = { page, limit };
+  export const getFilters = async (page = 1, search = "", sortBy = "", order = "asc", limit = 10, isDraft?: boolean) => {
+    const params: any = { page, limit:10 };
   
     if (search) params.search = search;
     if (sortBy) {
       params.sortBy = sortBy;
       params.order = order; // Default sorting order
+    }
+    if (typeof isDraft === "boolean") {
+      params.isDraft = isDraft;
     }
   
     const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/filters`, { params });

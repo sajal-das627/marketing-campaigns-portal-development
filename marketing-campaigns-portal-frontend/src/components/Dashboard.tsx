@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   styled,
@@ -19,6 +19,11 @@ import { Types } from 'mongoose';
 import CampaignPerformanceChart from './Charts/CampaignPerformanceChart';
 import EmailSent from './Charts/EmailSent';
 
+import { RootState } from '../../src/redux/store';
+import { useSelector } from 'react-redux';
+import { useAppDispatch } from '../../src/redux/hooks';
+import { fetchDashboardData } from '../../src/redux/slices/dashboardSlice';
+import { TotalAudience, ScheduledCampaigns, ActiveCampaigns } from 'types/dashboard';
 
 const StyledButton = styled(Button)({
   position: 'relative',
@@ -41,7 +46,6 @@ const StyledButton = styled(Button)({
   },
   '&:hover': {
     backgroundColor: 'transparent',
-
     '& .MuiTypography-root': {
       color: '#fff  '
     },
@@ -53,7 +57,6 @@ const StyledButton = styled(Button)({
 
 const StyledText = styled(Typography)({
   position: 'relative',
-
   lineHeight: '30px',
   color: '#0057D9  ',
   transition: 'all 0.6s ease-out',
@@ -64,13 +67,18 @@ interface DashboardProps {
 
 }
 
+type AudienceKey = keyof TotalAudience; 
+type ScheduledKey = keyof ScheduledCampaigns;
+type ActiveKey = keyof ActiveCampaigns;
+
 const Dashboard: React.FC<DashboardProps> = () => {
   
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
-  const [campaignDropdownOption, setCampaignDropdownOption] = useState("weekly");
-  const [audienceDropdownOption, setaudienceDropdownOption] = useState("monthly");
-  
+  const [activeDropdownOption, setActiveDropdownOption] = useState<ActiveKey>("weekly");
+  const [scheduleDropdownOption, setScheduleDropdownOption] = useState<ActiveKey>("weekly");
+  const [audienceDropdownOption, setaudienceDropdownOption] = useState<AudienceKey>("monthly");
+  const dispatch = useAppDispatch();
   const navigation = useNavigate();
   //demo api response
 const campaignResponses: Array<{
@@ -128,14 +136,52 @@ const campaignResponses: Array<{
 
   ];
     console.log(campaignResponses[0].activeCampaigns);
-
+    
+    function timeAgo(date: number) {
+      const seconds = Math.floor((Date.now() - new Date(date).getTime()) / 1000);
+    
+      const units = [
+        { label: 'month', seconds: 2592000 },  // 30*24*60*60
+        { label: 'week', seconds: 604800 },    // 7*24*60*60
+        { label: 'day', seconds: 86400 },      // 24*60*60
+        { label: 'hour', seconds: 3600 },
+        { label: 'minute', seconds: 60 },
+        { label: 'second', seconds: 1 }
+      ];
+    
+      for (const unit of units) {
+        const value = Math.floor(seconds / unit.seconds);
+        if (value >= 1) {
+          return `${value} ${unit.label}${value !== 1 ? 's' : ''} ago`;
+        }
+      }
+    
+      return 'just now';
+    }
+    
+    
+    
+    const { data, loading, error } = useSelector((state: RootState) => state.dashboard);
+    
+    useEffect(() => {
+      const fetchData = async () => {
+        const result = await dispatch(fetchDashboardData());
+        if (fetchDashboardData.fulfilled.match(result)) {
+          console.log("🎯 Data from payload:", result.payload);
+        }
+      };
+      fetchData();
+    }, [dispatch]);
+    
+    
+  if (loading) return <p>Loading dashboard...</p>;
+  if (error) return <p>Error: {error}</p>;
   return (
-    <Container>
     <Box sx={{
-      p: 3, bgcolor: '#F8F9FE',
+      p: 3, bgcolor: '#F8F9FE', maxWidth: '100%', overflow: 'hidden',
       // '& *': { color: '#495057' }
     }}>
-
+      
       <Box
         display="flex"
         flexDirection={{ xs: 'column', md: 'row' }}
@@ -144,7 +190,7 @@ const campaignResponses: Array<{
         mb={3}
       >
         <Typography variant="h4" component="h1" marginBottom={{ xs: 1 }} >
-          Dashboard
+          Dashboard&nbsp;
         </Typography>
 
         <Box display="flex"
@@ -156,8 +202,8 @@ const campaignResponses: Array<{
             </StyledText>
           </StyledButton>
 
-          <StyledButton variant="outlined" sx={{ mr: 2, p: 1 }}>
-            <StyledText variant="button">
+          <StyledButton variant="outlined" sx={{ mr: 2, p: 1 }} onClick={()=> navigation('/templates')}>
+            <StyledText variant="button" >
               Manage&nbsp;Templates
             </StyledText>
           </StyledButton>
@@ -177,8 +223,8 @@ const campaignResponses: Array<{
 
                 <FormControl sx={{ width: 100 }}>
                   <Select
-                    value={campaignDropdownOption}
-                    onChange={(e) => setCampaignDropdownOption(e.target.value)}
+                    value={activeDropdownOption}
+                    onChange={(e) => setActiveDropdownOption(e.target.value as ActiveKey)}
                     sx={{ fontSize: 10, height: 30, color: '#495057', }}
                   >
                     <MenuItem sx={{ fontSize: 10, color: '#495057' }} value="daily">Daily</MenuItem>
@@ -189,7 +235,7 @@ const campaignResponses: Array<{
               </Box>
               <Typography color='#495057' fontSize={'14px'} pb={1} pt={1} >Active Campaigns</Typography>
               <Box display="flex" justifyContent={'space-between'} alignItems={'center'}>
-                <Typography variant="h4" sx={{ fontWeight: 'bold' }}>{campaignResponses[0].activeCampaigns}</Typography>
+                <Typography variant="h4" sx={{ fontWeight: 'bold' }}>{data?.activeCampaigns?.daily?.count}</Typography>
                 <Typography variant="body2" color="#2B8A3E" bgcolor="#ECFDF3" display={'inline'} border="1px solid #D3F9D8" borderRadius='6px' p={'4px'} >
                   ↑ 12%
                 </Typography>
@@ -202,11 +248,21 @@ const campaignResponses: Array<{
             <CardContent>
               <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <Box sx={{ m: 1 }} component="img" src="/icons/schedule_campaigns.png" alt="Active Campaigns Icon" />
-                <Typography sx={{ fontSize: 10, color: '#6D6976', }}>Next in 2 days</Typography>
+                <FormControl sx={{ width: 100 }}>
+                  <Select
+                    value={scheduleDropdownOption}
+                    onChange={(e) => setScheduleDropdownOption(e.target.value as ScheduledKey)}
+                    sx={{ fontSize: 10, height: 30, color: '#495057' }}
+                  >
+                    <MenuItem sx={{ fontSize: 10, color: '#495057' }} value="daily">Daily</MenuItem>
+                    <MenuItem sx={{ fontSize: 10, color: '#495057' }} value="weekly">Weekly</MenuItem>
+                    <MenuItem sx={{ fontSize: 10, color: '#495057' }} value="monthly">Monthly</MenuItem>
+                  </Select>
+                </FormControl>
               </Box>
               <Typography color='#495057' fontSize={'14px'} pb={1} pt={1} >Scheduled Campaigns</Typography>
               <Box display="flex" justifyContent={'space-between'} alignItems={'center'}>
-                <Typography variant="h4" sx={{ fontWeight: 'bold' }}>{campaignResponses[0].scheduledCampaigns}</Typography>
+                <Typography variant="h4" sx={{ fontWeight: 'bold' }}>{data?.scheduledCampaigns?.[scheduleDropdownOption]?.count}</Typography>
                 <Typography variant="body2" color="#2B8A3E" bgcolor="#ECFDF3" display={'inline'} border="1px solid #D3F9D8" borderRadius='6px' p={'4px'} >
                   ↑ 8%
                 </Typography>
@@ -222,7 +278,7 @@ const campaignResponses: Array<{
                 <FormControl sx={{ width: 100 }}>
                   <Select
                     value={audienceDropdownOption}
-                    onChange={(e) => setaudienceDropdownOption(e.target.value)}
+                    onChange={(e) => setaudienceDropdownOption(e.target.value as AudienceKey)}
                     sx={{ fontSize: 10, height: 30, color: '#495057' }}
                   >
                     <MenuItem sx={{ fontSize: 10, color: '#495057' }} value="daily">Daily</MenuItem>
@@ -233,7 +289,7 @@ const campaignResponses: Array<{
               </Box>
               <Typography color='#495057' fontSize={'14px'} pb={1} pt={1} >Total Audience</Typography>
               <Box display="flex" justifyContent={'space-between'} alignItems={'center'}>
-                <Typography variant="h4" sx={{ color: 'black  ', fontWeight: 'bold' }}>{campaignResponses[0].totalAudience}</Typography>
+                <Typography variant="h4" sx={{ color: 'black  ', fontWeight: 'bold' }}>{data?.totalAudience?.[audienceDropdownOption]?.count ?? 'NA'}</Typography>
                 <Typography variant="body2" color="#2B8A3E" bgcolor="#ECFDF3" border="1px solid #D3F9D8" borderRadius='6px' display={'inline'} p={'4px'} >
                   ↑ 12%
                 </Typography>
@@ -285,14 +341,14 @@ const campaignResponses: Array<{
               </ListItem>
 
 
-              {campaignResponses[0].recentActivity.map((activity) => (
-                <ListItem key={activity.id.toString()} sx={{ alignItems: "flex-start", padding: { xs: 1, md: 2 },minHeight: { xs: 'auto', md: '64px' }, }}>
+              {data?.recentActivity.map((activity) => (
+                <ListItem key={activity._id.toString()} sx={{ alignItems: "flex-start", padding: { xs: 1, md: 2 },minHeight: { xs: 'auto', md: '64px' }, }}>
 
                   <Box component="img" src="/icons/recent_activity.png" alt="Activity Icon" sx={{ width: 24, height: 24, mr: { xs: 1, md: 2 }, flexShrink: 0 }} />
 
                   <ListItemText 
-                    primary={activity.type}
-                    secondary={`${activity.user} ${activity.details} - ${activity.timeAgo.toString()}`}
+                    primary={activity.name}
+                    secondary={`Michael Scott ${activity.name} - ${ timeAgo(activity.createdAt).toString() }`}
                     sx={{ margin: 0 }}
                   />
                 </ListItem>
@@ -303,7 +359,6 @@ const campaignResponses: Array<{
       </Grid>
     </Grid>
     </Box>
-    </Container>
   );
 };
 

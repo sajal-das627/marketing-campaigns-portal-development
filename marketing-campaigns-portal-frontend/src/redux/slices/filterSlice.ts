@@ -23,6 +23,7 @@ import { fetchFilterData,getFilters, getSingleFilter, duplicateFilter, deleteFil
     loading: boolean;
     error: string | null;
     appliedFilter: any | null;
+    isDraft: boolean;
   }
   
   const initialState: FilterState = {
@@ -33,9 +34,10 @@ import { fetchFilterData,getFilters, getSingleFilter, duplicateFilter, deleteFil
     loading: false,
     error: null,
     appliedFilter: null,
+    isDraft: false,
   };
   
-  
+  //remove this later
   export const fetchFiltersData = createAsyncThunk(
     "filters/fetchFilterData",
     async(filterId: string, {rejectWithValue})=>{   
@@ -54,11 +56,25 @@ import { fetchFilterData,getFilters, getSingleFilter, duplicateFilter, deleteFil
 export const fetchFilters = createAsyncThunk(
   "filters/fetchFilters",
   async (
-    { page, search, sortBy, order }: { page: number; search: string; sortBy: string; order: string },
+    {
+      page = 1,
+      search = '',
+      sortBy = '',
+      order = 'asc',
+      limit = 10,
+      isDraft = false,
+    }: {
+      page?: number;
+      search?: string;
+      sortBy?: string;
+      order?: string;
+      limit?: number;
+      isDraft?: boolean;
+    },
     { rejectWithValue }
   ) => {
     try {
-      const response = await getFilters(page, search, sortBy, order);
+      const response = await getFilters(page, search, sortBy, order, limit, isDraft);
 
       console.log("API Response:", response);
 

@@ -92,7 +92,7 @@
 // }
 
 
-/////////////////
+/////////////////1st code
 export interface Condition {
   field: string;
   operator: string;

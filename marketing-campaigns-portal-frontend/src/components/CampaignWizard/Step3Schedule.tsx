@@ -56,7 +56,7 @@ const ScheduleForm: React.FC<ScheduleFormProps> = ({ handleChange, campaignData,
 
         {/* Time & Date */}
         <Grid container spacing={3}>
-          <Grid size={4}>
+          <Grid size={{xs:6, md: 4}}>
             
             <TextField
               fullWidth
@@ -71,7 +71,7 @@ const ScheduleForm: React.FC<ScheduleFormProps> = ({ handleChange, campaignData,
               }}
             />
           </Grid>
-          <Grid size={4}>
+          <Grid size={ {xs:6, md: 4}}>
           <DatePicker
             name="startDate"
             label="Start Date*"
@@ -85,7 +85,7 @@ const ScheduleForm: React.FC<ScheduleFormProps> = ({ handleChange, campaignData,
             sx={{ minWidth: "145px" }}
           />
           </Grid>
-          <Grid size={4}>
+          <Grid size={{xs:6, md: 4}}>
           <DatePicker
             name="endDate"
             label="End Date*"

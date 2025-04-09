@@ -9,7 +9,7 @@ import FilterModal from './FilterModal';
 // import {generateStatement } from '../../utils/generateStatement'
 import {generateStatement, GroupsData } from '../../utils/generateStatement'
 
-import { fetchFiltersData, fetchFilters } from "../../redux/slices/filterSlice"
+import { fetchFilters } from "../../redux/slices/filterSlice"
 import { RootState } from "../../redux/store";
 import { useSelector } from "react-redux";
 import { useAppDispatch } from "../../redux/hooks";
@@ -78,7 +78,7 @@ const AudienceSelector: React.FC<AudienceSelectorProps> = ({ handleChange, campa
   );
 
   useEffect(() => {
-    dispatch(fetchFilters({ page, search: debouncedSearch, sortBy, order }));
+    dispatch(fetchFilters({ page, search: debouncedSearch, sortBy, order, /*isDraft: false*/ }));
   }, [dispatch, page, debouncedSearch, sortBy, order]);
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -107,7 +107,7 @@ const AudienceSelector: React.FC<AudienceSelectorProps> = ({ handleChange, campa
   
 
   useEffect(() => {
-    dispatch(fetchFilters({ page: 1, search: "", sortBy: "createdOn", order: "desc" }));
+    dispatch(fetchFilters({ page: 1, search: "", sortBy: "createdOn", order: "desc", /*isDraft: false*/ }));
   }, [dispatch]);
 
   console.log("Filters:", filters);
