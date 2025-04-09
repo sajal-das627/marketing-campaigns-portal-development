@@ -3,7 +3,7 @@ import { useSelector } from "react-redux";
 import { loadCampaigns, pauseResumeCampaign, duplicateCampaign, deleteCampaign } from "../redux/slices/campaignSlice";
 import { RootState } from "../redux/store";
 import { Table, TableBody, TableCell, TableHead, TableRow, Button, Typography, MenuItem, IconButton, TableContainer, Paper,
-Box, useMediaQuery, useTheme,FormControl, InputLabel, Select, InputBase ,Container, Alert,
+Box, useMediaQuery, useTheme,FormControl, InputLabel, Select, InputBase ,Container, Alert, Snackbar,
  } from "@mui/material";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
@@ -21,7 +21,7 @@ import SearchIcon from "@mui/icons-material/Search";
 import { ThemeContext } from "@emotion/react";
 import { CampaignData } from "types/campaign";
 import EditCampaignModal from "./EditCampaignModal";
-import DeleteConfirmationModal from "./CampaignWizard/DeleteModal";
+import DeleteConfirmationModal from "./Modals/DeleteModal";
 // import { Types } from "mongoose";
 import EmptyCampaign from "./CampaignWizard/EmptyCampaign";
 import { updateCampaignList } from '../redux/slices/campaignSlice'; 
@@ -37,6 +37,7 @@ const Campaigns: React.FC<CampaignProp> = () => {
   const { campaigns, loading, error, pagination } = useSelector((state: RootState) => state.campaign);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [highlightedId, setHighlightedId] = useState<string|null>(null);
+  const [showDeleteAlert, setShowDeleteAlert] = useState(false);
   const [filters, setFilters] = useState<{
     search: string;
     status: string;
@@ -128,6 +129,7 @@ const Campaigns: React.FC<CampaignProp> = () => {
   const handleConfirmDelete = () => {
     if (selectedId) {
       dispatch(deleteCampaign(selectedId));
+      setShowDeleteAlert(true);
     }
     setIsDeleteModalopen(false);
   };
@@ -185,7 +187,7 @@ const Campaigns: React.FC<CampaignProp> = () => {
 
 
   return (
-    <Container sx={{py: 4, bgcolor: '#F8F9FE',  maxWidth: '80vw',}}>
+    <Container sx={{py: 4, bgcolor: '#F8F9FE',  maxWidth:  {xs: '100%', lg: '100%', xl:'80%'}, }}>
       <Box sx={{display: 'flex', justifyContent: 'space-between'}}>
       <Typography sx={{ fontSize: "26px", }} gutterBottom>
         Manage Campaign
@@ -193,7 +195,17 @@ const Campaigns: React.FC<CampaignProp> = () => {
       <Button variant="contained" onClick={()=>navigation('/create-campaign')}
       sx={{ bgcolor: '#0057D9', color: '#fff', fontSize: { xs: '12px', sm: '14px' }, p: 1, ":hover": { bgcolor: '#2068d5' } }}> +&nbsp;Create&nbsp;Campaign  </Button>
       </Box> 
-    
+      <Snackbar
+          open={showDeleteAlert}
+          autoHideDuration={3000}
+          onClose={() => setShowDeleteAlert(false)}
+          anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+          // sx={{mt:8}}
+        >
+          <Alert severity="success" onClose={() => setShowDeleteAlert(false)} sx={{ width: '100%' }}>
+            Campaign deleted successfully!
+          </Alert>
+        </Snackbar>
     <TableContainer component={Paper} ref={tableRef} sx={{ margin: '20px auto', pl:2, pr:2,borderRadius: '6px', overflow: 'x'  }}>
       
     {/* <Card sx={{ padding: 2 }} > ✅ Apply the ref here */}

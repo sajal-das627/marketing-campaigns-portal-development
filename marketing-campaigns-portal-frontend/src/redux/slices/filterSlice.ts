@@ -56,29 +56,36 @@ import { fetchFilterData,getFilters, getSingleFilter, duplicateFilter, deleteFil
 export const fetchFilters = createAsyncThunk(
   "filters/fetchFilters",
   async (
-    { page, search, sortBy, order, 
-      isDraft
-     }: { page: number; search: string; sortBy: string; order: string; 
-     isDraft?: boolean | number 
+    {
+      page = 1,
+      search = '',
+      sortBy = '',
+      order = 'asc',
+      limit = 10,
+      isDraft = false,
+    }: {
+      page?: number;
+      search?: string;
+      sortBy?: string;
+      order?: string;
+      limit?: number;
+      isDraft?: boolean;
     },
     { rejectWithValue }
   ) => {
     try {
-      const response = await getFilters(page, search, sortBy, order, 
-        isDraft ? Number(isDraft) : 0
-      );
+      const response = await getFilters(page, search, sortBy, order, limit, isDraft);
 
       console.log("API Response:", response);
 
       if (!response || !response.filters || !response.pagination) {
         throw new Error("Invalid API response: Missing pagination data");
       }
-      console.log(response.pagination.totalPages);
+
       return {
         filters: response.filters,
         currentPage: response.pagination.page,
         totalPages: response.pagination.totalPages,
-        isDraft: response.isDraft,
       };
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || "Failed to fetch filters");
@@ -156,11 +163,9 @@ export const updateFilterAsync = createAsyncThunk(
       })
       .addCase(fetchFilters.fulfilled, (state, action) => {
         state.loading = false;
-        console.log("isDraft",action.payload.isDraft);
         state.filters = action.payload.filters;
         state.currentPage = action.payload.currentPage;
         state.totalPages = action.payload.totalPages;
-        state.isDraft = action.payload.isDraft;
       })
       .addCase(fetchFilters.rejected, (state, action) => {
         state.loading = false;

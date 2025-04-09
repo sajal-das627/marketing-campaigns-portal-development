@@ -13,6 +13,8 @@ import TemplateManagement from "./components/Templates/TemplateManagement";
 import Login from "./features/auth/Login";
 import Header from "layout/Header";
 
+import ResponsiveLayout from "layout/ResponsiveLayout";
+
 const drawerWidth = 240;
 
 const App = () => {
@@ -25,8 +27,9 @@ const App = () => {
             <h1>Marketing Campaigns Portal</h1>
           </Toolbar>
         </AppBar> */}
-        <Header drawerWidth={drawerWidth}/>
-        <Sidebar drawerWidth={drawerWidth}/>
+        {/* <Header drawerWidth={drawerWidth}/>
+        <Sidebar drawerWidth={drawerWidth}/> */}
+        <ResponsiveLayout />
         <Box
           component="main"
           sx={{ flexGrow: 1, bgcolor: 'background.default', }}

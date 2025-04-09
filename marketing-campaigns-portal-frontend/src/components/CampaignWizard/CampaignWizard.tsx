@@ -346,7 +346,7 @@ export default function CampaignCreator() {
   };
 
   return (
-    <Container sx={{ py: 4, bgcolor: '#F8F9FE', maxWidth: '80vw' }}>
+    <Container sx={{ py: 4, bgcolor: '#F8F9FE', maxWidth: {xs: '100%', md: '80%',}, }}>
       <Typography sx={{ fontSize: "26px", }} gutterBottom>
         Create a New Campaign
       </Typography>
@@ -391,8 +391,8 @@ export default function CampaignCreator() {
                             color: activeStep >= index ? '#fff' : '#B8B8B8',
                             bgcolor: activeStep >= index ? '#0057D9' : '#F5F5F5',
                             '&.Mui-completed': { color: '#0057D9' },
-                            width: { xs: '24px', sm: '30px', md: '35px' },
-                            height: { xs: '24px', sm: '30px', md: '35px' },
+                            width: { xs: '35px',},
+                            height: { xs: '35px',},
                           }}
                         />
                       }

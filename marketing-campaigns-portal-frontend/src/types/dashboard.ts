@@ -12,9 +12,10 @@ export interface EmailRate {
   }
   
   export interface EmailsSent {
-    daily: number;
-    weekly: number;
-    monthly: number;
+    daily: {clickRate: number, emailsSent: number, openRate: number};
+    weekly: {clickRate: number, emailsSent: number, openRate: number};
+    monthly: {clickRate: number, emailsSent: number, openRate: number};
+    yearly: {clickRate: number, emailsSent: number, openRate: number};
     monthlyStats: MonthlyStat[];
     yAxisMax: number;
   }
@@ -33,19 +34,36 @@ export interface EmailRate {
   
   export interface RecentActivity {
     _id: string;
-    user: string;
+    name: string;
     action: string;
     status: string;
     message: string;
     timestamp: string;
     __v: number;
-    createdAt: string;
+    createdAt: number;
   }
-  
+
+  export interface ActiveCampaigns {
+    daily: {count: number, percentage: number};
+    weekly: {count: number, percentage: number};
+    monthly: {count: number, percentage: number};
+  }
+
+  export interface ScheduledCampaigns {
+    daily: {count: number, percentage: number};
+    weekly: {count: number, percentage: number};
+    monthly: {count: number, percentage: number};
+  }
+
+  export interface TotalAudience {
+    daily: {count: number, percentage: number};
+    weekly: {count: number, percentage: number};
+    monthly: {count: number, percentage: number};
+  }
   export interface DashboardData {
-    activeCampaigns: number;
-    scheduledCampaigns: number;
-    totalAudience: number;
+    activeCampaigns: ActiveCampaigns;
+    scheduledCampaigns: ScheduledCampaigns;
+    totalAudience: TotalAudience;
     emailsSent: EmailsSent;
     campaignPerformance: CampaignPerformance;
     engagementMetrics: EngagementMetrics;

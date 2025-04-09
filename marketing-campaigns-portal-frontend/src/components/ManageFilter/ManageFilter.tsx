@@ -1,12 +1,13 @@
 import React, {useState, useEffect} from "react";
 import { Typography, Box, Tabs, Tab, TextField, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Checkbox, Button, Select, MenuItem, InputAdornment, IconButton, Menu,
-  SelectChangeEvent, 
+  SelectChangeEvent, Snackbar, Alert,
   Divider, Modal,
  } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import CloseIcon from '@mui/icons-material/Close';
+import DeleteModal from "../Modals/DeleteModal";
 
 import { fetchFilters, applyFilter, duplicateFilterAsync, deleteFilterAsync, updateFilterAsync  } from "../../redux/slices/filterSlice";
 import { RootState } from "../../redux/store";
@@ -17,7 +18,6 @@ const ManageFilters = () => {
   
   const dispatch = useAppDispatch();
 
-
   const [search, setSearch] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState(""); // New state for debounced search
   const [sortBy, setSortBy] = useState("");
@@ -26,18 +26,21 @@ const ManageFilters = () => {
   const [openModal, setOpenModal] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [selectedFilter, setSelectedFilter] = useState<any>(null);
-
-  const [tabValue, setTabValue] = useState<boolean>(false);
+  const [showDeleteAlert, setShowDeleteAlert] = useState(false);
+  const [isDeleteModalopen, setIsDeleteModalopen] = useState(false);
+  // const [tabValue, setTabValue] = useState<boolean>(false);///delete
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
   
   const [selectedFilters, setSelectedFilters] = useState<string[]>([]);
   const [selectAll, setSelectAll] = useState(false);
+  
+  const [activeSubTab, setActiveSubTab] = useState<"saved" | "drafts">("saved");
+  const isDraft = activeSubTab === "drafts";
 
-  const { filters, currentPage, totalPages, loading, error, appliedFilter,
-    isDraft = tabValue   } = useSelector(
-   (state: RootState) => state.filter
- );
+  const { filters, currentPage, totalPages, loading, error, appliedFilter } = useSelector(
+    (state: RootState) => state.filter
+  );
   // const handleSelectAll = (event: React.ChangeEvent<HTMLInputElement>) => {
   //   const checked = event.target.checked;
   //   setSelectAll(checked);
@@ -90,11 +93,10 @@ const ManageFilters = () => {
     setAnchorEl(null);
   };
 
-  const handleTabChange = (event: React.SyntheticEvent, newValue: boolean) => {
-    // let val = boolean(newValue);
-    setTabValue(newValue);
-    console.log('tabValue', tabValue);
-    console.log('isDraft', isDraft);
+  const handleTabChange = (event: React.SyntheticEvent, newValue: "saved" | "drafts") => {
+    
+    setActiveSubTab(newValue); 
+    setPage(1);
   }
 
 
@@ -107,10 +109,8 @@ const ManageFilters = () => {
   }, [search]);
 
   useEffect(() => {
-    dispatch(fetchFilters({ page, search: debouncedSearch, sortBy, order, isDraft: Number(isDraft)
-     }));
-
-  }, [dispatch, page, debouncedSearch, sortBy, order, isDraft ]);
+    dispatch(fetchFilters({ page, search: debouncedSearch, sortBy, order, isDraft }));
+  }, [dispatch, page, debouncedSearch, sortBy, order, isDraft]);
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearch(e.target.value);
@@ -139,9 +139,11 @@ const ManageFilters = () => {
   };
 
   const handleDeleteFilter = (filterId: string) => {
-    if (window.confirm("Are you sure you want to delete this filter?")) {
+    // if (window.confirm("Are you sure you want to delete this filter?")) {
       dispatch(deleteFilterAsync(filterId));
-    }
+      setShowDeleteAlert(true);
+      setIsDeleteModalopen(false);
+    // }
   };
 
   const handleEditFilter = (filter: any) => {
@@ -163,11 +165,13 @@ const ManageFilters = () => {
       return;
     }
 
-    if (window.confirm(`Are you sure you want to delete ${selectedFilters.length} selected filters?`)) {
+    // if (window.confirm(`Are you sure you want to delete ${selectedFilters.length} selected filters?`)) {
       selectedFilters.forEach((filterId) => dispatch(deleteFilterAsync(filterId)));
       setSelectedFilters([]);
       setSelectAll(false);
-    }
+      setShowDeleteAlert(true);
+      setIsDeleteModalopen(false);
+    // }
   };
 
   return (
@@ -179,10 +183,24 @@ const ManageFilters = () => {
         Save your current fiters for quick access and rouse. Revisit and edit draft filters anytime to refino your criteria. This fosture keeps your filters organized and within reach, streamining your workflow in one convenient place
       </Typography>
 
+      <Snackbar
+          open={showDeleteAlert}
+          autoHideDuration={3000}
+          onClose={() => setShowDeleteAlert(false)}
+          anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+          // sx={{mt:8}}
+        >
+          <Alert severity="success" onClose={() => setShowDeleteAlert(false)} sx={{ width: '100%' }}>
+            Campaign deleted successfully!
+          </Alert>
+        </Snackbar>
+
+        <DeleteModal open={isDeleteModalopen} handleClose={()=>setIsDeleteModalopen(false)} handleConfirm={handleDeleteSelectedFilters} title='Delete Selected Filters' message='Are you sure you want to delete these filters? This action cannot be undone.'  />
+
       <Box bgcolor="white" boxShadow={2} borderRadius={2} padding={2}>
-        <Tabs value={tabValue} onChange={handleTabChange}>
-          <Tab sx={{ fontWeight: "600" }} label="Saved Filters" />
-          <Tab sx={{ fontWeight: "600" }} label="Drafts" />
+        <Tabs value={activeSubTab} onChange={handleTabChange}>
+          <Tab value="saved"  /*onClick={() => { setActiveSubTab("saved"); setPage(1); }}*/ sx={{ fontWeight: "600" }} label="Saved Filters" />
+          <Tab value="drafts" /*onClick={() => { setActiveSubTab("drafts"); setPage(1); }}*/ sx={{ fontWeight: "600" }} label="Drafts" />
         </Tabs>
 
         <Box display="flex" justifyContent="space-between" alignItems="center" padding={2} bgcolor="white">
@@ -232,8 +250,8 @@ const ManageFilters = () => {
                 <TableCell sx={{ position: 'relative' }}>                  
                     ACTIONS 
                     <Button  variant="contained" color="error" size="small"
-                      sx={{ position: 'absolute', top: 23, left: 90,}}
-                      onClick={handleDeleteSelectedFilters}
+                      sx={{ position: 'absolute', top: 23, left: 86,}}
+                      onClick={()=>setIsDeleteModalopen(true)}
                       disabled={selectedFilters.length === 0}
                     >
                       Delete Selected
