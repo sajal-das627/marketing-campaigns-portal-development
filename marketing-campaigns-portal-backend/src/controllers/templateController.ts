@@ -321,7 +321,7 @@ export const duplicateTemplate = async (req: Request, res: Response) => {
 
     // ✅ Remove `_id` and create a new name
     delete originalTemplateObject._id;
-    originalTemplateObject.name = `${originalTemplateObject.name} - Copy`; // Append "Copy"
+    originalTemplateObject.name = `Copy of ${originalTemplateObject.name}`; // Append "Copy"
     originalTemplateObject.createdAt = new Date();
     originalTemplateObject.lastModified = new Date();
     originalTemplateObject.version = 1; // Reset version for the duplicate
@@ -362,6 +362,28 @@ export const deleteTemplate = async (req: Request, res: Response) => {
   }
 };
 
+// Restore a soft-deleted template
+export const restoreTemplateById = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+
+    const restoredTemplate = await Template.findByIdAndUpdate(
+      id,
+      { isDeleted: false },
+      { new: true }
+    );
+
+    if (!restoredTemplate) {
+      return res.status(404).json({ message: "Template not found" });
+    }
+
+    res.status(200).json(restoredTemplate);
+  } catch (error) {
+    console.error("Restore template failed:", error);
+    res.status(500).json({ message: "Failed to restore template" });
+  }
+};
+
 // ✅ Permanently Delete a Template
 export const permanentlyDeleteTemplate = async (req: Request, res: Response) => {
   try {
@@ -378,14 +400,108 @@ export const permanentlyDeleteTemplate = async (req: Request, res: Response) => 
 // ✅ Fetch Recently Used Templates
 export const getRecentlyUsedTemplates = async (req: Request, res: Response) => {
   try {
-    const templates = await Template.find({ lastUsed: { $ne: null } }) // ✅ Fetch non-null lastUsed
-      .sort({ lastUsed: -1 }) // ✅ Order by latest used
-      .limit(5); // ✅ Get only top 5
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 10;
+    const skip = (page - 1) * limit;
 
-    res.status(200).json(templates);
+    const search = (req.query.search as string)?.trim();
+    const type = req.query.type as string;
+    const category = req.query.category as string;
+    const sortBy = (req.query.sortBy as string) || "lastUsed";
+    const order = req.query.order === "asc" ? 1 : -1;
+
+    // Build query
+    const query: any = {
+      lastUsed: { $ne: null },
+    };
+
+    if (search) {
+      query.$or = [
+        { name: { $regex: search, $options: "i" } },
+        { tags: { $regex: search, $options: "i" } },
+      ];
+    }
+
+    if (type) {
+      query.type = type;
+    }
+
+    if (category) {
+      query.category = category;
+    }
+
+    const total = await Template.countDocuments(query);
+
+    const templates = await Template.find(query)
+      .sort({ [sortBy]: order })
+      .skip(skip)
+      .limit(limit);
+
+    const totalPages = Math.ceil(total / limit);
+
+    res.status(200).json({
+      templates,
+      pagination: {
+        total,
+        page,
+        limit,
+        totalPages,
+      },
+    });
   } catch (error) {
     console.error("Error fetching recently used templates:", error);
     res.status(500).json({ message: "Internal Server Error" });
+  }
+};
+
+//Fetch favorite templates
+export const getFavoriteTemplates = async (req: Request, res: Response) => {
+  try {
+    const {
+      page = 1,
+      limit = 10,
+      search = "",
+      sortBy = "createdAt",
+      order = "desc",
+      type,
+      category,
+    } = req.query;
+
+    const filters: any = { favorite: true };
+
+    if (search) {
+      filters.$or = [
+        { name: { $regex: search, $options: "i" } },
+        { tags: { $regex: search, $options: "i" } },
+      ];
+    }
+
+    if (type) filters.type = type;
+    if (category) filters.category = category;
+
+    const skip = (+page - 1) * +limit;
+    const total = await Template.countDocuments(filters);
+    
+
+    const templates = await Template.find(filters)
+      .sort({ [sortBy as string]: order === "asc" ? 1 : -1 })
+      .skip(skip)
+      .limit(+limit);
+
+    return res.status(200).json({
+      success: true,
+      message: "Favorite templates fetched successfully",
+      templates,
+      pagination: {
+        total,
+        limit,
+        page: +page,
+        totalPages: Math.ceil(total / +limit),
+      },
+    });
+  } catch (error) {
+    console.error("Error fetching favorite templates:", error);
+    return res.status(500).json({ success: false, message: "Internal Server Error" });
   }
 };
 

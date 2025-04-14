@@ -92,7 +92,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.toggleFavoriteTemplate = exports.getPastCampaignTemplates = exports.getRecentlyUsedTemplates = exports.permanentlyDeleteTemplate = exports.deleteTemplate = exports.duplicateTemplate = exports.updateTemplate = exports.previewShowTemplate = exports.previewTemplate = exports.getTemplateById = exports.getAllTemplates = exports.createTemplate = void 0;
+exports.toggleFavoriteTemplate = exports.getPastCampaignTemplates = exports.getFavoriteTemplates = exports.getRecentlyUsedTemplates = exports.permanentlyDeleteTemplate = exports.restoreTemplateById = exports.deleteTemplate = exports.duplicateTemplate = exports.updateTemplate = exports.previewShowTemplate = exports.previewTemplate = exports.getTemplateById = exports.getAllTemplates = exports.createTemplate = void 0;
 const Template_1 = __importDefault(require("../models/Template"));
 // Create a new template
 const createTemplate = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
@@ -297,7 +297,7 @@ const duplicateTemplate = (req, res) => __awaiter(void 0, void 0, void 0, functi
         const originalTemplateObject = originalTemplate.toObject();
         // ✅ Remove `_id` and create a new name
         delete originalTemplateObject._id;
-        originalTemplateObject.name = `${originalTemplateObject.name} - Copy`; // Append "Copy"
+        originalTemplateObject.name = `Copy of ${originalTemplateObject.name}`; // Append "Copy"
         originalTemplateObject.createdAt = new Date();
         originalTemplateObject.lastModified = new Date();
         originalTemplateObject.version = 1; // Reset version for the duplicate
@@ -334,6 +334,22 @@ const deleteTemplate = (req, res) => __awaiter(void 0, void 0, void 0, function*
     }
 });
 exports.deleteTemplate = deleteTemplate;
+// Restore a soft-deleted template
+const restoreTemplateById = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { id } = req.params;
+        const restoredTemplate = yield Template_1.default.findByIdAndUpdate(id, { isDeleted: false }, { new: true });
+        if (!restoredTemplate) {
+            return res.status(404).json({ message: "Template not found" });
+        }
+        res.status(200).json(restoredTemplate);
+    }
+    catch (error) {
+        console.error("Restore template failed:", error);
+        res.status(500).json({ message: "Failed to restore template" });
+    }
+});
+exports.restoreTemplateById = restoreTemplateById;
 // ✅ Permanently Delete a Template
 const permanentlyDeleteTemplate = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
@@ -349,11 +365,47 @@ const permanentlyDeleteTemplate = (req, res) => __awaiter(void 0, void 0, void 0
 exports.permanentlyDeleteTemplate = permanentlyDeleteTemplate;
 // ✅ Fetch Recently Used Templates
 const getRecentlyUsedTemplates = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
     try {
-        const templates = yield Template_1.default.find({ lastUsed: { $ne: null } }) // ✅ Fetch non-null lastUsed
-            .sort({ lastUsed: -1 }) // ✅ Order by latest used
-            .limit(5); // ✅ Get only top 5
-        res.status(200).json(templates);
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 10;
+        const skip = (page - 1) * limit;
+        const search = (_a = req.query.search) === null || _a === void 0 ? void 0 : _a.trim();
+        const type = req.query.type;
+        const category = req.query.category;
+        const sortBy = req.query.sortBy || "lastUsed";
+        const order = req.query.order === "asc" ? 1 : -1;
+        // Build query
+        const query = {
+            lastUsed: { $ne: null },
+        };
+        if (search) {
+            query.$or = [
+                { name: { $regex: search, $options: "i" } },
+                { tags: { $regex: search, $options: "i" } },
+            ];
+        }
+        if (type) {
+            query.type = type;
+        }
+        if (category) {
+            query.category = category;
+        }
+        const total = yield Template_1.default.countDocuments(query);
+        const templates = yield Template_1.default.find(query)
+            .sort({ [sortBy]: order })
+            .skip(skip)
+            .limit(limit);
+        const totalPages = Math.ceil(total / limit);
+        res.status(200).json({
+            templates,
+            pagination: {
+                total,
+                page,
+                limit,
+                totalPages,
+            },
+        });
     }
     catch (error) {
         console.error("Error fetching recently used templates:", error);
@@ -361,6 +413,45 @@ const getRecentlyUsedTemplates = (req, res) => __awaiter(void 0, void 0, void 0,
     }
 });
 exports.getRecentlyUsedTemplates = getRecentlyUsedTemplates;
+//Fetch favorite templates
+const getFavoriteTemplates = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { page = 1, limit = 10, search = "", sortBy = "createdAt", order = "desc", type, category, } = req.query;
+        const filters = { favorite: true };
+        if (search) {
+            filters.$or = [
+                { name: { $regex: search, $options: "i" } },
+                { tags: { $regex: search, $options: "i" } },
+            ];
+        }
+        if (type)
+            filters.type = type;
+        if (category)
+            filters.category = category;
+        const skip = (+page - 1) * +limit;
+        const total = yield Template_1.default.countDocuments(filters);
+        const templates = yield Template_1.default.find(filters)
+            .sort({ [sortBy]: order === "asc" ? 1 : -1 })
+            .skip(skip)
+            .limit(+limit);
+        return res.status(200).json({
+            success: true,
+            message: "Favorite templates fetched successfully",
+            templates,
+            pagination: {
+                total,
+                limit,
+                page: +page,
+                totalPages: Math.ceil(total / +limit),
+            },
+        });
+    }
+    catch (error) {
+        console.error("Error fetching favorite templates:", error);
+        return res.status(500).json({ success: false, message: "Internal Server Error" });
+    }
+});
+exports.getFavoriteTemplates = getFavoriteTemplates;
 // ✅ Fetch Past Campaign Templates
 const getPastCampaignTemplates = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
