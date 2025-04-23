@@ -306,7 +306,7 @@ const campaignResponses: Array<{
         <Grid container spacing={3}>
           <Grid  size={{ xs: 12}}>
 
-            <EmailSent />
+            <EmailSent data={data?.emailsSent?.monthlyStats} />
 
           </Grid>
           <Grid  size={{ xs: 12}}>

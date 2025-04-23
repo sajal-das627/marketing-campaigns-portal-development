@@ -38,3 +38,16 @@ export interface Template {
   description: string;
   image: string;
 }
+
+// export interface EmailData{
+//   clickRate: number;
+//   emailsSent: number;
+//   openRate: number;
+// }
+
+// export interface MonthlyStats{
+//   daily: EmailData;
+//   monthly: EmailData;
+//   weekly: EmailData;
+//   month: string;
+// }
