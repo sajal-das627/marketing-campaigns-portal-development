@@ -1,7 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<<<<<<< HEAD
 <coverage generated="1745416195228" clover="3.2.0">
   <project timestamp="1745416195228" name="All files">
     <metrics statements="819" coveredstatements="499" conditionals="333" coveredconditionals="124" methods="122" coveredmethods="77" elements="1274" coveredelements="700" complexity="0" loc="819" ncloc="819" packages="8" files="32" classes="32"/>
+=======
+<coverage generated="1745432180210" clover="3.2.0">
+  <project timestamp="1745432180211" name="All files">
+    <metrics statements="819" coveredstatements="502" conditionals="333" coveredconditionals="132" methods="122" coveredmethods="77" elements="1274" coveredelements="711" complexity="0" loc="819" ncloc="819" packages="8" files="32" classes="32"/>
+>>>>>>> 7784a48deab96f1e825acd25a07e79d617d1a43e
     <package name="src">
       <metrics statements="37" coveredstatements="37" conditionals="0" coveredconditionals="0" methods="1" coveredmethods="1"/>
       <file name="app.ts" path="C:\Users\gmodi\Documents\GitHub\marketing-campaigns-portal-development\marketing-campaigns-portal-backend\src\app.ts">
@@ -30,7 +36,11 @@
         <line num="28" count="6" type="stmt"/>
         <line num="29" count="6" type="stmt"/>
         <line num="30" count="6" type="stmt"/>
+<<<<<<< HEAD
         <line num="33" count="38" type="stmt"/>
+=======
+        <line num="33" count="39" type="stmt"/>
+>>>>>>> 7784a48deab96f1e825acd25a07e79d617d1a43e
         <line num="35" count="6" type="stmt"/>
         <line num="37" count="6" type="stmt"/>
         <line num="38" count="6" type="stmt"/>
@@ -62,8 +72,13 @@
       </file>
     </package>
     <package name="src.controllers">
+<<<<<<< HEAD
       <metrics statements="626" coveredstatements="327" conditionals="317" coveredconditionals="119" methods="112" coveredmethods="71"/>
       <file name="activityController.ts" path="C:\Users\gmodi\Documents\GitHub\marketing-campaigns-portal-development\marketing-campaigns-portal-backend\src\controllers\activityController.ts">
+=======
+      <metrics statements="626" coveredstatements="330" conditionals="317" coveredconditionals="127" methods="112" coveredmethods="71"/>
+      <file name="activityController.ts" path="C:\Users\sajal\OneDrive\Desktop\marketing-campaigns-portal-development\marketing-campaigns-portal-backend\src\controllers\activityController.ts">
+>>>>>>> 7784a48deab96f1e825acd25a07e79d617d1a43e
         <metrics statements="6" coveredstatements="2" conditionals="0" coveredconditionals="0" methods="2" coveredmethods="0"/>
         <line num="2" count="6" type="stmt"/>
         <line num="4" count="6" type="stmt"/>
@@ -270,8 +285,13 @@
         <line num="89" count="0" type="stmt"/>
         <line num="90" count="0" type="stmt"/>
       </file>
+<<<<<<< HEAD
       <file name="dashboardController.ts" path="C:\Users\gmodi\Documents\GitHub\marketing-campaigns-portal-development\marketing-campaigns-portal-backend\src\controllers\dashboardController.ts">
         <metrics statements="64" coveredstatements="64" conditionals="51" coveredconditionals="37" methods="21" coveredmethods="20"/>
+=======
+      <file name="dashboardController.ts" path="C:\Users\sajal\OneDrive\Desktop\marketing-campaigns-portal-development\marketing-campaigns-portal-backend\src\controllers\dashboardController.ts">
+        <metrics statements="64" coveredstatements="64" conditionals="51" coveredconditionals="38" methods="21" coveredmethods="20"/>
+>>>>>>> 7784a48deab96f1e825acd25a07e79d617d1a43e
         <line num="2" count="6" type="stmt"/>
         <line num="3" count="6" type="stmt"/>
         <line num="6" count="6" type="stmt"/>
@@ -294,7 +314,7 @@
         <line num="36" count="1" type="stmt"/>
         <line num="39" count="12" type="stmt"/>
         <line num="40" count="12" type="stmt"/>
-        <line num="41" count="12" type="cond" truecount="2" falsecount="0"/>
+        <line num="41" count="12" type="cond" truecount="1" falsecount="1"/>
         <line num="42" count="12" type="stmt"/>
         <line num="45" count="1" type="stmt"/>
         <line num="52" count="1" type="stmt"/>
@@ -303,8 +323,13 @@
         <line num="67" count="1" type="stmt"/>
         <line num="68" count="4" type="stmt"/>
         <line num="69" count="4" type="stmt"/>
+<<<<<<< HEAD
         <line num="70" count="43" type="cond" truecount="3" falsecount="1"/>
         <line num="71" count="43" type="cond" truecount="3" falsecount="1"/>
+=======
+        <line num="70" count="120" type="cond" truecount="3" falsecount="1"/>
+        <line num="71" count="120" type="cond" truecount="3" falsecount="1"/>
+>>>>>>> 7784a48deab96f1e825acd25a07e79d617d1a43e
         <line num="72" count="4" type="cond" truecount="1" falsecount="1"/>
         <line num="73" count="4" type="cond" truecount="1" falsecount="1"/>
         <line num="74" count="4" type="stmt"/>
@@ -314,15 +339,22 @@
         <line num="80" count="12" type="stmt"/>
         <line num="81" count="12" type="stmt"/>
         <line num="83" count="12" type="cond" truecount="2" falsecount="0"/>
+<<<<<<< HEAD
         <line num="84" count="27" type="cond" truecount="3" falsecount="1"/>
         <line num="86" count="12" type="cond" truecount="2" falsecount="0"/>
         <line num="87" count="27" type="cond" truecount="3" falsecount="1"/>
+=======
+        <line num="84" count="30" type="cond" truecount="3" falsecount="1"/>
+        <line num="86" count="12" type="cond" truecount="2" falsecount="0"/>
+        <line num="87" count="30" type="cond" truecount="3" falsecount="1"/>
+>>>>>>> 7784a48deab96f1e825acd25a07e79d617d1a43e
         <line num="90" count="12" type="stmt"/>
         <line num="99" count="1" type="stmt"/>
         <line num="100" count="1" type="stmt"/>
         <line num="102" count="1" type="stmt"/>
         <line num="103" count="3" type="stmt"/>
         <line num="104" count="3" type="stmt"/>
+<<<<<<< HEAD
         <line num="105" count="16" type="stmt"/>
         <line num="106" count="16" type="cond" truecount="1" falsecount="0"/>
         <line num="107" count="16" type="cond" truecount="3" falsecount="1"/>
@@ -332,6 +364,17 @@
         <line num="119" count="1" type="stmt"/>
         <line num="120" count="7" type="stmt"/>
         <line num="121" count="7" type="stmt"/>
+=======
+        <line num="105" count="90" type="stmt"/>
+        <line num="106" count="90" type="cond" truecount="1" falsecount="0"/>
+        <line num="107" count="90" type="cond" truecount="3" falsecount="1"/>
+        <line num="108" count="90" type="cond" truecount="3" falsecount="1"/>
+        <line num="109" count="90" type="stmt"/>
+        <line num="112" count="3" type="stmt"/>
+        <line num="119" count="1" type="stmt"/>
+        <line num="120" count="30" type="stmt"/>
+        <line num="121" count="30" type="stmt"/>
+>>>>>>> 7784a48deab96f1e825acd25a07e79d617d1a43e
         <line num="126" count="1" type="stmt"/>
         <line num="132" count="1" type="stmt"/>
         <line num="149" count="1" type="stmt"/>
@@ -543,6 +586,7 @@
         <line num="7" count="2" type="stmt"/>
         <line num="8" count="2" type="stmt"/>
         <line num="11" count="2" type="stmt"/>
+<<<<<<< HEAD
         <line num="12" count="2" type="cond" truecount="1" falsecount="0"/>
         <line num="13" count="2" type="stmt"/>
         <line num="17" count="0" type="cond" truecount="0" falsecount="6"/>
@@ -550,6 +594,15 @@
         <line num="21" count="0" type="stmt"/>
         <line num="35" count="0" type="stmt"/>
         <line num="36" count="0" type="stmt"/>
+=======
+        <line num="12" count="2" type="cond" truecount="0" falsecount="1"/>
+        <line num="13" count="0" type="stmt"/>
+        <line num="17" count="2" type="cond" truecount="5" falsecount="1"/>
+        <line num="18" count="0" type="stmt"/>
+        <line num="21" count="2" type="stmt"/>
+        <line num="35" count="2" type="stmt"/>
+        <line num="36" count="2" type="stmt"/>
+>>>>>>> 7784a48deab96f1e825acd25a07e79d617d1a43e
         <line num="38" count="0" type="stmt"/>
         <line num="39" count="0" type="stmt"/>
         <line num="45" count="6" type="stmt"/>
@@ -773,12 +826,12 @@
       </file>
       <file name="Filter.ts" path="C:\Users\gmodi\Documents\GitHub\marketing-campaigns-portal-development\marketing-campaigns-portal-backend\src\models\Filter.ts">
         <metrics statements="6" coveredstatements="6" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
-        <line num="28" count="6" type="stmt"/>
-        <line num="30" count="6" type="stmt"/>
-        <line num="36" count="6" type="stmt"/>
-        <line num="42" count="6" type="stmt"/>
-        <line num="64" count="6" type="stmt"/>
-        <line num="65" count="6" type="stmt"/>
+        <line num="1" count="6" type="stmt"/>
+        <line num="3" count="6" type="stmt"/>
+        <line num="9" count="6" type="stmt"/>
+        <line num="15" count="6" type="stmt"/>
+        <line num="37" count="6" type="stmt"/>
+        <line num="38" count="6" type="stmt"/>
       </file>
       <file name="Template.ts" path="C:\Users\gmodi\Documents\GitHub\marketing-campaigns-portal-development\marketing-campaigns-portal-backend\src\models\Template.ts">
         <metrics statements="4" coveredstatements="4" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>

@@ -3,39 +3,47 @@ import mongoose from "mongoose";
 import app from "../src/app";
 import Campaign from "../src/models/Campaign";
 import Filter from "../src/models/Filter";
-import { connectDB } from "./setup/db";
+import { connectDB } from "./setup/db"; // ✅ Shared DB connection
 
 let createdCampaignId: string;
 let createdFilterId: string;
 // let authToken: string;
-const testUserId = "67daedeaff85ef645f71206f"; // ✅ consistent test userId
+const testUserId = "67daedeaff85ef645f71206f";
 
 beforeAll(async () => {
   await connectDB();
 
+  // ✅ Okta login (optional)
   /*
   const loginRes = await request(app).post("/api/auth/okta-login").send({
     email: "testuser@example.com",
     password: "Test@123",
   });
-  authToken = loginRes.body.token;
+  authToken = loginRes.body.localToken;
   */
 
-  const campaignRes = await Campaign.create({
-    name: "Test Campaign",
-    type: "Criteria Based",
-    audience: new mongoose.Types.ObjectId(),
-    template: new mongoose.Types.ObjectId(),
-    userId: testUserId,
-    status: "Draft",
-  });
-
-  createdCampaignId = campaignRes._id.toString();
+  // Create campaign only once
+  const existing = await Campaign.findOne({ name: "Test Campaign" });
+  if (!existing) {
+    const campaignRes = await Campaign.create({
+      name: "Test Campaign",
+      type: "Criteria Based",
+      audience: new mongoose.Types.ObjectId(),
+      template: new mongoose.Types.ObjectId(),
+      userId: testUserId,
+      status: "Draft",
+    });
+    createdCampaignId = campaignRes._id.toString();
+  } else {
+    createdCampaignId = existing._id.toString();
+  }
 });
 
-beforeEach(async () => {
-  await Filter.deleteMany({});
-});
+// ✅ Do NOT delete all data, just clean up your own test-created filters (by name or tag if needed)
+// This is skipped now to avoid deleting real data
+// beforeEach(async () => {
+//   await Filter.deleteMany({});
+// });
 
 describe("🚀 Filter Builder APIs", () => {
   it("✅ Should create a new filter", async () => {
@@ -46,7 +54,7 @@ describe("🚀 Filter Builder APIs", () => {
         name: "VIP Customers",
         description: "Customers aged above 25",
         tags: ["VIP", "priority"],
-        userId: testUserId, // ✅ required
+        userId: testUserId,
         campaignId: createdCampaignId,
         conditions: [
           {
@@ -110,9 +118,8 @@ describe("🚀 Filter Builder APIs", () => {
       conditions: [],
       logicalOperator: "AND",
     });
-    createdFilterId = original._id.toString();
 
-    const res = await request(app).post(`/api/filters/${createdFilterId}/duplicate`);
+    const res = await request(app).post(`/api/filters/${original._id}/duplicate`);
     // .set("Authorization", `Bearer ${authToken}`)
 
     expect(res.statusCode).toBe(201);

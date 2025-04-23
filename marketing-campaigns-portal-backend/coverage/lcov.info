@@ -3,7 +3,11 @@ SF:src\app.ts
 FN:33,(anonymous_1)
 FNF:1
 FNH:1
+<<<<<<< HEAD
 FNDA:38,(anonymous_1)
+=======
+FNDA:39,(anonymous_1)
+>>>>>>> 7784a48deab96f1e825acd25a07e79d617d1a43e
 DA:1,6
 DA:2,6
 DA:3,6
@@ -28,7 +32,11 @@ DA:27,6
 DA:28,6
 DA:29,6
 DA:30,6
+<<<<<<< HEAD
 DA:33,38
+=======
+DA:33,39
+>>>>>>> 7784a48deab96f1e825acd25a07e79d617d1a43e
 DA:35,6
 DA:37,6
 DA:38,6
@@ -468,6 +476,7 @@ FNDA:2,(anonymous_14)
 FNDA:2,(anonymous_15)
 FNDA:12,(anonymous_16)
 FNDA:12,(anonymous_17)
+<<<<<<< HEAD
 FNDA:43,(anonymous_18)
 FNDA:43,(anonymous_19)
 FNDA:12,(anonymous_20)
@@ -479,6 +488,19 @@ FNDA:16,(anonymous_25)
 FNDA:6,(anonymous_26)
 FNDA:7,(anonymous_27)
 FNDA:7,(anonymous_28)
+=======
+FNDA:120,(anonymous_18)
+FNDA:120,(anonymous_19)
+FNDA:12,(anonymous_20)
+FNDA:12,(anonymous_21)
+FNDA:30,(anonymous_22)
+FNDA:30,(anonymous_23)
+FNDA:3,(anonymous_24)
+FNDA:90,(anonymous_25)
+FNDA:3,(anonymous_26)
+FNDA:30,(anonymous_27)
+FNDA:30,(anonymous_28)
+>>>>>>> 7784a48deab96f1e825acd25a07e79d617d1a43e
 DA:2,6
 DA:3,6
 DA:6,6
@@ -510,8 +532,13 @@ DA:66,1
 DA:67,1
 DA:68,4
 DA:69,4
+<<<<<<< HEAD
 DA:70,43
 DA:71,43
+=======
+DA:70,120
+DA:71,120
+>>>>>>> 7784a48deab96f1e825acd25a07e79d617d1a43e
 DA:72,4
 DA:73,4
 DA:74,4
@@ -521,15 +548,22 @@ DA:79,12
 DA:80,12
 DA:81,12
 DA:83,12
+<<<<<<< HEAD
 DA:84,27
 DA:86,12
 DA:87,27
+=======
+DA:84,30
+DA:86,12
+DA:87,30
+>>>>>>> 7784a48deab96f1e825acd25a07e79d617d1a43e
 DA:90,12
 DA:99,1
 DA:100,1
 DA:102,1
 DA:103,3
 DA:104,3
+<<<<<<< HEAD
 DA:105,16
 DA:106,16
 DA:107,16
@@ -539,12 +573,24 @@ DA:112,6
 DA:119,1
 DA:120,7
 DA:121,7
+=======
+DA:105,90
+DA:106,90
+DA:107,90
+DA:108,90
+DA:109,90
+DA:112,3
+DA:119,1
+DA:120,30
+DA:121,30
+>>>>>>> 7784a48deab96f1e825acd25a07e79d617d1a43e
 DA:126,1
 DA:132,1
 DA:149,1
 DA:150,1
 LF:64
 LH:64
+<<<<<<< HEAD
 BRDA:41,0,0,8
 BRDA:41,0,1,4
 BRDA:70,1,0,43
@@ -555,10 +601,23 @@ BRDA:71,3,0,43
 BRDA:71,3,1,0
 BRDA:71,4,0,43
 BRDA:71,4,1,43
+=======
+BRDA:41,0,0,12
+BRDA:41,0,1,0
+BRDA:70,1,0,120
+BRDA:70,1,1,0
+BRDA:70,2,0,120
+BRDA:70,2,1,120
+BRDA:71,3,0,120
+BRDA:71,3,1,0
+BRDA:71,4,0,120
+BRDA:71,4,1,120
+>>>>>>> 7784a48deab96f1e825acd25a07e79d617d1a43e
 BRDA:72,5,0,4
 BRDA:72,5,1,0
 BRDA:73,6,0,4
 BRDA:73,6,1,0
+<<<<<<< HEAD
 BRDA:83,7,0,2
 BRDA:83,7,1,10
 BRDA:84,8,0,27
@@ -583,6 +642,32 @@ BRDA:108,17,1,16
 BRDA:114,18,0,6
 BRDA:114,18,1,0
 BRDA:115,19,0,6
+=======
+BRDA:83,7,0,1
+BRDA:83,7,1,11
+BRDA:84,8,0,30
+BRDA:84,8,1,0
+BRDA:84,9,0,30
+BRDA:84,9,1,30
+BRDA:86,10,0,1
+BRDA:86,10,1,11
+BRDA:87,11,0,30
+BRDA:87,11,1,0
+BRDA:87,12,0,30
+BRDA:87,12,1,30
+BRDA:106,13,0,3
+BRDA:107,14,0,90
+BRDA:107,14,1,0
+BRDA:107,15,0,90
+BRDA:107,15,1,90
+BRDA:108,16,0,90
+BRDA:108,16,1,0
+BRDA:108,17,0,90
+BRDA:108,17,1,90
+BRDA:114,18,0,3
+BRDA:114,18,1,0
+BRDA:115,19,0,3
+>>>>>>> 7784a48deab96f1e825acd25a07e79d617d1a43e
 BRDA:115,19,1,0
 BRDA:143,20,0,1
 BRDA:143,20,1,0
@@ -597,7 +682,11 @@ BRDA:144,24,1,1
 BRDA:144,25,0,1
 BRDA:144,25,1,1
 BRF:51
+<<<<<<< HEAD
 BRH:37
+=======
+BRH:38
+>>>>>>> 7784a48deab96f1e825acd25a07e79d617d1a43e
 end_of_record
 TN:
 SF:src\controllers\emailReportController.ts
@@ -1059,12 +1148,21 @@ DA:7,2
 DA:8,2
 DA:11,2
 DA:12,2
+<<<<<<< HEAD
 DA:13,2
 DA:17,0
 DA:18,0
 DA:21,0
 DA:35,0
 DA:36,0
+=======
+DA:13,0
+DA:17,2
+DA:18,0
+DA:21,2
+DA:35,2
+DA:36,2
+>>>>>>> 7784a48deab96f1e825acd25a07e79d617d1a43e
 DA:38,0
 DA:39,0
 DA:45,6
@@ -1234,6 +1332,7 @@ LF:177
 LH:42
 BRDA:12,0,0,2
 BRDA:17,1,0,0
+<<<<<<< HEAD
 BRDA:17,2,0,0
 BRDA:17,2,1,0
 BRDA:17,2,2,0
@@ -1241,6 +1340,15 @@ BRDA:17,2,3,0
 BRDA:17,2,4,0
 BRDA:30,3,0,0
 BRDA:30,3,1,0
+=======
+BRDA:17,2,0,2
+BRDA:17,2,1,2
+BRDA:17,2,2,2
+BRDA:17,2,3,2
+BRDA:17,2,4,2
+BRDA:30,3,0,2
+BRDA:30,3,1,2
+>>>>>>> 7784a48deab96f1e825acd25a07e79d617d1a43e
 BRDA:52,4,0,0
 BRDA:53,5,0,0
 BRDA:54,6,0,0
@@ -1422,12 +1530,12 @@ TN:
 SF:src\models\Filter.ts
 FNF:0
 FNH:0
-DA:28,6
-DA:30,6
-DA:36,6
-DA:42,6
-DA:64,6
-DA:65,6
+DA:1,6
+DA:3,6
+DA:9,6
+DA:15,6
+DA:37,6
+DA:38,6
 LF:6
 LH:6
 BRF:0
