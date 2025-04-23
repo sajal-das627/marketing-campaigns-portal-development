@@ -20,9 +20,10 @@ beforeAll(async () => {
   */
 });
 
-beforeEach(async () => {
-  await CriteriaBlock.deleteMany({});
-});
+/*❌ Removed CriteriaBlock.deleteMany to retain test data
+ beforeEach(async () => {
+   await CriteriaBlock.deleteMany({});
+ }); */
 
 describe("🚀 CriteriaBlock APIs", () => {
   it("✅ Should create a new criteria block (valid string type)", async () => {
@@ -30,18 +31,19 @@ describe("🚀 CriteriaBlock APIs", () => {
       .post("/api/criteria-blocks")
       // .set("Authorization", `Bearer ${authToken}`)
       .send({
-        name: "String Criteria",
+        name: `String Criteria ${Date.now()}`, // Ensure uniqueness
         type: "string",
         category: "filterComponent",
         operators: ["equals", "contains"]
       });
-
+  
     expect(res.statusCode).toBe(201);
     expect(res.body.success).toBe(true);
     expect(res.body.data).toHaveProperty("_id");
-
+  
     blockId = res.body.data._id;
   });
+  
 
   it("✅ Should fail creating with invalid type", async () => {
     const res = await request(app)

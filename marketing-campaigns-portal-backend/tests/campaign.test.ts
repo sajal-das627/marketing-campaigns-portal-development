@@ -40,7 +40,7 @@ describe("🚀 Campaign API", () => {
 
     const getRes = await request(app)
       .get(`/api/campaigns/${campaignId}`);
-      // .set("Authorization", `Bearer ${authToken}`)
+    // .set("Authorization", `Bearer ${authToken}`)
     expect(getRes.statusCode).toBe(200);
     expect(getRes.body.success).toBe(true);
     expect(getRes.body.campaign._id).toBe(campaignId);
@@ -54,40 +54,40 @@ describe("🚀 Campaign API", () => {
 
     const launchRes = await request(app)
       .put(`/api/campaigns/${campaignId}/launch`);
-      // .set("Authorization", `Bearer ${authToken}`)
+    // .set("Authorization", `Bearer ${authToken}`)
     expect(launchRes.statusCode).toBe(200);
     expect(launchRes.body.message).toBe("Campaign Launched Successfully");
     expect(launchRes.body.campaign.status).toBe("Active");
 
     const pauseRes = await request(app)
       .put(`/api/campaigns/${campaignId}/pause-resume`);
-      // .set("Authorization", `Bearer ${authToken}`)
+    // .set("Authorization", `Bearer ${authToken}`)
     expect(pauseRes.statusCode).toBe(200);
     expect(["On Going", "Paused"]).toContain(pauseRes.body.campaign.status);
 
     const duplicateRes = await request(app)
       .post(`/api/campaigns/${campaignId}/duplicate`);
-      // .set("Authorization", `Bearer ${authToken}`)
+    // .set("Authorization", `Bearer ${authToken}`)
     expect(duplicateRes.statusCode).toBe(201);
     expect(duplicateRes.body.message).toBe("Campaign Duplicated Successfully");
     expect(duplicateRes.body.campaign._id).not.toBe(campaignId);
 
     const deleteRes = await request(app)
       .delete(`/api/campaigns/${campaignId}`);
-      // .set("Authorization", `Bearer ${authToken}`)
+    // .set("Authorization", `Bearer ${authToken}`)
     expect(deleteRes.statusCode).toBe(200);
     expect(deleteRes.body).toHaveProperty("message", "Campaign deleted successfully");
 
     const getDeleted = await request(app)
       .get(`/api/campaigns/${campaignId}`);
-      // .set("Authorization", `Bearer ${authToken}`)
+    // .set("Authorization", `Bearer ${authToken}`)
     expect(getDeleted.statusCode).toBe(404);
   });
 
   it("✅ Should fetch all campaigns", async () => {
     const res = await request(app)
       .get("/api/campaigns");
-      // .set("Authorization", `Bearer ${authToken}`)
+    // .set("Authorization", `Bearer ${authToken}`)
     expect(res.statusCode).toBe(200);
     expect(Array.isArray(res.body.data)).toBe(true);
   });
