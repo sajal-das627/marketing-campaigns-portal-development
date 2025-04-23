@@ -25,7 +25,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>16/16</span>
+                <span class='fraction'>17/17</span>
             </div>
         
             
@@ -46,7 +46,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>16/16</span>
+                <span class='fraction'>17/17</span>
             </div>
         
             
@@ -106,7 +106,9 @@
 <a name='L41'></a><a href='#L41'>41</a>
 <a name='L42'></a><a href='#L42'>42</a>
 <a name='L43'></a><a href='#L43'>43</a>
-<a name='L44'></a><a href='#L44'>44</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L44'></a><a href='#L44'>44</a>
+<a name='L45'></a><a href='#L45'>45</a>
+<a name='L46'></a><a href='#L46'>46</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -127,26 +129,28 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">5x</span>
-<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-yes">6x</span>
+<span class="cline-any cline-yes">6x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-yes">6x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">5x</span>
-<span class="cline-any cline-yes">5x</span>
-<span class="cline-any cline-yes">5x</span>
-<span class="cline-any cline-yes">5x</span>
-<span class="cline-any cline-yes">5x</span>
-<span class="cline-any cline-yes">5x</span>
-<span class="cline-any cline-yes">5x</span>
-<span class="cline-any cline-yes">5x</span>
-<span class="cline-any cline-yes">5x</span>
-<span class="cline-any cline-yes">5x</span>
-<span class="cline-any cline-yes">5x</span>
-<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-yes">6x</span>
+<span class="cline-any cline-yes">6x</span>
+<span class="cline-any cline-yes">6x</span>
+<span class="cline-any cline-yes">6x</span>
+<span class="cline-any cline-yes">6x</span>
+<span class="cline-any cline-yes">6x</span>
+<span class="cline-any cline-yes">6x</span>
+<span class="cline-any cline-yes">6x</span>
+<span class="cline-any cline-yes">6x</span>
+<span class="cline-any cline-yes">6x</span>
+<span class="cline-any cline-yes">6x</span>
+<span class="cline-any cline-yes">6x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-yes">6x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">6x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">/*import express from "express";
@@ -171,7 +175,7 @@ export default router; */
 &nbsp;
 &nbsp;
 import express from "express";
-import { createTemplate, getAllTemplates, getTemplateById,previewShowTemplate,previewTemplate, updateTemplate, permanentlyDeleteTemplate, duplicateTemplate, getRecentlyUsedTemplates, getPastCampaignTemplates, toggleFavoriteTemplate, deleteTemplate } from "../controllers/templateController";
+import { createTemplate, getAllTemplates, getTemplateById, previewShowTemplate,previewTemplate, getFavoriteTemplates, updateTemplate, permanentlyDeleteTemplate, duplicateTemplate, getRecentlyUsedTemplates, getPastCampaignTemplates, toggleFavoriteTemplate, deleteTemplate, restoreTemplateById } from "../controllers/templateController";
 import { authenticateToken } from "../middleware/authMiddleware";
 &nbsp;
 const router = express.Router();
@@ -181,12 +185,14 @@ router.get("/", /*authenticateToken,*/ getAllTemplates); // ✅ Fetch All Templa
 router.put("/:id", /*authenticateToken,*/ updateTemplate);
 router.get("/recent", /*authenticateToken,*/ getRecentlyUsedTemplates); // ✅ Fetch Recently Used Templates
 router.get("/past", /*authenticateToken,*/ getPastCampaignTemplates); // ✅ Fetch Past Campaign Templates
+router.get("/favorites", /*authenticateToken,*/  getFavoriteTemplates); // ✅ Fetch Favorite Templates
 router.get("/:id", /*authenticateToken,*/ getTemplateById); // ✅ Fetch Template by ID
 router.get("/:id/preview", /*authenticateToken,*/ previewTemplate); // ✅ Preview  Template by ID
 router.post("/preview", /*authenticateToken,*/ previewShowTemplate); // Preview template
 router.post("/:id/duplicate", /*authenticateToken,*/ duplicateTemplate); // ✅ Duplicate Template Route
 router.delete("/:id", /*authenticateToken,*/ deleteTemplate); // ✅ Soft Delete Template
-router.delete("/:id", /*authenticateToken,*/ permanentlyDeleteTemplate); // ✅ Permanently Delete Template
+router.patch("/:id/restore", /*authenticateToken,*/ restoreTemplateById); // ✅ restore template endpoint
+// router.delete("/:id", /*authenticateToken,*/ permanentlyDeleteTemplate); // ✅ Permanently Delete Template
 router.put("/:templateId/favorite", /*authenticateToken,*/ toggleFavoriteTemplate); // ✅ Toggle Favorite Status
 &nbsp;
 export default router;
@@ -199,7 +205,7 @@ export default router;
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-03-27T17:00:56.736Z
+                at 2025-04-23T10:46:32.689Z
             </div>
         <script src="../../prettify.js"></script>
         <script>

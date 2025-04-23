@@ -1,29 +1,42 @@
 import request from "supertest";
-import app from "../src/app";
 import mongoose from "mongoose";
+import app from "../src/app";
+import Campaign from "../src/models/Campaign";
 import Filter from "../src/models/Filter";
+import { connectDB } from "./setup/db";
 
-let authToken: string;
+let createdCampaignId: string;
 let createdFilterId: string;
+// let authToken: string;
+const testUserId = "67daedeaff85ef645f71206f"; // ✅ consistent test userId
 
-// ✅ Before All Tests: Connect to DB & Authenticate User
 beforeAll(async () => {
-  await mongoose.connect(process.env.MONGO_URI!);
+  await connectDB();
 
-  // ✅ Mock Authentication & Get Token
+  /*
   const loginRes = await request(app).post("/api/auth/okta-login").send({
     email: "testuser@example.com",
     password: "Test@123",
   });
-  // authToken = loginRes.body.token;
+  authToken = loginRes.body.token;
+  */
+
+  const campaignRes = await Campaign.create({
+    name: "Test Campaign",
+    type: "Criteria Based",
+    audience: new mongoose.Types.ObjectId(),
+    template: new mongoose.Types.ObjectId(),
+    userId: testUserId,
+    status: "Draft",
+  });
+
+  createdCampaignId = campaignRes._id.toString();
 });
 
-// ✅ After All Tests: Disconnect from DB
-afterAll(async () => {
-  await mongoose.connection.close();
+beforeEach(async () => {
+  await Filter.deleteMany({});
 });
 
-// ✅ Test: Create/Update Filter
 describe("🚀 Filter Builder APIs", () => {
   it("✅ Should create a new filter", async () => {
     const res = await request(app)
@@ -31,49 +44,98 @@ describe("🚀 Filter Builder APIs", () => {
       // .set("Authorization", `Bearer ${authToken}`)
       .send({
         name: "VIP Customers",
-        conditions: [{ field: "age", operator: ">", value: "25" }],
+        description: "Customers aged above 25",
+        tags: ["VIP", "priority"],
+        userId: testUserId, // ✅ required
+        campaignId: createdCampaignId,
+        conditions: [
+          {
+            groupId: "Group_1",
+            groupOperator: "AND",
+            criteria: [{ field: "age", operator: ">", value: "25" }],
+          },
+        ],
+        logicalOperator: "OR",
+        customFields: { note: "Test filter" },
+        isDraft: false,
       });
 
     expect(res.statusCode).toBe(201);
     expect(res.body).toHaveProperty("filter");
-    createdFilterId = res.body.filter._id; // Store for later tests
+    expect(res.body.filter.name).toBe("VIP Customers");
+
+    createdFilterId = res.body.filter._id;
   });
 
-  // ✅ Test: Edit Filter
   it("✅ Should edit an existing filter", async () => {
+    const created = await Filter.create({
+      name: "Initial Filter",
+      userId: testUserId,
+      campaignId: createdCampaignId,
+      conditions: [],
+      logicalOperator: "AND",
+    });
+    createdFilterId = created._id.toString();
+
     const res = await request(app)
       .put(`/api/filters/${createdFilterId}`)
       // .set("Authorization", `Bearer ${authToken}`)
       .send({
         name: "Updated VIP Customers",
+        description: "Updated description",
+        tags: ["Updated"],
+        userId: testUserId,
+        campaignId: createdCampaignId,
+        conditions: [
+          {
+            groupId: "Group_1",
+            groupOperator: "AND",
+            criteria: [{ field: "age", operator: ">", value: "30" }],
+          },
+        ],
+        logicalOperator: "OR",
+        customFields: { note: "Updated filter" },
+        isDraft: false,
       });
 
     expect(res.statusCode).toBe(200);
     expect(res.body.filter.name).toBe("Updated VIP Customers");
   });
 
-  // ✅ Test: Duplicate Filter
   it("✅ Should duplicate a filter", async () => {
-    const res = await request(app)
-      .post(`/api/filters/${createdFilterId}/duplicate`)
-      // .set("Authorization", `Bearer ${authToken}`);
+    const original = await Filter.create({
+      name: "Original Filter",
+      campaignId: createdCampaignId,
+      userId: testUserId,
+      conditions: [],
+      logicalOperator: "AND",
+    });
+    createdFilterId = original._id.toString();
+
+    const res = await request(app).post(`/api/filters/${createdFilterId}/duplicate`);
+    // .set("Authorization", `Bearer ${authToken}`)
 
     expect(res.statusCode).toBe(201);
     expect(res.body.filter.name).toContain("Copy of");
   });
 
-  // ✅ Test: Get All Filters
   it("✅ Should fetch all filters", async () => {
-    const res = await request(app)
-      .get("/api/filters")
-      // .set("Authorization", `Bearer ${authToken}`);
+    await Filter.create({
+      name: "Another Filter",
+      campaignId: createdCampaignId,
+      userId: testUserId,
+      conditions: [],
+      logicalOperator: "AND",
+    });
+
+    const res = await request(app).get("/api/filters");
+    // .set("Authorization", `Bearer ${authToken}`)
 
     expect(res.statusCode).toBe(200);
-    expect(Array.isArray(res.body)).toBeTruthy();
+    expect(Array.isArray(res.body.filters)).toBe(true);
   });
 
-  // ✅ Test: Preview Audience
-  it("✅ Should get an estimated audience", async () => {
+  it("✅ Should get an estimated audience preview", async () => {
     const res = await request(app)
       .post("/api/filters/preview")
       // .set("Authorization", `Bearer ${authToken}`)
@@ -85,11 +147,17 @@ describe("🚀 Filter Builder APIs", () => {
     expect(res.body).toHaveProperty("estimatedAudience");
   });
 
-  // ✅ Test: Delete Filter
   it("✅ Should delete a filter", async () => {
-    const res = await request(app)
-      .delete(`/api/filters/${createdFilterId}`)
-      // .set("Authorization", `Bearer ${authToken}`);
+    const filter = await Filter.create({
+      name: "Delete Me",
+      campaignId: createdCampaignId,
+      userId: testUserId,
+      conditions: [],
+      logicalOperator: "AND",
+    });
+
+    const res = await request(app).delete(`/api/filters/${filter._id}`);
+    // .set("Authorization", `Bearer ${authToken}`)
 
     expect(res.statusCode).toBe(200);
     expect(res.body.message).toBe("Filter deleted successfully");

@@ -37,6 +37,6 @@ router.post("/preview", /*authenticateToken,*/ templateController_1.previewShowT
 router.post("/:id/duplicate", /*authenticateToken,*/ templateController_1.duplicateTemplate); // ✅ Duplicate Template Route
 router.delete("/:id", /*authenticateToken,*/ templateController_1.deleteTemplate); // ✅ Soft Delete Template
 router.patch("/:id/restore", /*authenticateToken,*/ templateController_1.restoreTemplateById); // ✅ restore template endpoint
-router.delete("/:id", /*authenticateToken,*/ templateController_1.permanentlyDeleteTemplate); // ✅ Permanently Delete Template
+// router.delete("/:id", /*authenticateToken,*/ permanentlyDeleteTemplate); // ✅ Permanently Delete Template
 router.put("/:templateId/favorite", /*authenticateToken,*/ templateController_1.toggleFavoriteTemplate); // ✅ Toggle Favorite Status
 exports.default = router;
