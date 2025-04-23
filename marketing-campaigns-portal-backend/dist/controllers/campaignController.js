@@ -1,74 +1,4 @@
 "use strict";
-/*import { Request, Response } from "express";
-import Campaign from "../models/Campaign";
-// import kafkaProducer from "../config/kafka1";
-import ActivityLog from "../models/ActivityLog";
-
-// Log User Activity
-const logActivity = async (userId: string, action: string, status: string, message: string) => {
-    await ActivityLog.create({ user: userId, action, status, message });
-  };
-
-// Create Campaign (with Activity Log)
-export const createCampaign = async (req: Request, res: Response) => {
-    try {
-      const campaign = new Campaign(req.body);
-      await campaign.save();
-      await logActivity((req as any).user.id, "Create Campaign", "success", `Campaign '${campaign.name}' created.`);
-      res.status(201).json(campaign);
-    } catch (error) {
-      if (error instanceof Error) {
-        await logActivity((req as any).user.id, "Create Campaign", "error", error.message);
-      } else {
-        await logActivity((req as any).user.id, "Create Campaign", "error", "Unknown error occurred");
-      }
-    }
-  };
-
-// Get All Campaigns
-export const getCampaigns = async (req: Request, res: Response) => {
-  try {
-    const campaigns = await Campaign.find().populate("createdBy");
-    res.status(200).json(campaigns);
-  } catch (error) {
-    res.status(500).json({ message: "Error fetching campaigns", error });
-  }
-};
-
-// Update Campaign
-export const updateCampaign = async (req: Request, res: Response) => {
-  try {
-    const campaign = await Campaign.findByIdAndUpdate(req.params.id, req.body, { new: true });
-    if (!campaign) return res.status(404).json({ message: "Campaign not found" });
-    res.status(200).json(campaign);
-  } catch (error) {
-    res.status(500).json({ message: "Error updating campaign", error });
-  }
-};
-
-// Delete Campaign
-export const deleteCampaign = async (req: Request, res: Response) => {
-  try {
-    const campaign = await Campaign.findByIdAndDelete(req.params.id);
-    if (!campaign) return res.status(404).json({ message: "Campaign not found" });
-    res.status(200).json({ message: "Campaign deleted successfully" });
-  } catch (error) {
-    res.status(500).json({ message: "Error deleting campaign", error });
-  }
-};
-
-// // Trigger Real-Time Campaign
-// export const triggerCampaign = async (req: Request, res: Response) => {
-//     try {
-//       const { event, data } = req.body;
-//       kafkaProducer.send([{ topic: "real-time-campaigns", messages: JSON.stringify({ event, data }) }], (err) => {
-//         if (err) return res.status(500).json({ message: "Kafka error", err });
-//         res.status(200).json({ message: "Real-time campaign triggered successfully" });
-//       });
-//     } catch (error) {
-//       res.status(500).json({ message: "Triggering failed", error });
-//     }
-//   };*/
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -250,16 +180,6 @@ const duplicateCampaign = (req, res) => __awaiter(void 0, void 0, void 0, functi
     }
 });
 exports.duplicateCampaign = duplicateCampaign;
-// ✅ Get All Campaigns
-// export const getCampaigns = async (req: Request, res: Response) => {
-//   try {
-//     const campaigns = await Campaign.find().populate("audience template");
-//     res.status(200).json(campaigns);
-//   } catch (error) {
-//     console.error("Error fetching campaigns:", error);
-//     res.status(500).json({ message: "Internal Server Error" });
-//   }
-// };
 // ✅ Launch a Campaign
 const launchCampaign = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {

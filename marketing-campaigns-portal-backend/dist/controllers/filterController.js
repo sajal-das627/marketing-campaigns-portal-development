@@ -1,6 +1,4 @@
 "use strict";
-/*import { Request, Response } from "express";
-import Filter from "../models/Filter";*/
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -17,77 +15,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.deleteFilter = exports.applyFilter = exports.previewAudience = exports.getSingleFilter = exports.getFilters = exports.duplicateFilter = exports.editFilter = exports.createOrUpdateFilter = void 0;
 const User_1 = __importDefault(require("../models/User"));
 const Filter_1 = __importDefault(require("../models/Filter"));
-/*export const createOrUpdateFilter = async (req: Request, res: Response) => {
-  try {
-      const { name, description, tags, conditions, logicalOperator, customFields, isDraft } = req.body;
-
-      // ✅ Validate required fields
-      if (!name || !conditions || !logicalOperator) {
-          return res.status(400).json({ message: "Name, conditions, and logicalOperator are required" });
-      }
-
-      // ✅ Validate conditions format
-      if (!Array.isArray(conditions) || conditions.length === 0) {
-          return res.status(400).json({ message: "Conditions should be an array of groups" });
-      }
-
-      // ✅ Identify Filter Type (Filter Components vs. Trigger Filters)
-      const isTriggerFilter = tags?.includes("trigger");
-
-      // ✅ Processing Conditions (Handling Filter Components & Trigger Filters Logic)
-      const structuredGroups = conditions.map((group: any) => {
-          // 🚨 Enforce "AND" operator for Filter Components
-          if (!isTriggerFilter && group.groupOperator !== "AND") {
-              throw new Error("Filter Components groups must have an AND operator");
-          }
-
-          return {
-              groupId: group.groupId || `Group_${Date.now()}`, // Generate unique ID if missing
-              groupOperator: isTriggerFilter ? group.groupOperator || "OR" : "AND", // ✅ Ensure AND for Filter Components
-              criteria: group.criteria.map((condition: any) => ({
-                  field: condition.field,
-                  operator: condition.operator,
-                  value: condition.value,
-              })),
-          };
-      });
-
-      // ✅ Handle Custom Fields
-      let updatedCustomFields = {};
-      if (customFields && typeof customFields === "object") {
-          updatedCustomFields = customFields;
-      }
-
-      // ✅ Dummy Audience Estimation Logic
-      const estimatedAudience = Math.floor(Math.random() * 10000);
-
-      const newFilter = new Filter({
-          name,
-          description,
-          tags,
-          userId: "67daedeaff85ef645f71206f",
-          conditions: structuredGroups,
-          logicalOperator,
-          customFields: updatedCustomFields,
-          estimatedAudience,
-          isDraft,
-      });
-
-      // ✅ Save to database
-      await newFilter.save();
-      res.status(201).json({ message: "Filter Saved Successfully", filter: newFilter });
-
-  } catch (error: unknown) {
-    console.error("Error saving filter:", error);
-
-    // ✅ Ensure error is an instance of Error before accessing `message`
-    if (error instanceof Error) {
-        res.status(400).json({ message: error.message });
-    } else {
-        res.status(400).json({ message: "An unknown error occurred" });
-    }
-  }
-}; */
 const Campaign_1 = __importDefault(require("../models/Campaign")); // Import Campaign model
 const createOrUpdateFilter = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
@@ -172,91 +99,6 @@ const createOrUpdateFilter = (req, res) => __awaiter(void 0, void 0, void 0, fun
     }
 });
 exports.createOrUpdateFilter = createOrUpdateFilter;
-// ✅ Edit an Existing Filter with AND/OR Groups & Custom Fields
-/*export const editFilter = async (req: Request, res: Response) => {
-  try {
-      const { filterId } = req.params;
-      const { name, description, tags, conditions, logicalOperator, customFields, isDraft } = req.body;
-
-      // ✅ Validate required fields
-      if (!name || !conditions || !logicalOperator) {
-          return res.status(400).json({ message: "Name, conditions, and logicalOperator are required" });
-      }
-
-      // ✅ Validate conditions format
-      if (!Array.isArray(conditions) || conditions.length === 0) {
-          return res.status(400).json({ message: "Conditions should be an array of groups" });
-      }
-
-      // ✅ Identify Filter Type (Filter Components vs. Trigger Filters)
-      const isTriggerFilter = tags?.includes("trigger");
-
-      // ✅ Processing Conditions (Handling Filter Components & Trigger Filters Logic)
-      const structuredGroups = conditions.map((group: any) => {
-          // 🚨 Enforce "AND" operator for Filter Components within each group
-          if (!isTriggerFilter && group.groupOperator !== "AND") {
-              throw new Error("Each group in Filter Components must have an AND operator.");
-          }
-
-          return {
-              groupId: group.groupId || `Group_${Date.now()}`, // Keep existing ID or generate new one
-              groupOperator: isTriggerFilter ? group.groupOperator || "OR" : "AND", // ✅ Ensure AND for Filter Components within the group
-              criteria: group.criteria.map((condition: any) => ({
-                  field: condition.field,
-                  operator: condition.operator,
-                  value: condition.value,
-              })),
-          };
-      });
-
-      // 🚨 Enforce "OR" operator between groups for Filter Components
-      if (!isTriggerFilter && logicalOperator !== "OR") {
-          return res.status(400).json({ message: "Filter Components must have an OR operator between groups." });
-      }
-
-      // ✅ Handle Custom Fields
-      let updatedCustomFields = {};
-      if (customFields && typeof customFields === "object") {
-          updatedCustomFields = customFields;
-      }
-
-      // ✅ Dummy Audience Estimation Logic
-      const estimatedAudience = Math.floor(Math.random() * 10000);
-
-      // ✅ Find and update the filter
-      const updatedFilter = await Filter.findOneAndUpdate(
-          { _id: filterId, userId: "67daedeaff85ef645f71206f" },
-          {
-              name,
-              description,
-              tags,
-              conditions: structuredGroups,
-              logicalOperator,
-              customFields: updatedCustomFields,
-              estimatedAudience,
-              isDraft,
-              lastModified: new Date(),
-          },
-          { new: true }
-      );
-
-      if (!updatedFilter) {
-          return res.status(404).json({ message: "Filter not found" });
-      }
-
-      res.status(200).json({ message: "Filter Updated Successfully", filter: updatedFilter });
-
-  } catch (error: unknown) {
-      console.error("Error updating filter:", error);
-
-      // ✅ Ensure error is an instance of Error before accessing `message`
-      if (error instanceof Error) {
-          res.status(400).json({ message: error.message });
-      } else {
-          res.status(400).json({ message: "An unknown error occurred" });
-      }
-  }
-};*/
 // ✅ Edit an Existing Filter add campaign type with AND/OR Groups & Custom Fields
 const editFilter = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
@@ -353,32 +195,7 @@ const editFilter = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
     }
 });
 exports.editFilter = editFilter;
-// ✅ Duplicate a Filter
-/*export const duplicateFilter = async (req: Request, res: Response) => {
-  try {
-    const { filterId } = req.params;
-    const originalFilter = await Filter.findById(filterId);
-
-    if (!originalFilter) {
-      return res.status(404).json({ message: "Original filter not found" });
-    }
-
-    // ✅ Ensure toObject() returns an object
-    const filterData = originalFilter.toObject() as Record<string, any>;
-
-    delete filterData._id; // ✅ Remove _id to avoid MongoDB conflict
-    filterData.name = `Copy of ${originalFilter.name}`;
-    filterData.createdAt = new Date();
-
-    const duplicatedFilter = new Filter(filterData);
-    await duplicatedFilter.save();
-
-    res.status(201).json({ message: "Filter Duplicated Successfully", filter: duplicatedFilter });
-  } catch (error) {
-    console.error("Error duplicating filter:", error);
-    res.status(500).json({ message: "Internal Server Error" });
-  }
-}; */
+// ✅ Duplicate a Filter with Campaign Type and Conditions
 const duplicateFilter = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { filterId } = req.params;
@@ -413,16 +230,6 @@ const duplicateFilter = (req, res) => __awaiter(void 0, void 0, void 0, function
     }
 });
 exports.duplicateFilter = duplicateFilter;
-// ✅ Get All Filters for a User
-// export const getFilters = async (req: Request, res: Response) => {
-//   try {
-//     const filters = await Filter.find({ /*userId: req.user.id*/ /*userId: (req as any).user.id,*/ userId: "67daedeaff85ef645f71206f" });
-//     res.status(200).json(filters);
-//   } catch (error) {
-//     console.error("Error fetching filters:", error);
-//     res.status(500).json({ message: "Internal Server Error" });
-//   }
-// };
 // ✅ Get All Filters for a User with Pagination, Search & Sorting 
 const getFilters = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
@@ -471,126 +278,6 @@ const getFilters = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
     }
 });
 exports.getFilters = getFilters;
-/*export const getFilters = async (req: Request, res: Response) => {
-  try {
-    const userId = "67daedeaff85ef645f71206f"; // Static userId (Replace with actual user authentication)
-
-    // Extract query parameters
-    let { page = "1", limit = "10", search = "", sortBy = "createdAt", order = "desc", isDraft } = req.query;
-
-    // Convert page & limit to numbers
-    const pageNumber = parseInt(page as string, 10);
-    const limitNumber = parseInt(limit as string, 10);
-    const skip = (pageNumber - 1) * limitNumber;
-
-    // Search filter (case-insensitive search by name)
-    const searchQuery = search ? { name: { $regex: search, $options: "i" } } : {};
-
-    // Draft filter logic
-    let draftFilter = {};
-    if (isDraft !== undefined) {
-      draftFilter = { isDraft: isDraft === "true" }; // Convert string to boolean
-    }
-
-    // Sorting order (ascending or descending)
-    const sortOrder = order === "asc" ? 1 : -1;
-
-    // Combine all filters
-    const query = {
-      userId,
-      ...searchQuery,
-      ...draftFilter
-    };
-
-    // Fetch filters
-    const filters = await Filter.find(query)
-      .populate("campaignId", "type") // Populate only the campaign type field
-      .sort({ [sortBy as string]: sortOrder })
-      .skip(skip)
-      .limit(limitNumber);
-
-    // Get total count for pagination
-    const totalFilters = await Filter.countDocuments(query);
-    const totalPages = Math.ceil(totalFilters / limitNumber);
-
-    res.status(200).json({
-      success: true,
-      message: "Filters fetched successfully",
-      filters,
-      pagination: {
-        total: totalFilters,
-        page: pageNumber,
-        limit: limitNumber,
-        totalPages
-      }
-    });
-  } catch (error) {
-    console.error("Error fetching filters:", error);
-    res.status(500).json({ message: "Internal Server Error" });
-  }
-};*/
-// ✅ Get a Single Filter with Grouping Logic
-/*export const getSingleFilter = async (req: Request, res: Response) => {
-  try {
-    const filterId = req.params.filterId;
-
-    // Fetch filter and ensure conditions are populated
-    const filter = await Filter.findById(filterId).lean();
-
-    if (!filter) {
-      return res.status(404).json({ message: "Filter not found" });
-    }
-
-    if (!filter.conditions || filter.conditions.length === 0) {
-      return res.status(200).json({
-        message: "No conditions found for this filter",
-        filter: { ...filter, groups: [] }
-      });
-    }
-
-    // Group conditions by groupId
-    const groupedConditions: Record<string, any[]> = {};
-
-    filter.conditions.forEach((condition: any) => {
-      if (condition?.groupId && condition?.criteria) {
-        const groupId = condition.groupId;
-        if (!groupedConditions[groupId]) {
-          groupedConditions[groupId] = [];
-        }
-        
-        // Extract criteria inside each group (if stored as nested array)
-        condition.criteria.forEach((criteria: any) => {
-          groupedConditions[groupId].push({
-            field: criteria.field,
-            operator: criteria.operator,
-            value: criteria.value,
-          });
-        });
-      }
-    });
-
-    // Convert groups into structured format
-    const groups = Object.keys(groupedConditions).map(groupId => ({
-      groupId,
-      conditions: groupedConditions[groupId], // AND conditions within a group
-    }));
-
-    res.status(200).json({
-      id: filter._id,
-      name: filter.name,
-      description: filter.description,
-      tags: filter.tags,
-      lastUsed: filter.lastUsed,
-      ctr: filter.ctr,
-      createdOn: filter.createdAt,
-      audienceCount: filter.estimatedAudience,
-      groups, // Groups with AND conditions, joined by OR operator
-    });
-  } catch (error) {
-    console.error("Error fetching filter:", error);
-    res.status(500).json({ error: "Internal server error" });
-  }
-};*/
 // ✅ Get a Single Filter with Grouping Logic and Campaign Type
 const getSingleFilter = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
@@ -715,7 +402,8 @@ exports.applyFilter = applyFilter;
 const deleteFilter = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { filterId } = req.params;
-        const filter = yield Filter_1.default.findOneAndDelete({ _id: filterId, /*userId: req.user.id*/
+        const filter = yield Filter_1.default.findOneAndDelete({
+            _id: filterId, /*userId: req.user.id*/
             /*userId: (req as any).user.id*/
             userId: "67daedeaff85ef645f71206f"
         });
