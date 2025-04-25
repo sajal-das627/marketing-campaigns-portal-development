@@ -245,7 +245,7 @@ const ManageFilters = () => {
                   <Checkbox checked={selectAll} onChange={handleSelectAll} />
                 </TableCell>
                 <TableCell>FILTER NAME</TableCell>
-                <TableCell>TAGS</TableCell> 
+                <TableCell>TAGS</TableCell>
                 <TableCell>DESCRIPTION</TableCell>
                 <TableCell sx={{ position: 'relative' }}>                  
                     ACTIONS 
