@@ -3,7 +3,9 @@ import { Grid2 as Grid, Card, IconButton, CardActionArea, CardContent, Box, Typo
 import SearchIcon from "@mui/icons-material/Search";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import { Types } from "mongoose";
-import { Audience, CampaignData } from "../../types/campaign";
+import { 
+  // Audience,
+   CampaignData } from "../../types/campaign";
 import FilterModal from './FilterModal';
 
 // import {generateStatement } from '../../utils/generateStatement'

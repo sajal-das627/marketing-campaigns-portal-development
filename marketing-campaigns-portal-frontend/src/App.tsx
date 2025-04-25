@@ -30,8 +30,10 @@
 // export default App;
 
 ////old
-import { AppBar, Box, CssBaseline, Toolbar } from "@mui/material";
-import Sidebar from "layout/Sidebar";
+import {
+  //  AppBar,
+   Box, CssBaseline, Toolbar } from "@mui/material";
+// import Sidebar from "layout/Sidebar";
 import { Route, BrowserRouter as Router, Routes } from "react-router-dom";
 import ActivityLogs from "./components/ActivityLogs";
 import Analytics from "./components/Analytics";
@@ -41,28 +43,35 @@ import Dashboard from "./components/Dashboard";
 import FilterBuilder from "./components/FilterBuilder/FilterBuilder";
 import SavedFilters from "./components/FilterBuilder/SavedFilters";
 import ManageFilter from "./components/ManageFilter/ManageFilter";
-import TemplateManagement from "./components/Templates/TemplateManagement";
+// import TemplateManagement from "./components/Templates/TemplateManagement";
 import TemplateManagementOld from "./components/Templates/TemplateManagementOld";
 import Templates from "./components/Templates/Templates";
 import Login from "./features/auth/Login";
-import Header from "layout/Header";
+import EditorSample from './components/EditorSample/App/'
+// import Header from "layout/Header";
 
 import ResponsiveLayout from "layout/ResponsiveLayout";
 
-const drawerWidth = 240;
+// const drawerWidth = 240;
 
 const App = () => {
   return (
     <Router>
-      <Box sx={{ display: 'flex' }}>
-        <CssBaseline />
-        {/* <AppBar position="fixed" sx={{ zIndex: (theme) => theme.zIndex.drawer + 1, marginLeft: drawerWidth, width: `calc(100% - ${drawerWidth}px)` }}>
-          <Toolbar>
-            <h1>Marketing Campaigns Portal</h1>
-          </Toolbar>
-        </AppBar> */}
+      
+        
         {/* <Header drawerWidth={drawerWidth}/>
         <Sidebar drawerWidth={drawerWidth}/> */}
+
+        {EditorSample? (
+      <Routes>
+        <Route>
+        <Route path="/create-templates" element={<EditorSample />} />
+        </Route>
+      </Routes>  
+      ):(
+     
+        <Box sx={{ display: 'flex' }}>
+        <CssBaseline />
         <ResponsiveLayout />
         <Box
           component="main"
@@ -82,11 +91,14 @@ const App = () => {
             <Route path="/create-filters" element={<FilterBuilder />} />
             <Route path="/templates" element={<Templates />} />
             <Route path="/templates-old" element={<TemplateManagementOld />} />
-            <Route path="/create-templates" element={<TemplateManagement />} />
+            {/* <Route path="/create-templates" element={<TemplateManagement />} /> */}
             <Route path="/filters" element={<ManageFilter />} />
           </Routes>
         </Box>
+        
       </Box>
+      
+        )}
     </Router>
   );
 };

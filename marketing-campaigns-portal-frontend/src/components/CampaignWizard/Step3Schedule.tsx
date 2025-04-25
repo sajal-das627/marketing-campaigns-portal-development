@@ -1,4 +1,4 @@
-import { useState, useEffect, Dispatch, SetStateAction } from 'react';
+// import { useState, useEffect, Dispatch, SetStateAction } from 'react';
 import {
   Box,
   FormControl,
@@ -15,8 +15,8 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers';
 import dayjs, { Dayjs } from 'dayjs';
 // import { PickerChangeHandlerContext } from '@mui/x-date-pickers/internals';
-import AccessTimeFilledIcon from '@mui/icons-material/AccessTimeFilled';
-import {Types} from 'mongoose';
+// import AccessTimeFilledIcon from '@mui/icons-material/AccessTimeFilled';
+// import {Types} from 'mongoose';
 import { CampaignData } from 'types/campaign';
 
 interface ScheduleFormProps {
@@ -27,7 +27,6 @@ interface ScheduleFormProps {
     type: "startDate" | "endDate",
     context: { validationError: any }
   ) => void;
-    
   // setCampaignData: Dispatch<SetStateAction<CampaignData>>;
 }
 

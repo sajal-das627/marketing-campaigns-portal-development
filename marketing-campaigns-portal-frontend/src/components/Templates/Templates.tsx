@@ -14,7 +14,7 @@ import {
   TableBody,
   TableRow,
   TableCell,
-  Stack, Grid, Modal, Paper, TextareaAutosize,
+  Stack, Modal, TextareaAutosize,
   FormControl,
   InputLabel,
   InputBase,
@@ -25,10 +25,10 @@ import {
   Dialog,
   DialogActions,
   DialogContent,
-  FormLabel,
-  RadioGroup,
-  FormControlLabel,
-  Radio,
+  // FormLabel,
+  // RadioGroup,
+  // FormControlLabel,
+  // Radio,
 
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
@@ -58,14 +58,14 @@ import DeleteModal from "../Modals/DeleteModal";
 import CloseIcon from '@mui/icons-material/Close';
 
 
-type Template = {
-  name: string;
-  type: string;
-  lastModified: string;
-  category: string;
-  categoryColor: "success" | "info" | "warning";
-  isFavorite: boolean;
-};
+// type Template = {
+//   name: string;
+//   type: string;
+//   lastModified: string;
+//   category: string;
+//   categoryColor: "success" | "info" | "warning";
+//   isFavorite: boolean;
+// };
 
 // const templates: Template[] = [
 //   {
@@ -138,12 +138,17 @@ const TemplatesTable: React.FC = () => {
     // }
     
     const handleAnchorClick = (event: React.MouseEvent<HTMLElement>, id: string) => {
-  setMenuAnchorEl(prev => ({ ...prev, [id]: event.currentTarget }));
-};
+      setMenuAnchorEl((prev) => ({
+        ...prev,
+        [id]: event.currentTarget,
+      }));
+    };
+    
 
 
     const handleAnchorClose = (id: string) => {
-      setMenuAnchorEl(prev => ({ ...prev, [id]: null }));
+      setMenuAnchorEl(({}));
+      // setMenuAnchorEl(prev => ({ ...prev, [id]: null }));
     };
 
   
@@ -240,7 +245,7 @@ const TemplatesTable: React.FC = () => {
       // if (window.confirm("Are you sure you want to delete this template?")) {
       setSelectedId(id);
       setIsDeleteModalopen(true);
-        
+      setMenuAnchorEl(({}));
       // }
     };
     const handleConfirmDelete = async() => {
@@ -489,11 +494,11 @@ const TemplatesTable: React.FC = () => {
               // bgcolor: i%2 === 0? 'white' : '#FAFAFA', 
               // border: i%2 === 0 ? 'white' : '#ECEEF6',
               opacity: Boolean(template.isDeleted)? 0.4 : 1 ,
-              pointerEvents: template.isDeleted ? "none" : "auto",
-              "& .restore-btn": {
-                  pointerEvents: "auto",
-                  opacity: 1
-                }
+              // pointerEvents: template.isDeleted ? "none" : "auto",
+              // "& .restore-btn": {
+              //     pointerEvents: "auto",
+              //     opacity: 1
+              //   }
             }}>
               <TableCell>
                 <Stack direction="row" alignItems="center" spacing={1} >
