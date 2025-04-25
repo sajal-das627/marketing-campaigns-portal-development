@@ -132,14 +132,69 @@ const apiClient = axios.create({
     return campaignId;
   };
 
+  //criteria blocks
+  export const createCriteriaBlocks = async(data:any)=>{
+    const response = await axios.post(`${process.env.REACT_APP_API_BASE_URL}/criteria-blocks`, data);
+    return response.data;
+  }
+
+  export const getCriteriaBlocks = async()=>{
+    const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/criteria-blocks`);
+    return response.data;
+  }
+
+
       // ✅ Update Campaign
   export const updateCampaignApi = async (campaignId: string, updatedData: any) => {
     const response = await axios.put(`${process.env.REACT_APP_API_BASE_URL}/campaigns/${campaignId}/edit`, updatedData);
     return response.data;
   };
-  // filter data for view on create campaign
-  export const fetchFilterData = (filterId: string) => apiClient.get(`/filters/${filterId}`);
 
+  
+// fetchTemplates
+export const fetchTemplates = (params: any) => {
+  return axios.get(`${process.env.REACT_APP_API_BASE_URL}/templates`, { params });
+};
+// recentlyUsedTemplates
+export const fetchRecentlyUsedTemplates = (params: any) => {
+  return axios.get(`${process.env.REACT_APP_API_BASE_URL}/templates/recent`, { params });
+};
+
+// fetchFavoriteTemplates
+export const fetchFavoriteTemplates = async (params: any) => {
+  const query = new URLSearchParams(params).toString();
+  return axios.get(`${process.env.REACT_APP_API_BASE_URL}/templates/favorites?${query}`);
+};
+
+// fetchTemplateById
+export const toggleFavoriteTemplate = (templateId: string) => {
+  return axios.put(`${process.env.REACT_APP_API_BASE_URL}/templates/${templateId}/favorite`);
+};
+// fetchTemplateById
+export const fetchTemplateById = async (id: string) => {
+  return axios.get(`${process.env.REACT_APP_API_BASE_URL}/templates/${id}`);
+};
+// Update template by ID
+export const updateTemplateById = async (id: string, data: any) => {
+  return axios.put(`${process.env.REACT_APP_API_BASE_URL}/templates/${id}`, data);
+};
+//  deleteTemplateById
+export const deleteTemplateById = (id: string) => {
+  return axios.delete(`${process.env.REACT_APP_API_BASE_URL}/templates/${id}`);
+
+}
+//  rstore template by ID
+export const restoreTemplateById = (templateId: string) => {
+  return axios.patch(`${process.env.REACT_APP_API_BASE_URL}/templates/${templateId}/restore`);
+};
+// duplicateTemplateById
+export const duplicateTemplateById = (templateId: string) => {
+  return axios.post(`${process.env.REACT_APP_API_BASE_URL}/templates/${templateId}/duplicate`);
+};
+
+
+  // filter data for view on create campaign
+export const fetchFilterData = (filterId: string) => apiClient.get(`/filters/${filterId}`);
   // Filters API
 export const createFilter = (filterData: any) => apiClient.post("/filters", filterData);
 // export const getFilters = () => apiClient.get("/filters");

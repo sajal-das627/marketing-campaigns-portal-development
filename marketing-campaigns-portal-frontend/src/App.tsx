@@ -42,6 +42,8 @@ import FilterBuilder from "./components/FilterBuilder/FilterBuilder";
 import SavedFilters from "./components/FilterBuilder/SavedFilters";
 import ManageFilter from "./components/ManageFilter/ManageFilter";
 import TemplateManagement from "./components/Templates/TemplateManagement";
+import TemplateManagementOld from "./components/Templates/TemplateManagementOld";
+import Templates from "./components/Templates/Templates";
 import Login from "./features/auth/Login";
 import Header from "layout/Header";
 
@@ -78,7 +80,8 @@ const App = () => {
             <Route path="/create-campaign/:id?" element={<CampaignWizard />} />
             <Route path="/saved-filters" element={<SavedFilters />} />
             <Route path="/create-filters" element={<FilterBuilder />} />
-            <Route path="/templates" element={<TemplateManagement />} />
+            <Route path="/templates" element={<Templates />} />
+            <Route path="/templates-old" element={<TemplateManagementOld />} />
             <Route path="/create-templates" element={<TemplateManagement />} />
             <Route path="/filters" element={<ManageFilter />} />
           </Routes>
