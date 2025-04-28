@@ -1,5 +1,5 @@
-import { AppBar, Box, CssBaseline, Toolbar } from "@mui/material";
-import Sidebar from "layout/Sidebar";
+// import { AppBar, Box, CssBaseline, Toolbar } from "@mui/material";
+// import Sidebar from "layout/Sidebar";
 import { createBrowserRouter, createRoutesFromElements, Route } from "react-router-dom";
 import ActivityLogs from "../components/ActivityLogs";
 import Analytics from "../components/Analytics";
@@ -9,13 +9,13 @@ import Dashboard from "../components/Dashboard";
 import FilterBuilder from "../components/FilterBuilder/FilterBuilder";
 import SavedFilters from "../components/FilterBuilder/SavedFilters";
 import ManageFilter from "../components/ManageFilter/ManageFilter";
-import TemplateManagement from "../components/Templates/TemplateManagement";
+import TemplateManagement from "../components/Templates/CreateTemplates";
 import Login from "../features/auth/Login";
-import Header from "layout/Header";
+// import Header from "layout/Header";
 
 import ResponsiveLayout from "layout/ResponsiveLayout";
 
-const drawerWidth = 240;
+// const drawerWidth = 240;
 
 export const router = createBrowserRouter(
     createRoutesFromElements(
