@@ -17,7 +17,6 @@ const FilterSchema = new mongoose.Schema({
   description: { type: String },  
   tags: [{ type: String }],  
   userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },  
-  campaignId: { type: mongoose.Schema.Types.ObjectId, ref: "Campaign", required: true },  // ✅ Store Campaign ID
   conditions: [ConditionGroupSchema], // ✅ Store groups instead of flat conditions
   logicalOperator: { type: String, enum: ["AND", "OR"], required: true },   // ✅ Operator between groups
   estimatedAudience: { type: Number, default: 0 },  

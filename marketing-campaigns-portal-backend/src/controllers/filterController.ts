@@ -4,7 +4,7 @@ import Filter from "../models/Filter";
 import Campaign from "../models/Campaign"; // Import Campaign model
 
 
-export const createOrUpdateFilter = async (req: Request, res: Response) => {
+/*export const createOrUpdateFilter = async (req: Request, res: Response) => {
   try {
     const { name, description, tags, conditions, logicalOperator, customFields, isDraft, campaignId } = req.body;
 
@@ -95,12 +95,108 @@ export const createOrUpdateFilter = async (req: Request, res: Response) => {
       res.status(400).json({ message: "An unknown error occurred" });
     }
   }
+};*/
+
+export const createOrUpdateFilter = async (req: Request, res: Response) => {
+  try {
+    const { name, description, tags, conditions, logicalOperator, customFields, isDraft } = req.body;
+
+    // ✅ Validate required fields
+    if (!name || !conditions) {
+      return res.status(400).json({ message: "Name and conditions are required." });
+    }
+
+    // ✅ Validate conditions array
+    if (!Array.isArray(conditions) || conditions.length === 0) {
+      return res.status(400).json({ message: "Conditions should be an array of groups." });
+    }
+
+    // ✅ No Campaign validation anymore
+
+    let isTriggerFilter = false; // 🔥 By default, treat as Filter Components (isTriggerFilter = false)
+
+    const structuredGroups = conditions.map((group: any, index: number) => {
+      if (index === 0) {
+        // First Group
+        if (!isTriggerFilter && group.groupOperator !== "AND") {
+          throw new Error("In Filter Components, Group 1 must have an AND operator.");
+        }
+        // For Trigger Filters, we allow both AND/OR in Group 1 (if we bring back campaign later)
+      } else {
+        if (!isTriggerFilter && group.groupOperator !== "AND") {
+          throw new Error("Each group in Filter Components must have an AND operator.");
+        }
+      }
+
+      return {
+        groupId: group.groupId || `Group_${Date.now()}`,
+        groupOperator: isTriggerFilter
+          ? group.groupOperator || "OR"
+          : "AND",
+        criteria: group.criteria.map((condition: any) => ({
+          field: condition.field,
+          operator: condition.operator,
+          value: condition.value,
+        })),
+      };
+    });
+
+    // ✅ Handle logicalOperator properly
+    let finalLogicalOperator: string | undefined = undefined;
+    if (conditions.length === 1) {
+      // Only one group
+      finalLogicalOperator = "OR"; // Always set OR if only one group
+    } else {
+      // More than one group
+      if (!isTriggerFilter) {
+        if (!logicalOperator || logicalOperator !== "OR") {
+          return res.status(400).json({ message: "Filter Components must have an OR operator between groups." });
+        }
+        finalLogicalOperator = "OR";
+      } else {
+        if (!logicalOperator || (logicalOperator !== "AND" && logicalOperator !== "OR")) {
+          return res.status(400).json({ message: "Trigger Filters must have AND/OR operator between groups." });
+        }
+        finalLogicalOperator = logicalOperator;
+      }
+    }
+
+    let updatedCustomFields = {};
+    if (customFields && typeof customFields === "object") {
+      updatedCustomFields = customFields;
+    }
+
+    const estimatedAudience = Math.floor(Math.random() * 10000);
+
+    // ✅ Build the new filter document (without campaignId)
+    const newFilter = new Filter({
+      name,
+      description,
+      tags,
+      userId: "67daedeaff85ef645f71206f", // ✅ Hardcoded userId
+      conditions: structuredGroups,
+      logicalOperator: finalLogicalOperator,
+      customFields: updatedCustomFields,
+      estimatedAudience,
+      isDraft,
+    });
+
+    await newFilter.save();
+    res.status(201).json({ message: "Filter Saved Successfully", filter: newFilter });
+
+  } catch (error: unknown) {
+    console.error("Error saving filter:", error);
+    if (error instanceof Error) {
+      res.status(400).json({ message: error.message });
+    } else {
+      res.status(400).json({ message: "An unknown error occurred" });
+    }
+  }
 };
 
 
-
 // ✅ Edit an Existing Filter add campaign type with AND/OR Groups & Custom Fields
-export const editFilter = async (req: Request, res: Response) => {
+/*export const editFilter = async (req: Request, res: Response) => {
   try {
     const { filterId } = req.params;
     const {
@@ -220,11 +316,127 @@ export const editFilter = async (req: Request, res: Response) => {
       res.status(400).json({ message: "An unknown error occurred" });
     }
   }
+};*/
+// campaignId removed from editFilter function
+export const editFilter = async (req: Request, res: Response) => {
+  try {
+    const { filterId } = req.params;
+    const {
+      name,
+      description,
+      tags,
+      conditions,
+      logicalOperator,
+      customFields,
+      isDraft,
+    } = req.body;
+
+    // ✅ Validate required fields
+    if (!name || !conditions) {
+      return res.status(400).json({
+        message: "Name and conditions are required.",
+      });
+    }
+
+    // ✅ Validate conditions format
+    if (!Array.isArray(conditions) || conditions.length === 0) {
+      return res.status(400).json({
+        message: "Conditions should be an array of groups.",
+      });
+    }
+
+    // ✅ No Campaign check anymore
+    let isTriggerFilter = false; // 🔥 Default assume it is Filter Components (not Trigger Filters)
+
+    // ✅ Processing Conditions (Handling Filter Components & Trigger Filters Logic)
+    const structuredGroups = conditions.map((group: any, index: number) => {
+      if (index === 0) {
+        // ✅ Group 1 validation
+        if (!isTriggerFilter && group.groupOperator !== "AND") {
+          throw new Error("In Filter Components, Group 1 must have an AND operator.");
+        }
+        // ✅ Trigger Filters: allow AND/OR for Group 1
+      } else {
+        // ✅ Group 2, Group 3, etc
+        if (!isTriggerFilter && group.groupOperator !== "AND") {
+          throw new Error("Each group in Filter Components must have an AND operator.");
+        }
+        // ✅ Trigger Filters: allow AND/OR between groups
+      }
+
+      return {
+        groupId: group.groupId || `Group_${Date.now()}`,
+        groupOperator: isTriggerFilter ? group.groupOperator || "OR" : "AND",
+        criteria: group.criteria.map((condition: any) => ({
+          field: condition.field,
+          operator: condition.operator,
+          value: condition.value,
+        })),
+      };
+    });
+
+    // ✅ Enforce logicalOperator validation
+    if (conditions.length > 1) {
+      if (!isTriggerFilter && logicalOperator !== "OR") {
+        return res.status(400).json({
+          message: "Filter Components must have an OR operator between groups.",
+        });
+      }
+      if (isTriggerFilter && (!logicalOperator || (logicalOperator !== "AND" && logicalOperator !== "OR"))) {
+        return res.status(400).json({
+          message: "Trigger Filters must have an AND or OR operator between groups.",
+        });
+      }
+    }
+
+    // ✅ Handle Custom Fields
+    let updatedCustomFields = {};
+    if (customFields && typeof customFields === "object") {
+      updatedCustomFields = customFields;
+    }
+
+    // ✅ Dummy Audience Estimation Logic
+    const estimatedAudience = Math.floor(Math.random() * 10000);
+
+    // ✅ Find and update the filter (no campaignId anymore)
+    const updatedFilter = await Filter.findOneAndUpdate(
+      { _id: filterId, userId: "67daedeaff85ef645f71206f" },
+      {
+        name,
+        description,
+        tags,
+        conditions: structuredGroups,
+        logicalOperator: conditions.length === 1 ? "OR" : logicalOperator,
+        customFields: updatedCustomFields,
+        estimatedAudience,
+        isDraft,
+        lastModified: new Date(),
+      },
+      { new: true }
+    ).lean();
+
+    if (!updatedFilter) {
+      return res.status(404).json({ message: "Filter not found" });
+    }
+
+    // ✅ Response without campaignType (because campaign is removed)
+    res.status(200).json({
+      message: "Filter Updated Successfully",
+      filter: updatedFilter,
+    });
+  } catch (error: unknown) {
+    console.error("Error updating filter:", error);
+
+    if (error instanceof Error) {
+      res.status(400).json({ message: error.message });
+    } else {
+      res.status(400).json({ message: "An unknown error occurred" });
+    }
+  }
 };
 
 
-// ✅ Duplicate a Filter with Campaign Type and Conditions
-
+// ✅ Duplicate a Filter with Conditions
 export const duplicateFilter = async (req: Request, res: Response) => {
   try {
     const { filterId } = req.params;
@@ -237,22 +449,18 @@ export const duplicateFilter = async (req: Request, res: Response) => {
     // ✅ Convert document to plain object
     const filterData = originalFilter.toObject() as Record<string, any>;
 
-    delete filterData._id; // ✅ Remove _id to avoid MongoDB conflict
-    delete filterData.createdAt; // ✅ Remove timestamp to reset creation time
+    delete filterData._id;        // ✅ Remove _id to avoid MongoDB conflict
+    delete filterData.createdAt;  // ✅ Remove createdAt to reset creation time
+    delete filterData.campaignId; // ✅ Remove campaignId completely
 
-    // ✅ Generate a unique name to allow multiple duplications
+    // ✅ Generate a unique name for duplicated filter
     filterData.name = `Copy of ${originalFilter.name}`;
-
-    // ✅ Ensure required fields are properly copied
-    if (!filterData.campaignId) {
-      return res.status(400).json({ message: "campaignId is required" });
-    }
 
     // ✅ Validate and format conditions array
     if (Array.isArray(filterData.conditions)) {
       filterData.conditions = filterData.conditions.map((condition: any) => ({
         ...condition,
-        groupOperator: condition.groupOperator || "AND", // Default value
+        groupOperator: condition.groupOperator || "AND", // Default to "AND" if missing
       }));
     } else {
       return res.status(400).json({ message: "Invalid conditions format" });
@@ -267,7 +475,6 @@ export const duplicateFilter = async (req: Request, res: Response) => {
     res.status(500).json({ message: "Internal Server Error" });
   }
 };
-
 
 
 // ✅ Get All Filters for a User with Pagination, Search & Sorting 
@@ -302,9 +509,8 @@ export const getFilters = async (req: Request, res: Response) => {
       ...draftFilter
     };
 
-    // Fetch filters
+    // Fetch filters (no populate for campaignId anymore)
     const filters = await Filter.find(query)
-      .populate("campaignId", "type") // Populate only the campaign type field
       .sort({ [sortBy as string]: sortOrder })
       .skip(skip)
       .limit(limitNumber);
@@ -332,12 +538,12 @@ export const getFilters = async (req: Request, res: Response) => {
 
 
 
-// ✅ Get a Single Filter with Grouping Logic and Campaign Type
+// ✅ Get a Single Filter with Grouping Logic
 export const getSingleFilter = async (req: Request, res: Response) => {
   try {
     const filterId = req.params.filterId;
 
-    // Fetch filter along with campaign details
+    // Fetch filter
     const filter = await Filter.findById(filterId).lean();
 
     if (!filter) {
@@ -349,15 +555,6 @@ export const getSingleFilter = async (req: Request, res: Response) => {
         message: "No conditions found for this filter",
         filter: { ...filter, groups: [] }
       });
-    }
-
-    // ✅ Fetch campaign details using campaignId
-    let type = null;
-    if (filter.campaignId) {
-      const campaign = await Campaign.findById(filter.campaignId).lean();
-      if (campaign) {
-        type = campaign.type;
-      }
     }
 
     // ✅ Group conditions by groupId
@@ -387,8 +584,8 @@ export const getSingleFilter = async (req: Request, res: Response) => {
     // ✅ Convert groups into structured format
     const groups = Object.keys(groupedConditions).map(groupId => ({
       groupId,
-      groupOperator: groupedConditions[groupId].groupOperator, // ✅ Include groupOperator for each group
-      conditions: groupedConditions[groupId].conditions, // AND conditions within a group
+      groupOperator: groupedConditions[groupId].groupOperator,
+      conditions: groupedConditions[groupId].conditions,
     }));
 
     res.status(200).json({
@@ -400,21 +597,15 @@ export const getSingleFilter = async (req: Request, res: Response) => {
       ctr: filter.ctr,
       createdOn: filter.createdAt,
       audienceCount: filter.estimatedAudience,
-      campaignId: filter.campaignId || null, // ✅ Include campaignId
-      type, // ✅ Include campaignType from campaigns table
-      customFields: filter.customFields || {}, // ✅ Include customFields from filters table
-      logicalOperator: filter.logicalOperator || "OR", // ✅ Include logicalOperator for the entire filter
-      groups, // Groups with AND conditions, joined by OR operator
+      customFields: filter.customFields || {}, // ✅ Include customFields
+      logicalOperator: filter.logicalOperator || "OR", // ✅ Include logicalOperator
+      groups, // ✅ Groups with AND/OR conditions
     });
   } catch (error) {
     console.error("Error fetching filter:", error);
     res.status(500).json({ error: "Internal server error" });
   }
 };
-
-
-
-
 
 
 // ✅ Preview Estimated Audience Based on Conditions
