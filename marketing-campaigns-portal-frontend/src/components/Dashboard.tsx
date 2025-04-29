@@ -189,8 +189,8 @@ const campaignResponses: Array<{
         alignItems="center"
         mb={3}
       >
-        <Typography variant="h4" component="h1" marginBottom={{ xs: 1 }} >
-          Dashboard&nbsp;
+        <Typography variant="h4" component="h1"sx={{mb:1, mr:1}} >
+          Dashboard
         </Typography>
 
         <Box display="flex"

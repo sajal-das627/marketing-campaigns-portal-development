@@ -176,6 +176,7 @@ const Campaigns: React.FC<CampaignProp> = () => {
         }
       }
     }
+    setTimeout(() => setHighlightedId(null), 8000);
   };
   
   

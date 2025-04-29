@@ -2,7 +2,7 @@ import
 // React,
  { useState } from 'react'
 import ChooseTemplateModal from './ChooseTemplateModal'
-import { Container } from '@mui/material'
+import { Container, Box, Typography } from '@mui/material'
 import {useNavigate } from 'react-router-dom';
 
 const CreateTemplate = () => {
@@ -29,7 +29,23 @@ const CreateTemplate = () => {
     console.log("template:", selectedTemplate);
   return (
     <Container>
-    <div>Create Template</div>
+      <Box sx={{
+            p: 3, bgcolor: '#F8F9FE', maxWidth: '100%', overflow: 'hidden',
+            // '& *': { color: '#495057' }
+          }}>
+            
+            <Box
+              display="flex"
+              flexDirection={{ xs: 'column', md: 'row' }}
+              justifyContent="space-between"
+              alignItems="center"
+              mb={3}
+            >
+              <Typography variant="h4" component="h1" marginBottom={{ xs: 1 }} >
+              Create Template
+              </Typography>
+              </Box>
+              </Box>
 
     <ChooseTemplateModal open={isTemplateModalOpen} onClose={()=>setIsTemplateModalOpen(false)}
       selectedTemplate={selectedTemplate}

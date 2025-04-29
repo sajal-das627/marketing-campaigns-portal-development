@@ -56,7 +56,7 @@ import { RootState } from "../../redux/store";
 import { useDebounce } from "use-debounce";
 import DeleteModal from "../Modals/DeleteModal";
 import CloseIcon from '@mui/icons-material/Close';
-
+import type { Template } from "../../redux/slices/templateSlice";
 
 // type Template = {
 //   name: string;
@@ -263,27 +263,102 @@ const TemplatesTable: React.FC = () => {
       await dispatch(restoreTemplate(id) as any);
       refreshActiveTab();
     };
-  
-    
+  const [highlightedId, setHighlightedId] = useState<string|null>(null);
+
+ 
   const handleDuplicateTemplate = async (id: string) => {
     const res: any = await dispatch(duplicateTemplate(id) as any);
-    console.log("Duplicated response:", res.payload);
-    if (res.payload) {
-      const duplicated = res.payload.template;
-
-      if (activeTab === "all") {
-        // Add to the end of allTemplates
-        const newList = [...allTemplates, duplicated];
-        dispatch(setAllTemplates(newList));
-      } else if (activeTab === "recent") {
-        const newList = [...recentTemplates, duplicated];
-        dispatch(setRecentTemplates(newList));
-      } else if (activeTab === "favorite") {
-        const newList = [...favoriteTemplates, duplicated];
-        dispatch(setFavoriteTemplates(newList));
-      }
+    if (!duplicateTemplate.fulfilled.match(res)) return;
+  
+    // now this is the slice Template with `_id` etc.
+    const duplicated: Template = res.payload.template;
+  
+    let newList: Template[];
+  
+    if (activeTab === "all") {
+      const idx = allTemplates.findIndex((t) => t._id === id);
+      newList = [...allTemplates];
+      newList.splice(idx + 1, 0, duplicated);
+      dispatch(setAllTemplates(newList));
+  
+    } else if (activeTab === "recent") {
+      const idx = recentTemplates.findIndex((t) => t._id === id);
+      newList = [...recentTemplates];
+      newList.splice(idx + 1, 0, duplicated);
+      dispatch(setRecentTemplates(newList));
+  
+    } else {
+      const idx = favoriteTemplates.findIndex((t) => t._id === id);
+      newList = [...favoriteTemplates];
+      newList.splice(idx + 1, 0, duplicated);
+      dispatch(setFavoriteTemplates(newList));
     }
+  
+    setHighlightedId(duplicated._id);
+    setMenuAnchorEl(({}));
+    setTimeout(() => setHighlightedId(null), 8000);
   };
+  
+  //delete
+    // const handleDuplicateTemplate = async (id: string) => {
+    //   // dispatch the thunk and wait for the fulfilled action
+    //   const res: any = await dispatch(duplicateTemplate(id) as any);
+    
+    //   // check that it actually succeeded
+    //   if (duplicateTemplate.fulfilled.match(res)) {
+    //     // extract the duplicated template from whatever your API returns
+    //     const duplicated: Template = res.payload.template;
+    
+    //     let newList: Template[];
+    
+    //     if (activeTab === "all") {
+    //       // find the original’s position
+    //       const idx = allTemplates.findIndex((t) => t._id === id);
+    //       newList = [...allTemplates];
+    //       // insert the duplicate right after it
+    //       newList.splice(idx + 1, 0, duplicated);
+    //       dispatch(setAllTemplates(newList));
+    
+    //     } else if (activeTab === "recent") {
+    //       const idx = recentTemplates.findIndex((t) => t._id === id);
+    //       newList = [...recentTemplates];
+    //       newList.splice(idx + 1, 0, duplicated);
+    //       dispatch(setRecentTemplates(newList));
+    
+    //     } else {
+    //       const idx = favoriteTemplates.findIndex((t) => t._id === id);
+    //       newList = [...favoriteTemplates];
+    //       newList.splice(idx + 1, 0, duplicated);
+    //       dispatch(setFavoriteTemplates(newList));
+    //     }
+    
+    //     // now highlight it
+    //     setHighlightedId(duplicated._id);
+    
+    //     // clear the highlight after a couple seconds
+    //     setTimeout(() => setHighlightedId(null), 3000);
+    //   }
+    // };
+    
+  // const handleDuplicateTemplate = async (id: string) => {
+  //   const res: any = await dispatch(duplicateTemplate(id) as any);
+  //   console.log("Duplicated response:", res.payload);
+  //   if (res.payload) {
+  //     const duplicated = res.payload.template;
+
+  //     if (activeTab === "all") {
+  //       // Add to the end of allTemplates
+  //       const newList = [...allTemplates, duplicated];
+  //       dispatch(setAllTemplates(newList));
+  //     } else if (activeTab === "recent") {
+  //       const newList = [...recentTemplates, duplicated];
+  //       dispatch(setRecentTemplates(newList));
+  //     } else if (activeTab === "favorite") {
+  //       const newList = [...favoriteTemplates, duplicated];
+  //       dispatch(setFavoriteTemplates(newList));
+  //     }
+  //   }
+  // };
 
     // const handleDuplicateTemplate = async (id: string) => {
     //   const newTemplate = await dispatch(duplicateTemplate(id) as any).unwrap(); // 👈 get the result directly
@@ -488,12 +563,13 @@ const TemplatesTable: React.FC = () => {
           </TableRow>
         </TableHead>
         <TableBody>
-          {templatesToShow.map((template:any) => (
+          {templatesToShow.map((template:any, i) => (
 
             <TableRow key={template._id} sx={{
-              // bgcolor: i%2 === 0? 'white' : '#FAFAFA', 
-              // border: i%2 === 0 ? 'white' : '#ECEEF6',
+              bgcolor: i%2 === 0? 'white' : '#FAFAFA', 
+              border: i%2 === 0 ? 'white' : '#ECEEF6',
               opacity: Boolean(template.isDeleted)? 0.4 : 1 ,
+              boxShadow: template._id === highlightedId ?  'inset 0px 0px 10px #ff9800' :  'inset 0px 0px 10px #ffffff'
               // pointerEvents: template.isDeleted ? "none" : "auto",
               // "& .restore-btn": {
               //     pointerEvents: "auto",
