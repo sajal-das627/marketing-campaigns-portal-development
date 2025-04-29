@@ -475,6 +475,11 @@ const App: React.FC = () => {
       return;
     }
 
+    if (!saveDescription.trim()) {
+      showWarningModal("Description is required.");
+      return;
+    }
+
     const groups = groupsByTab[activeTab];
 
     if (!groups || groups.length === 0) {
@@ -519,7 +524,7 @@ const App: React.FC = () => {
           : undefined,
       estimatedAudience, // Static audience
     };
-    
+
 
     try {
       await createOrUpdateFilter(payload);
@@ -818,6 +823,7 @@ const App: React.FC = () => {
                 value={saveDescription}
                 onChange={(e) => setSaveDescription(e.target.value)}
                 sx={{ mb: 2 }}
+                required
               />
               <TextField
                 fullWidth
@@ -827,9 +833,25 @@ const App: React.FC = () => {
                 sx={{ mb: 2 }}
               />
 
-              <Button onClick={handleConfirmSaveFilter} variant="contained" fullWidth>
-                Save
-              </Button>
+              <Box sx={{ display: "flex", justifyContent: "space-between", mt: 2 }}>
+                <Button
+                  onClick={() => setIsSaveFilterModalOpen(false)}
+                  variant="outlined"
+                  color="secondary"
+                  sx={{ width: "48%" }}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  onClick={handleConfirmSaveFilter}
+                  variant="contained"
+                  color="primary"
+                  sx={{ width: "48%" }}
+                >
+                  Save
+                </Button>
+              </Box>
+
             </Card>
           </Modal>
           <Dialog open={isModalOpen} onClose={handleCloseModal}>
