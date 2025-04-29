@@ -46,6 +46,7 @@ import TemplateManagementOld from "./components/Templates/TemplateManagementOld"
 import Templates from "./components/Templates/Templates";
 import Login from "./features/auth/Login";
 import Header from "layout/Header";
+import FilterBuilder1 from "./components/FilterBuilder/FilterBuilder1";
 
 import ResponsiveLayout from "layout/ResponsiveLayout";
 
@@ -80,6 +81,7 @@ const App = () => {
             <Route path="/create-campaign/:id?" element={<CampaignWizard />} />
             <Route path="/saved-filters" element={<SavedFilters />} />
             <Route path="/create-filters" element={<FilterBuilder />} />
+            <Route path="/create-filters1" element={<FilterBuilder1 />} />
             <Route path="/templates" element={<Templates />} />
             <Route path="/templates-old" element={<TemplateManagementOld />} />
             <Route path="/create-templates" element={<TemplateManagement />} />

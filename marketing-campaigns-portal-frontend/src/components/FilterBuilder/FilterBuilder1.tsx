@@ -8,7 +8,6 @@ import {
   Tab,
   Tabs,
   Typography,
-  Modal,
   Dialog,
   DialogActions,
   DialogContent,
@@ -22,12 +21,7 @@ import {
 import DeleteIcon from "@mui/icons-material/Delete";
 import { CloseRounded, DragIndicator } from "@mui/icons-material";
 import AddIcon from "@mui/icons-material/Add";
-import { createCriteriaBlocks, getCriteriaBlocks, createOrUpdateFilter } from "../../api/apiClient";
-import { useDispatch, useSelector } from "react-redux";
-import { RootState, AppDispatch } from "../../redux/store"; // 👈 Correct import
-import { debounce } from "lodash";
-import AudiencePreview from "./AudiencePreview";
-
+import { createCriteriaBlocks, getCriteriaBlocks } from "../../api/apiClient";
 
 interface Criteria {
   label: string;
@@ -35,7 +29,7 @@ interface Criteria {
   operator?: string; // Add operator as an optional property
 }
 
-const operators: any = {
+const operators:any = {
   string: ["equals", "not equals", "contains", "startsWith", "endsWith"],
   number: ["equals", "not equals", "greaterThan", "lessThan"],
   date: ["before", "after", "on"],
@@ -194,33 +188,18 @@ const DropGroup: React.FC<DropGroupProps> = ({
 };
 
 const App: React.FC = () => {
-  const dispatch = useDispatch<AppDispatch>();      // 👈 Add <AppDispatch> here
-
-  const [groupsByTab, setGroupsByTab] = useState<{ [tab: string]: any[] }>({});
-
-  const [groupOperatorsByTab, setGroupOperatorsByTab] = useState<{ [tab: string]: { [groupId: number]: string } }>({});
-
-  const [logicalOperatorsByTab, setLogicalOperatorsByTab] = useState<{ [tab: string]: { [index: number]: "AND" | "OR" } }>({
-    Tab1: {},
-    Tab2: {},
-  });
-
-  const [activeTab, setActiveTab] = useState<string>("Tab1");
+  const [activeTab, setActiveTab] = useState("Tab1");
   const [createBlockError, setCreateBlockError] = useState<string>("");
-  const [groups, setGroups] = useState<any[]>([]);
-  const [saveFilterName, setSaveFilterName] = useState("");
-  const [saveDescription, setSaveDescription] = useState("");
-  const [saveTags, setSaveTags] = useState("");
-  const [isSaveFilterModalOpen, setIsSaveFilterModalOpen] = useState(false);
-  const [estimatedAudience, setEstimatedAudience] = useState<number>(5000); // Static value
+  const [groups, setGroups] = useState<
+    { id: number; criteria: GroupCriteria[] }[]
+  >([]);
   const [criteriaTabs, setCriteriaTabs] = useState<any>(initialCriteriaTabs);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [newCriteria, setNewCriteria] = useState<Criteria>({
     label: "",
     dataType: "string",
-    operator: ""
+    operator:""
   });
-
   const [currentTab, setCurrentTab] = useState<string>("");
 
   const [isWarningModalOpen, setIsWarningModalOpen] = useState(false);
@@ -229,12 +208,10 @@ const App: React.FC = () => {
   const [isAlertModalOpen, setIsAlertModalOpen] = useState(false);
   const [alertModalMessage, setAlertModalMessage] = useState<string>("");
 
-
   const showWarningModal = (message: string) => {
     setWarningMessage(message);
     setIsWarningModalOpen(true);
   };
-
 
   const handleCloseWarningModal = () => {
     setIsWarningModalOpen(false);
@@ -250,94 +227,39 @@ const App: React.FC = () => {
   };
 
   const addGroup = () => {
-    setGroupsByTab((prev) => {
-      const currentGroups = prev[activeTab] || [];
-      const newGroupId = currentGroups.length;
-      return {
-        ...prev,
-        [activeTab]: [...currentGroups, { id: newGroupId, criteria: [] }],
-      };
-    });
-
-    setGroupOperatorsByTab((prev) => {
-      const currentGroupOperators = prev[activeTab] || {};
-      return {
-        ...prev,
-        [activeTab]: { ...currentGroupOperators, [groupsByTab[activeTab]?.length || 0]: "AND" },
-      };
-    });
+    setGroups([...groups, { id: groups.length, criteria: [] }]);
   };
 
-
-
   const handleDrop = (criteria: Criteria, groupId: number) => {
-    setGroupsByTab((prev) => {
-      const updatedGroups = prev[activeTab].map((group) => {
+    setGroups((prevGroups) =>
+      prevGroups.map((group) => {
         if (group.id === groupId) {
-          if (group.criteria.some((c: Criteria) => c.label === criteria.label)) {
-            showAlertModal(`Cannot drag "${criteria.label}" as it already exists in this group.`);
+          if (group.criteria.some((c) => c.label === criteria.label)) {
+            showAlertModal(
+              `Cannot drag "${criteria.label}" as it already exists in this group.`
+            );
             return group;
           }
           return {
             ...group,
-            criteria: [...group.criteria, { ...criteria, operator: "=", value: "" }],
+            criteria: [
+              ...group.criteria,
+              { ...criteria, operator: "=", value: "" },
+            ],
           };
         }
         return group;
-      });
-      return { ...prev, [activeTab]: updatedGroups };
-    });
+      })
+    );
   };
-
-
-
-  // 👇 Add this function inside your App component
-  const handleUpdateItem = (
-    criteriaLabel: string,
-    groupId: number,
-    field: keyof GroupCriteria,
-    value: string
-  ) => {
-    setGroupsByTab((prev) => {
-      const updatedGroups = prev[activeTab].map((group) => {
-        if (group.id === groupId) {
-          return {
-            ...group,
-            criteria: group.criteria.map((item: GroupCriteria) => {
-              if (item.label === criteriaLabel) {
-                return { ...item, [field]: value };
-              }
-              return item;
-            }),
-          };
-        }
-        return group;
-      });
-
-      return {
-        ...prev,
-        [activeTab]: updatedGroups,
-      };
-    });
-  };
-
 
   const handleTabChange = (_: React.SyntheticEvent, newValue: string) => {
-    const currentGroups = groupsByTab[activeTab] || [];
-    if (currentGroups.some((group) => group.criteria.length > 0)) {
+    if (groups.some((group) => group.criteria.length > 0)) {
       showAlertModal("As already added 1 block, cannot switch tab");
-
-      // Delay re-rendering to let modal render
-      setTimeout(() => {
-        setActiveTab(activeTab); // Reset to current tab to avoid tab switch
-      }, 0);
-
       return;
     }
-
     setActiveTab(newValue);
   };
-
 
   const handleOpenModal = (tab: string) => {
     setCurrentTab(tab);
@@ -365,7 +287,7 @@ const App: React.FC = () => {
       name: newCriteria.label,
       type: newCriteria.dataType,
       category: activeTab === "Tab1" ? "filterComponent" : "triggerFilter",
-      operators: [newCriteria.operator]
+      operators:[newCriteria.operator]
     })
       .then((res) => {
         console.log("res", res);
@@ -384,18 +306,10 @@ const App: React.FC = () => {
   };
 
   const handleDeleteGroup = (groupId: number) => {
-    setGroupsByTab((prev) => {
-      const updatedGroups = prev[activeTab].filter((group) => group.id !== groupId);
-      return { ...prev, [activeTab]: updatedGroups };
-    });
-
-    setGroupOperatorsByTab((prev) => {
-      const updated = { ...prev[activeTab] };
-      delete updated[groupId];
-      return { ...prev, [activeTab]: updated };
-    });
+    setGroups((prevGroups) =>
+      prevGroups.filter((group) => group.id !== groupId)
+    );
   };
-
 
   const handleRemoveItem = (criteriaLabel: string, groupId: number) => {
     setGroups((prevGroups) =>
@@ -404,7 +318,7 @@ const App: React.FC = () => {
           return {
             ...group,
             criteria: group.criteria.filter(
-              (item: Criteria) => item.label !== criteriaLabel
+              (item) => item.label !== criteriaLabel
             ),
           };
         }
@@ -435,101 +349,6 @@ const App: React.FC = () => {
     fetchBlocks();
   }, []);
 
-  const [groupOperators, setGroupOperators] = useState<{ [groupId: number]: "AND" | "OR" }>({});
-  const [logicalOperator, setLogicalOperator] = useState<"AND" | "OR">("OR");
-
-
-  const handleInputChange = (groupId: number, criteriaLabel: string, field: string, value: string) => {
-    setGroupsByTab((prev) => {
-      const updatedGroups = prev[activeTab].map((group) => {
-        if (group.id === groupId) {
-          return {
-            ...group,
-            criteria: group.criteria.map((item: Criteria) => {
-              if (item.label === criteriaLabel) {
-                return { ...item, [field]: value };
-              }
-              return item;
-            }),
-          };
-        }
-        return group;
-      });
-      return { ...prev, [activeTab]: updatedGroups };
-    });
-  };
-
-
-
-
-  const handleSaveFilter = () => {
-    setSaveFilterName("");
-    setSaveDescription("");
-    setSaveTags("");
-    setIsSaveFilterModalOpen(true);
-  };
-
-  const handleConfirmSaveFilter = async () => {
-    if (!saveFilterName.trim()) {
-      showWarningModal("Filter Name is required.");
-      return;
-    }
-
-    const groups = groupsByTab[activeTab];
-
-    if (!groups || groups.length === 0) {
-      showWarningModal("Please create at least one group before saving.");
-      return;
-    }
-
-    for (const group of groups) {
-      if (!group.criteria || group.criteria.length === 0) {
-        showWarningModal("Each group must have at least one criteria block.");
-        return;
-      }
-      for (const criteria of group.criteria) {
-        if (!criteria.value || criteria.value.trim() === "") {
-          showWarningModal(`Please fill all input values inside Group ${group.id + 1}.`);
-          return;
-        }
-      }
-    }
-
-    const conditions = groups.map((group) => ({
-      groupId: `group${group.id}`,
-      groupOperator: groupOperatorsByTab[activeTab]?.[group.id] || "AND",
-      criteria: group.criteria.map((criteria: any) => ({
-        field: criteria.label,
-        operator: criteria.operator,
-        value: criteria.value,
-      })),
-    }));
-
-
-    const payload = {
-      name: saveFilterName.trim(),
-      description: saveDescription.trim(),
-      tags: saveTags.split(",").map((tag) => tag.trim()).filter(tag => tag),
-      conditions,
-      customFields: { region: "North America", campaign: "Summer Sale" },
-      isDraft: false,
-      logicalOperator:
-        conditions.length > 1
-          ? logicalOperatorsByTab[activeTab]?.[1] || "OR"
-          : undefined,
-      estimatedAudience, // Static audience
-    };
-    
-
-    try {
-      await createOrUpdateFilter(payload);
-      alert("Filter Saved Successfully!");
-      setIsSaveFilterModalOpen(false);
-    } catch (error) {
-      console.error("Error saving filter:", error);
-      setIsSaveFilterModalOpen(false);
-    }
-  };
   return (
     <Container>
       <Box>
@@ -611,7 +430,6 @@ const App: React.FC = () => {
                   Add Custom Field
                 </Button>
               </Box>
-
             </Card>
             <Card sx={{ p: 2, width: "50%" }}>
               <Typography variant="h6" sx={{}}>
@@ -621,43 +439,8 @@ const App: React.FC = () => {
                 Create your custom filter by combining multiple conditions.
               </Typography>
 
-              {(groupsByTab[activeTab] || []).map((group, index) => (
+              {groups.map((group) => (
                 <React.Fragment key={group.id}>
-                  {/* Show 'Match groups with' only between groups */}
-                  {index > 0 && (
-                    <Box
-                      sx={{
-                        mt: 2,
-                        mb: 1,
-                        display: "flex",
-                        alignItems: "center",
-                        gap: 1,
-                        justifyContent: "center",
-                      }}
-                    >
-                      <Typography variant="body2">Match groups with:</Typography>
-                      <Select
-                        value={logicalOperatorsByTab[activeTab]?.[index] || "OR"}
-                        onChange={(e) =>
-                          setLogicalOperatorsByTab((prev) => ({
-                            ...prev,
-                            [activeTab]: {
-                              ...prev[activeTab],
-                              [index]: e.target.value as "AND" | "OR",
-                            },
-                          }))
-                        }
-                        size="small"
-                      >
-                        <MenuItem value="AND">AND</MenuItem>
-                        <MenuItem value="OR">OR</MenuItem>
-                      </Select>
-                    </Box>
-                  )}
-
-
-
-                  {/* Group Box */}
                   <Box
                     sx={{
                       mt: 2,
@@ -674,7 +457,10 @@ const App: React.FC = () => {
                         alignItems: "center",
                       }}
                     >
-                      <Typography variant="subtitle1" sx={{ fontWeight: "bold" }}>
+                      <Typography
+                        variant="subtitle1"
+                        sx={{ fontWeight: "bold" }}
+                      >
                         Group {group.id + 1}
                       </Typography>
                       <Button
@@ -693,42 +479,16 @@ const App: React.FC = () => {
                         <CloseRounded fontSize="small" />
                       </Button>
                     </Box>
-
-                    {/* Inside group operator */}
-                    <Box sx={{ mt: 1, display: "flex", alignItems: "center", gap: 1 }}>
-                      <Typography variant="body2">Within group:</Typography>
-                      <Select
-                        value={groupOperatorsByTab[activeTab]?.[group.id] || "AND"}
-                        onChange={(e) =>
-                          setGroupOperatorsByTab((prev) => ({
-                            ...prev,
-                            [activeTab]: {
-                              ...prev[activeTab],
-                              [group.id]: e.target.value as "AND" | "OR",
-                            },
-                          }))
-                        }
-                        size="small"
-                      >
-                        <MenuItem value="AND">AND</MenuItem>
-                        <MenuItem value="OR">OR</MenuItem>
-                      </Select>
-                    </Box>
-
-                    {/* DropGroup */}
                     <DropGroup
                       groupId={group.id}
                       items={group.criteria}
                       onDrop={handleDrop}
-                      onRemove={handleRemoveItem}
-                      onUpdate={handleUpdateItem} // ✅ FIXED here
+                      onRemove={handleRemoveItem} // Pass the handleRemoveItem function
+                      onUpdate={() => {}}
                     />
-
                   </Box>
                 </React.Fragment>
               ))}
-
-
               <Box
                 sx={{
                   mt: 2,
@@ -751,15 +511,6 @@ const App: React.FC = () => {
                 >
                   <AddIcon fontSize="small" />
                   Add Group
-                </Button>
-              </Box>
-              {/* Save Buttons */}
-              <Box sx={{ display: "flex", justifyContent: "flex-end", gap: 2, mt: 3 }}>
-                <Button variant="outlined" color="secondary">
-                  Save Draft
-                </Button>
-                <Button variant="contained" color="primary" onClick={handleSaveFilter}>
-                  Save Filter
                 </Button>
               </Box>
             </Card>
@@ -791,47 +542,12 @@ const App: React.FC = () => {
                     marginBottom: "-4px",
                   }}
                 >
-                  {estimatedAudience}
+                  0
                 </Typography>
                 <Typography sx={{ color: "#A3AABC" }}>people</Typography>
               </Box>
             </Card>
           </Box>
-          {/* Save Filter Modal */}
-          <Modal open={isSaveFilterModalOpen} onClose={() => setIsSaveFilterModalOpen(false)}>
-            <Card sx={{ width: 400, p: 4, mx: "auto", mt: "10%", outline: "none" }}>
-              <Typography variant="h6" sx={{ mb: 2 }}>
-                Save Filter
-              </Typography>
-
-              <TextField
-                fullWidth
-                label="Filter Name"
-                value={saveFilterName}
-                onChange={(e) => setSaveFilterName(e.target.value)}
-                sx={{ mb: 2 }}
-                required
-              />
-              <TextField
-                fullWidth
-                label="Description"
-                value={saveDescription}
-                onChange={(e) => setSaveDescription(e.target.value)}
-                sx={{ mb: 2 }}
-              />
-              <TextField
-                fullWidth
-                label="Tags (comma separated)"
-                value={saveTags}
-                onChange={(e) => setSaveTags(e.target.value)}
-                sx={{ mb: 2 }}
-              />
-
-              <Button onClick={handleConfirmSaveFilter} variant="contained" fullWidth>
-                Save
-              </Button>
-            </Card>
-          </Modal>
           <Dialog open={isModalOpen} onClose={handleCloseModal}>
             <DialogTitle>Add New Criteria Block</DialogTitle>
             <DialogContent>
@@ -873,7 +589,7 @@ const App: React.FC = () => {
                 sx={{ mt: 2 }}
               >
                 {newCriteria.dataType &&
-                  operators[newCriteria.dataType].map((operator: string) => (
+                  operators[newCriteria.dataType].map((operator:string) => (
                     <MenuItem key={operator} value={operator}>
                       {operator}
                     </MenuItem>
@@ -905,7 +621,7 @@ const App: React.FC = () => {
                 variant="contained"
                 color="primary"
               >
-                OK
+                OK1
               </Button>
             </DialogActions>
           </Dialog>

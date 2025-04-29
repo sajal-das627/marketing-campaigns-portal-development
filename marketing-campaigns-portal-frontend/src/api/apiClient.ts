@@ -82,7 +82,11 @@ const apiClient = axios.create({
     } catch (error: any) {
       throw new Error(error.response?.data?.message || "Error updating filter");
     }
-  };    
+  };  
+  // createOrUpdateFilter
+  export const createOrUpdateFilter = (filterData: any) => {
+    return axios.post(`${process.env.REACT_APP_API_BASE_URL}/filters`, filterData);
+  };
 
 //Campaign Listing & Filter
   export const fetchCampaigns = async (filters: any) => {
