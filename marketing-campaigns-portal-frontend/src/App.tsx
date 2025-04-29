@@ -42,7 +42,7 @@ import CampaignWizard from "./components/CampaignWizard/CampaignWizard";
 import Dashboard from "./components/Dashboard";
 import FilterBuilder from "./components/FilterBuilder/FilterBuilder";
 import SavedFilters from "./components/FilterBuilder/SavedFilters";
-import ManageFilter from "./components/ManageFilter/ManageFilter";
+import ManageFilter from "./components/Filters";
 import CreateTemplates from "./components/Templates/CreateTemplates";
 // import TemplateManagementOld from "./components/Templates/TemplateManagementOld";
 import Templates from "./components/Templates/Templates";

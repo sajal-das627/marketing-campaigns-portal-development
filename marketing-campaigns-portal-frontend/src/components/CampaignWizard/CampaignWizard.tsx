@@ -236,8 +236,11 @@ export default function CampaignCreator() {
 
     case 3:
       if(campaignData.type !== "Real Time"){
-        if (!campaignData.schedule?.frequency) {
+        if (campaignData.type === "Criteria Based" && !campaignData.schedule?.frequency) {
           errors.push("Schedule frequency is required.");
+        }
+        if (campaignData.type === "Criteria Based" && !campaignData.schedule?.endDate) {
+          errors.push("Valid End Date is required.");
         }
         if (!campaignData.schedule?.time) {
           errors.push("Time is required.");
@@ -345,7 +348,9 @@ export default function CampaignCreator() {
 ) => {  if (value) {
   setCampaignData((prev) => {
     if (type === "endDate" && prev?.schedule?.startDate && value.isBefore(dayjs(prev?.schedule?.startDate))) {
-      alert("End date cannot be before start date!");
+      // errors.push("End Date should be after Start Date");
+
+      // alert("End date cannot be before start date!");
       return prev; // Do not update state
     }
 
@@ -371,7 +376,7 @@ export default function CampaignCreator() {
       case 0:
         return <Step0CampaignType handleChange={handleChange} campaignData={campaignData} />;
       case 1:
-        return <Step1Audience handleChange={handleChange}  campaignData={campaignData} setAudienceName={setAudienceName}  />
+        return <Step1Audience handleChange={handleChange}  campaignData={campaignData} audienceName={audienceName} setAudienceName={setAudienceName}  />
       case 2:
         return <Step2Templates handleChange={handleChange} campaignData={campaignData} templateData={templateData} setTemplateData={setTemplateData} />;
       case 3:

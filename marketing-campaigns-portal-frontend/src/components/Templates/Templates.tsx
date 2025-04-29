@@ -25,6 +25,12 @@ import {
   Dialog,
   DialogActions,
   DialogContent,
+  Tooltip,
+  Divider,
+  Grid2 as Grid,
+  RadioGroup,
+  FormControlLabel,
+  Radio,
   // FormLabel,
   // RadioGroup,
   // FormControlLabel,
@@ -58,47 +64,11 @@ import DeleteModal from "../Modals/DeleteModal";
 import CloseIcon from '@mui/icons-material/Close';
 import type { Template } from "../../redux/slices/templateSlice";
 
-// type Template = {
-//   name: string;
-//   type: string;
-//   lastModified: string;
-//   category: string;
-//   categoryColor: "success" | "info" | "warning";
-//   isFavorite: boolean;
-// };
-
-// const templates: Template[] = [
-//   {
-//     name: "Welcome Email",
-//     type: "Email",
-//     lastModified: "01-10-2024, 10:36 AM",
-//     category: "Promotional",
-//     categoryColor: "success",
-//     isFavorite: true,
-//   },
-//   {
-//     name: "Order Confirmation",
-//     type: "SMS",
-//     lastModified: "01-10-2024, 12:36 PM",
-//     category: "Event Based",
-//     categoryColor: "info",
-//     isFavorite: false,
-//   },
-//   {
-//     name: "Holiday Sale",
-//     type: "SMS",
-//     lastModified: "01-12-2024, 03:43 PM",
-//     category: "Transactional",
-//     categoryColor: "warning",
-//     isFavorite: false,
-//   },
-// ];
-
 const TemplatesTable: React.FC = () => {
   
     // const [tab, setTab] = React.useState(0);
-    const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-      const openAnchor = Boolean(anchorEl);
+    // const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+      // const openAnchor = Boolean(anchorEl);
   
     const dispatch = useDispatch();
     const {
@@ -117,6 +87,7 @@ const TemplatesTable: React.FC = () => {
     const [selectedId, setSelectedId] = useState<string | number>(1);
     // const [localTemplates, setLocalTemplates] = useState(allTemplates);
     const [menuAnchorEl, setMenuAnchorEl] = useState<Record<string, HTMLElement | null>>({});
+    const [view, setView] = useState<'list' | 'grid'>('grid');
 
 
     useEffect(() => {
@@ -144,13 +115,10 @@ const TemplatesTable: React.FC = () => {
       }));
     };
     
-
-
     const handleAnchorClose = (id: string) => {
       setMenuAnchorEl(({}));
       // setMenuAnchorEl(prev => ({ ...prev, [id]: null }));
     };
-
   
     const buildQuery = () => {
       const query: any = { page: filters.page, limit: filters.limit };
@@ -430,23 +398,41 @@ const TemplatesTable: React.FC = () => {
          
         <Box sx={{display:'flex', flexWrap:'nowrap'}}>
    
-        {/* <FormControl>
+        {/* <FormControl >
           <RadioGroup
+            row
             aria-labelledby="demo-radio-buttons-group-label"
             defaultValue="list"
-            name="radio-buttons-group"
+            name="view-mode"
+            value={view}
+            onClick={(e)=>setView((e.target as HTMLInputElement).value as 'list' | 'grid')}
+            sx={{display:'flex', flexDirection:'row'}}
           >
-            <FormControlLabel value="list" control={<ChecklistIcon />} label="Female" />
-            <FormControlLabel value="grid" control={<GridViewIcon />} label="Male" />
+            <FormControlLabel value="list" control={<Radio />} label={<ChecklistIcon />} />
+            <FormControlLabel value="grid" control={<Radio />} label={<GridViewIcon />} />
           </RadioGroup>
         </FormControl> */}
 
-          <IconButton>
-            <ChecklistIcon />
-          </IconButton>
-          <IconButton>
-            <GridViewIcon />
-          </IconButton>
+        
+        <Box sx={{ display: 'flex', gap: 0.5, mr:1, bgcolor:'#F8F9FA', borderRadius:'6px' }}>
+          <Tooltip title="List View">
+            <IconButton
+              onClick={() => setView('list')}
+              color={view === 'list' ? 'primary' : 'default'}
+            >
+              <ChecklistIcon />
+            </IconButton>
+          </Tooltip>
+          <Divider orientation="vertical" flexItem sx={{height:'30px', width:'0.8px', mt:0.7, color:'#D6D6D6'}} />
+          <Tooltip title="Grid View">
+            <IconButton
+              onClick={() => setView('grid')}
+              color={view === 'grid' ? 'primary' : 'default'}
+            >
+              <GridViewIcon />
+            </IconButton>
+          </Tooltip>
+        </Box>
           <FormControl variant="outlined" size="small" sx={{ minWidth: 120, bgcolor: "#F8F9FA", borderRadius: "6px", mr:1}}>
             <InputLabel htmlFor="status-select" sx={{ fontSize: "14px" }}>
               Categories
@@ -493,31 +479,7 @@ const TemplatesTable: React.FC = () => {
               </MenuItem>
             </Select>
           </FormControl>
-          {/* <FormControl variant="outlined" size="small" sx={{ minWidth: 80, maxWidth: 100, bgcolor: "#F8F9FA", borderRadius: "6px", mr:1}}>
-            <InputLabel htmlFor="status-select" sx={{ fontSize: "14px" }}>
-              Filters
-            </InputLabel>
-            <Select
-              id="filters-select"
-              name="filters"
-              label="Filters"
-              value={filters.category || ""} onChange={handleFilterChange}
-              sx={{ fontSize: "14px", color: "#6D6976",    }}
-            >
-              <MenuItem value="" sx={{ fontSize: "14px", padding: "2px 4px", color: "#6D6976", }}>
-              All Filters
-              </MenuItem>
-              <MenuItem value="On Going" sx={{ fontSize: "14px", padding: "2px 4px", color: "#6D6976", }}>
-              Promotional
-              </MenuItem>
-              <MenuItem value="Draft" sx={{ fontSize: "14px", padding: "2px 4px", color: "#6D6976", }}>
-              Transactional
-              </MenuItem>
-              <MenuItem value="Event Based" sx={{ fontSize: "14px", padding: "2px 4px", color: "#6D6976", }}>
-              Event Based
-              </MenuItem>
-            </Select>
-          </FormControl> */}
+          
           <FormControl variant="outlined" size="small" sx={{ minWidth: 90, maxWidth: 100, bgcolor: "#F8F9FA", borderRadius: "6px", }}>
             <InputLabel htmlFor="status-select" sx={{ fontSize: "14px" }}>
               Sort by
@@ -550,7 +512,9 @@ const TemplatesTable: React.FC = () => {
        
       </Stack>
 
-      {/* Table */}
+      
+      {view === 'list' ? (
+      
       <Table sx={{border:'2px solid #ECEEF6',}}>
         <TableHead>
           <TableRow sx={{bgcolor:'#F3F3F3', color:'#A3AABC'}}>
@@ -658,6 +622,117 @@ const TemplatesTable: React.FC = () => {
           ))}
         </TableBody>
       </Table>
+      
+    ) : (
+        <Grid container sx={{display:'flex', justifyContent:'center', gap:2.5}}>
+        {templatesToShow.map((template: any, i: number) => (
+          <Grid size={{xs:5.5}}  >
+          <Card
+            key={template._id}
+            sx={{
+              borderRadius: 2,
+              // boxShadow: '0px 4px 12px rgba(0,0,0,0.05)',
+              p: 2,
+              minWidth: 300,
+              position: 'relative',
+              opacity: Boolean(template.isDeleted) ? 0.4 : 1,
+              boxShadow: template._id === highlightedId ? 'inset 0px 0px 10px #ff9800' : '0px 4px 12px rgba(0,0,0,0.05)'
+            }}
+          >
+            <Stack direction="row" justifyContent="space-between" alignItems="flex-start">
+              <Stack direction="row" spacing={1} alignItems="center">
+                <IconButton onClick={() => handleFavoriteToggle(template._id)} sx={{ cursor: 'pointer', p: 0.5 }}>
+                  {template.favorite ? (
+                    <StarIcon fontSize="small" color="warning" />
+                  ) : (
+                    <StarBorderIcon fontSize="small" />
+                  )}
+                </IconButton>
+                <Typography variant="subtitle1" fontWeight={600}>
+                  {template.name}
+                </Typography>
+              </Stack>
+              <Chip
+                label={template.category}
+                size="small"
+                sx={{
+                  backgroundColor: template.category === 'Promotional' ? '#DFFFE5' : template.category === 'Transactional' ? '#FFECDD' : '#E0ECFF',
+                  color: template.category === 'Promotional' ? '#2B8A3E' : template.category === 'Transactional' ? '#FD7E14' : '#0057D9',
+                  fontWeight: 500
+                }}
+              />
+            </Stack>
+
+            <Typography variant="body2" color="text.secondary" mt={1}>
+              <span style={{ color: '#999' }}>Type:</span> {template.type}
+            </Typography>
+
+            <Typography variant="body2" color="text.secondary" mt={1}>
+              <span style={{ color: '#999' }}>Tags:</span> {template.tags?.join(', ')?? '-'}
+            </Typography>
+
+            <Typography variant="body2" color="text.secondary" mt={0.5}>
+              <span style={{ color: '#999' }}>Last Modified:</span> {new Date(template.lastModified)?.toLocaleString('en-US', {
+                timeZone: 'America/New_York',
+                hour12: true,
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+              })}
+            </Typography>
+
+            <Divider sx={{ my: 2 }} />
+
+            <Stack direction="row" justifyContent="space-between" alignItems="center">
+              <Tooltip title="View">
+                <Box
+                  sx={{ display: 'flex', alignItems: 'center', gap: 0.5, cursor: 'pointer' }}
+                  onClick={() => handleViewTemplate(template._id)}
+                >
+                  <VisibilityIcon fontSize="small" sx={{ color: '#007BFF' }} />
+                  <Typography variant="body2" color="#007BFF" fontWeight={500}>
+                    View
+                  </Typography>
+                </Box>
+              </Tooltip>
+              <IconButton onClick={(e) => handleAnchorClick(e, template._id)}>
+                <MoreVertIcon />
+              </IconButton>
+              <Menu
+                anchorEl={menuAnchorEl[template._id]}
+                open={Boolean(menuAnchorEl[template._id])}
+                onClose={() => handleAnchorClose(template._id)}
+                anchorOrigin={{
+                  vertical: "bottom",
+                  horizontal: "center",
+                }}
+                transformOrigin={{
+                  vertical: "top",
+                  horizontal: "center",
+                }}
+              >
+                {!template.isDeleted && (
+                  <>
+                    <MenuItem onClick={() => handleEditClick(template._id)}>Edit</MenuItem>
+                    <MenuItem onClick={() => handleDuplicateTemplate(template._id)}>Duplicate</MenuItem>
+                  </>
+                )}
+                {template.isDeleted ? (
+                  <MenuItem color="success" onClick={() => handleRestoreTemplate(template._id)}>Restore</MenuItem>
+                ) : (
+                  <MenuItem color="error" onClick={() => handleDeleteTemplate(template._id)}>Delete</MenuItem>
+                )}
+              </Menu>
+            </Stack>
+          </Card>
+          </Grid>
+        ))}
+        </Grid>
+     
+    )}
+    
       <Box mt={3}>
               <Button onClick={() => handlePageChange("prev")} disabled={filters.page === 1}>
                 Previous

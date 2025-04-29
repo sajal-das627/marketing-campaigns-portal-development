@@ -57,10 +57,11 @@ const data: GroupsData = {
 interface AudienceSelectorProps {
   handleChange: (event: any) => void;
   campaignData: CampaignData;
+  audienceName: string;
   setAudienceName: React.Dispatch<React.SetStateAction<string>>;
 }
 
-const AudienceSelector: React.FC<AudienceSelectorProps> = ({ handleChange, campaignData, setAudienceName}) => {
+const AudienceSelector: React.FC<AudienceSelectorProps> = ({ handleChange, campaignData, audienceName, setAudienceName}) => {
 
   const [isfilterModalId, setIsfilterModalId] = useState<string | null>(null);
   //
@@ -69,13 +70,15 @@ const AudienceSelector: React.FC<AudienceSelectorProps> = ({ handleChange, campa
   const [sortBy, setSortBy] = useState("");
   const [order, setOrder] = useState("asc");
   const [page, setPage] = useState(1);
-  const [selectedFilter, setSelectedFilter] = useState<any>(null);
+  // const [selectedFilter, setSelectedFilter] = useState<any>(null);
   
 
   const navigate = useNavigate();  
   const dispatch = useAppDispatch();
   
-  const { filters, currentPage, totalPages, loading, error, appliedFilter } = useSelector(
+  const { filters, currentPage, totalPages, 
+    // loading, error, appliedFilter 
+  } = useSelector(
     (state: RootState) => state.filter
   );
 
@@ -148,6 +151,7 @@ const AudienceSelector: React.FC<AudienceSelectorProps> = ({ handleChange, campa
           +&nbsp;Create&nbsp;New&nbsp;Filter</Button>
         </Box>
 
+<Box sx={{display: 'flex', justifyContent:'space-between', alignItems:'center'}}>
         <TextField
             variant="outlined"
             placeholder="Search Filters"
@@ -163,7 +167,41 @@ const AudienceSelector: React.FC<AudienceSelectorProps> = ({ handleChange, campa
             }}
             sx={{ width: 250, backgroundColor: "#f5f5f5", mb:2 }}
           />
+          
+           <Card sx={{ display: "flex", m:1, p:1, pl:2, pr:2}}>
+                
+                <Box>
+                <Typography sx={{color: '#2068D5'}}>Selected Audience</Typography>
 
+                  <Typography variant="body1" fontWeight="bold" sx={{m:0.5}}>
+                  {audienceName}
+                  </Typography>
+                  <Typography variant="body2" color="#626262">
+                  {campaignData.audience?.toString()}
+                  </Typography>
+                </Box>
+                {/* <Typography
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    marginLeft: "auto",
+                    color: "#495057",
+                    fontSize: "14px",
+                    borderLeft: "2px solid #ECEEF6",
+                    paddingLeft: "8px",
+                  }}
+                >
+                  <IconButton 
+                  onClick={(e) => {
+                    e.stopPropagation();  
+                    handleFilterModal(campaignData.audience?.toString() ?? "");
+                  }} ><VisibilityIcon />
+                  </IconButton>
+                    
+                  <span>View</span>
+                </Typography> */}
+              </Card>
+</Box>
         {filters.map((audience) => (
     <>
     <Grid container spacing={2} mb={2}>      

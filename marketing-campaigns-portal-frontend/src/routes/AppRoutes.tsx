@@ -8,7 +8,7 @@ import CampaignWizard from "../components/CampaignWizard/CampaignWizard";
 import Dashboard from "../components/Dashboard";
 import FilterBuilder from "../components/FilterBuilder/FilterBuilder";
 import SavedFilters from "../components/FilterBuilder/SavedFilters";
-import ManageFilter from "../components/ManageFilter/ManageFilter";
+import ManageFilter from "../components/Filters";
 import TemplateManagement from "../components/Templates/CreateTemplates";
 import Login from "../features/auth/Login";
 // import Header from "layout/Header";

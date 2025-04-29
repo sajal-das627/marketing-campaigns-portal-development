@@ -7,12 +7,12 @@ import SearchIcon from "@mui/icons-material/Search";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import CloseIcon from '@mui/icons-material/Close';
-import DeleteModal from "../Modals/DeleteModal";
+import DeleteModal from "./Modals/DeleteModal";
 
-import { fetchFilters, applyFilter, duplicateFilterAsync, deleteFilterAsync, updateFilterAsync  } from "../../redux/slices/filterSlice";
-import { RootState } from "../../redux/store";
+import { fetchFilters, applyFilter, duplicateFilterAsync, deleteFilterAsync, updateFilterAsync  } from "../redux/slices/filterSlice";
+import { RootState } from "../redux/store";
 import { useSelector } from "react-redux";
-import {useAppDispatch} from "../../redux/hooks";
+import {useAppDispatch} from "../redux/hooks";
 
 const ManageFilters = () => {
   
@@ -27,16 +27,42 @@ const ManageFilters = () => {
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [selectedFilter, setSelectedFilter] = useState<any>(null);
   const [showDeleteAlert, setShowDeleteAlert] = useState(false);
-  const [isDeleteModalopen, setIsDeleteModalopen] = useState(false);
+  // const [isDeleteModalopen, setIsDeleteModalopen] = useState(false);
   // const [tabValue, setTabValue] = useState<boolean>(false);///delete
-  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-  const open = Boolean(anchorEl);
-  
+  // const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  // const open = Boolean(anchorEl);
+  const [menuAnchorEl, setMenuAnchorEl] = useState<Record<string, HTMLElement | null>>({});
+    
   const [selectedFilters, setSelectedFilters] = useState<string[]>([]);
   const [selectAll, setSelectAll] = useState(false);
   
   const [activeSubTab, setActiveSubTab] = useState<"saved" | "drafts">("saved");
   const isDraft = activeSubTab === "drafts";
+
+  const [modalData, setModalData] = useState<{open: boolean; handleConfirm: () => void | ((id: string) => void) | (() => void); title:string; message:string }>({
+    open: false,
+    handleConfirm: () => {},
+    title: '',
+    message: ''
+  });
+
+  const openDeleteSelectedModal = () => {
+    setModalData({
+      open: true,
+      handleConfirm: handleDeleteSelectedFilters, 
+      title: 'Delete Selected Filters',
+      message: 'Are you sure you want to delete these filters?'
+    });
+  }
+
+  const openDeleteOneModal = (filterId: string) => {
+    setModalData({
+      open: true,
+      handleConfirm: () => handleDeleteFilter(filterId), 
+      title: 'Delete This Item?',
+      message: 'Are you sure you want to delete this thing?'
+    });
+  }
 
   const { filters, currentPage, totalPages, loading, error, appliedFilter } = useSelector(
     (state: RootState) => state.filter
@@ -85,12 +111,15 @@ const ManageFilters = () => {
   };
   
   
-  const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-    setAnchorEl(event.currentTarget);
+  const handleClick = (event: React.MouseEvent<HTMLElement>, id: string) => {
+    setMenuAnchorEl((prev) => ({
+      ...prev,
+      [id]: event.currentTarget,
+    }));
   };
 
   const handleClose = () => {
-    setAnchorEl(null);
+    setMenuAnchorEl({});
   };
 
   const handleTabChange = (event: React.SyntheticEvent, newValue: "saved" | "drafts") => {
@@ -142,13 +171,15 @@ const ManageFilters = () => {
     // if (window.confirm("Are you sure you want to delete this filter?")) {
       dispatch(deleteFilterAsync(filterId));
       setShowDeleteAlert(true);
-      setIsDeleteModalopen(false);
+      setModalData(prev => ({ ...prev, open: false }));
+      setMenuAnchorEl({});
     // }
   };
 
   const handleEditFilter = (filter: any) => {
     setSelectedFilter(filter);
     setEditModalOpen(true);
+    setMenuAnchorEl({});
   };
   
   const handleUpdateFilter = async () => {
@@ -170,8 +201,8 @@ const ManageFilters = () => {
       setSelectedFilters([]);
       setSelectAll(false);
       setShowDeleteAlert(true);
-      setIsDeleteModalopen(false);
-    // }
+      setModalData(prev => ({ ...prev, open: false })); // ✅ correct way to close modal
+      // }
   };
 
   return (
@@ -195,7 +226,13 @@ const ManageFilters = () => {
           </Alert>
         </Snackbar>
 
-        <DeleteModal open={isDeleteModalopen} handleClose={()=>setIsDeleteModalopen(false)} handleConfirm={handleDeleteSelectedFilters} title='Delete Selected Filters' message='Are you sure you want to delete these filters? This action cannot be undone.'  />
+        {/* <DeleteModal open={modalData.open} handleClose={()=>setIsDeleteModalopen(false)} handleConfirm={handleDeleteSelectedFilters} title='Delete Selected Filters' message='Are you sure you want to delete these filters? This action cannot be undone.'  /> */}
+        <DeleteModal open={modalData.open} 
+                    handleClose={() => setModalData(prev => ({ ...prev, open: false }))} 
+                    handleConfirm={modalData.handleConfirm} 
+                    title={modalData.title} 
+                    message={modalData.message} 
+        />
 
       <Box bgcolor="white" boxShadow={2} borderRadius={2} padding={2}>
         <Tabs value={activeSubTab} onChange={handleTabChange}>
@@ -251,7 +288,8 @@ const ManageFilters = () => {
                     ACTIONS 
                     <Button  variant="contained" color="error" size="small"
                       sx={{ position: 'absolute', top: 23, left: 86,}}
-                      onClick={()=>setIsDeleteModalopen(true)}
+                      onClick={()=>openDeleteSelectedModal()}
+                      // onClick={()=>setIsDeleteModalopen(true)}
                       disabled={selectedFilters.length === 0}
                     >
                       Delete Selected
@@ -274,7 +312,9 @@ const ManageFilters = () => {
                       // && filter.isDraft == tabValue
                     )
                       .map((filter, index) => (
-                <TableRow key={index}>
+                <TableRow key={filter._id} sx={{              
+                                      bgcolor: index%2 === 0? 'white' : '#FAFAFA', 
+                }}>
                   <TableCell>
                     <Checkbox
                       checked={selectedFilters.includes(filter._id)}
@@ -290,13 +330,13 @@ const ManageFilters = () => {
                     <Button variant="contained" color="success" size="small" onClick={() => handleApplyFilter(filter._id)} style={{ marginRight: 8 }}>Apply</Button>
                     <Button variant="contained" color="warning" size="small" onClick={() => handleDuplicateFilter(filter._id)} >Duplicate</Button>
                     
-                    <IconButton onClick={handleClick}>
+                    <IconButton onClick={(e) => {handleClick(e, filter._id)}}>
                       <MoreVertIcon />
                     </IconButton>
 
                     <Menu
-                      anchorEl={anchorEl}
-                      open={open}
+                      anchorEl={menuAnchorEl[filter._id]}
+                      open={Boolean(menuAnchorEl[filter._id])}
                       onClose={handleClose}
                       anchorOrigin={{
                         vertical: "bottom",
@@ -308,7 +348,7 @@ const ManageFilters = () => {
                       }}
                     >
                       <MenuItem onClick={()=>handleEditFilter(filter)}>Edit</MenuItem>
-                      <MenuItem onClick={() => handleDeleteFilter(filter._id)}>Delete</MenuItem>
+                      <MenuItem onClick={() => openDeleteOneModal(filter._id)}>Delete</MenuItem>
                     </Menu>
                     </Box>
                   </TableCell>

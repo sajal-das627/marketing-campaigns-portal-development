@@ -329,6 +329,7 @@ export default function SamplesDrawer() {
                     onClick={() => insertBlock(type)}
                     startIcon={BLOCK_TYPE_ICONS[type]}
                     sx={{
+                      color: '#000',
                       fontSize:'18px', p:1,  border:'2px solid #ECEEF6', 
                       textAlign:'left !important', justifyContent:'left',//boxShadow:'1px 1px 1px 1px',
                     }}>
