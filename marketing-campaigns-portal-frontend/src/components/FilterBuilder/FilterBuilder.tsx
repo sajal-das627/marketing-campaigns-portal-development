@@ -535,6 +535,73 @@ const App: React.FC = () => {
       setIsSaveFilterModalOpen(false);
     }
   };
+
+  const handleSaveDraftFilter = async () => {
+    if (!saveFilterName.trim()) {
+      showWarningModal("Filter Name is required.");
+      return;
+    }
+
+    if (!saveDescription.trim()) {
+      showWarningModal("Description is required.");
+      return;
+    }
+
+    const groups = groupsByTab[activeTab];
+
+    if (!groups || groups.length === 0) {
+      showWarningModal("Please create at least one group before saving.");
+      return;
+    }
+
+    for (const group of groups) {
+      if (!group.criteria || group.criteria.length === 0) {
+        showWarningModal("Each group must have at least one criteria block.");
+        return;
+      }
+      for (const criteria of group.criteria) {
+        if (!criteria.value || criteria.value.trim() === "") {
+          showWarningModal(`Please fill all input values inside Group ${group.id + 1}.`);
+          return;
+        }
+      }
+    }
+
+    const conditions = groups.map((group) => ({
+      groupId: `group${group.id}`,
+      groupOperator: groupOperatorsByTab[activeTab]?.[group.id] || "AND",
+      criteria: group.criteria.map((criteria: any) => ({
+        field: criteria.label,
+        operator: criteria.operator,
+        value: criteria.value,
+      })),
+    }));
+
+    const payload = {
+      name: saveFilterName.trim(),
+      description: saveDescription.trim(),
+      tags: saveTags.split(",").map((tag) => tag.trim()).filter(tag => tag),
+      conditions,
+      customFields: { region: "North America", campaign: "Summer Sale" },
+      isDraft: true,
+      logicalOperator:
+        conditions.length > 1
+          ? logicalOperatorsByTab[activeTab]?.[1] || "OR"
+          : undefined,
+      estimatedAudience,
+    };
+
+    try {
+      await createOrUpdateFilter(payload);
+      alert("Draft Saved Successfully!");
+      setIsSaveFilterModalOpen(false);
+    } catch (error) {
+      console.error("Error saving draft:", error);
+      setIsSaveFilterModalOpen(false);
+    }
+  };
+
+
   return (
     <Container>
       <Box>
@@ -760,9 +827,14 @@ const App: React.FC = () => {
               </Box>
               {/* Save Buttons */}
               <Box sx={{ display: "flex", justifyContent: "flex-end", gap: 2, mt: 3 }}>
-                <Button variant="outlined" color="secondary">
+                <Button
+                  variant="outlined"
+                  color="secondary"
+                  onClick={handleSaveDraftFilter}
+                >
                   Save Draft
                 </Button>
+
                 <Button variant="contained" color="primary" onClick={handleSaveFilter}>
                   Save Filter
                 </Button>
