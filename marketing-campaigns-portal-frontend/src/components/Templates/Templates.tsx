@@ -28,13 +28,6 @@ import {
   Tooltip,
   Divider,
   Grid2 as Grid,
-  RadioGroup,
-  FormControlLabel,
-  Radio,
-  // FormLabel,
-  // RadioGroup,
-  // FormControlLabel,
-  // Radio,
 
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
@@ -87,7 +80,7 @@ const TemplatesTable: React.FC = () => {
     const [selectedId, setSelectedId] = useState<string | number>(1);
     // const [localTemplates, setLocalTemplates] = useState(allTemplates);
     const [menuAnchorEl, setMenuAnchorEl] = useState<Record<string, HTMLElement | null>>({});
-    const [view, setView] = useState<'list' | 'grid'>('grid');
+    const [view, setView] = useState<'list' | 'grid'>('list');
 
 
     useEffect(() => {
@@ -414,7 +407,7 @@ const TemplatesTable: React.FC = () => {
         </FormControl> */}
 
         
-        <Box sx={{ display: 'flex', gap: 0.5, mr:1, bgcolor:'#F8F9FA', borderRadius:'6px' }}>
+        <Box sx={{ display: 'flex', gap: 0.5, mr:1, bgcolor:'#F8F9FA', borderRadius:'6px', height:'37px' }}>
           <Tooltip title="List View">
             <IconButton
               onClick={() => setView('list')}
@@ -423,7 +416,7 @@ const TemplatesTable: React.FC = () => {
               <ChecklistIcon />
             </IconButton>
           </Tooltip>
-          <Divider orientation="vertical" flexItem sx={{height:'30px', width:'0.8px', mt:0.7, color:'#D6D6D6'}} />
+          <Divider orientation="vertical" flexItem sx={{height:'30px', width:'0.8px', mt:0.5, color:'#D6D6D6'}} />
           <Tooltip title="Grid View">
             <IconButton
               onClick={() => setView('grid')}
@@ -631,7 +624,6 @@ const TemplatesTable: React.FC = () => {
             key={template._id}
             sx={{
               borderRadius: 2,
-              // boxShadow: '0px 4px 12px rgba(0,0,0,0.05)',
               p: 2,
               minWidth: 300,
               position: 'relative',
