@@ -245,35 +245,37 @@ const App: React.FC<FilterBuilderProps> = ({
       setSaveFilterName(initialData.name || "");
       setSaveDescription(initialData.description || "");
       setSaveTags((initialData.tags || []).join(", "));
-
-      const tabKey = "Tab1"; // Or infer from initialData if needed
-      const groups = initialData.conditions || [];
-
-      setGroupsByTab({
-        [tabKey]: groups.map((group: any, i: number) => ({
-          id: i,
-          criteria: group.criteria.map((c: any) => ({
-            label: c.field,
-            operator: c.operator,
-            value: c.value,
-            dataType: "string" // Set actual data type if available
-          }))
-        }))
-      });
-
+  
+      const tabKey = "Tab1";
+      const groups = initialData.groups || [];
+  
+      const formattedGroups = groups.map((group: any) => ({
+        id: group.groupId, // ✅ use groupId directly
+        criteria: group.conditions.map((c: any) => ({
+          label: c.field,
+          operator: c.operator,
+          value: c.value,
+          dataType: "string",
+        })),
+      }));
+  
       const groupOps: any = {};
       const logicOps: any = {};
-
+  
       groups.forEach((group: any, index: number) => {
-        groupOps[index] = group.groupOperator;
+        groupOps[group.groupId] = group.groupOperator;
         if (index > 0) logicOps[index] = initialData.logicalOperator || "OR";
       });
-
+  
+      setGroupsByTab({ [tabKey]: formattedGroups });
       setGroupOperatorsByTab({ [tabKey]: groupOps });
       setLogicalOperatorsByTab({ [tabKey]: logicOps });
       setActiveTab(tabKey);
     }
   }, [initialData, mode]);
+  
+  
+  
 
 
 
@@ -445,20 +447,21 @@ const App: React.FC<FilterBuilderProps> = ({
 
 
   const handleRemoveItem = (criteriaLabel: string, groupId: number) => {
-    setGroups((prevGroups) =>
-      prevGroups.map((group) => {
+    setGroupsByTab((prev) => {
+      const updatedGroups = prev[activeTab].map((group: any) => {
         if (group.id === groupId) {
-          return {
-            ...group,
-            criteria: group.criteria.filter(
-              (item: Criteria) => item.label !== criteriaLabel
-            ),
-          };
+          const updatedCriteria = group.criteria.filter(
+            (item: any) => item.label !== criteriaLabel
+          );
+          return { ...group, criteria: updatedCriteria };
         }
         return group;
-      })
-    );
+      });
+      return { ...prev, [activeTab]: updatedGroups };
+    });
   };
+  
+  
 
   const fetchBlocks = () => {
     getCriteriaBlocks().then((res) => {
@@ -508,14 +511,34 @@ const App: React.FC<FilterBuilderProps> = ({
 
 
 
-
   const handleSaveFilter = () => {
+    const groups = groupsByTab[activeTab];
+  
+    if (!groups || groups.length === 0) {
+      showWarningModal("Please create at least one group before saving.");
+      return;
+    }
+  
+    for (const group of groups) {
+      if (!group.criteria || group.criteria.length === 0) {
+        showWarningModal("Each group must have at least one criteria block.");
+        return;
+      }
+      for (const criteria of group.criteria) {
+        if (!criteria.value || criteria.value.trim() === "") {
+          showWarningModal(`Please fill all input values inside Group ${group.id + 1}.`);
+          return;
+        }
+      }
+    }
+  
+    // ✅ Passed all criteria checks — reset modal fields and open modal
     setSaveFilterName("");
     setSaveDescription("");
     setSaveTags("");
     setIsSaveFilterModalOpen(true);
   };
-
+  
   const handleConfirmSaveFilter = async () => {
     if (!saveFilterName.trim()) {
       showWarningModal("Filter Name is required.");
