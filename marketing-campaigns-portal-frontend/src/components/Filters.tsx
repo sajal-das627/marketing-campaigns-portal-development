@@ -13,10 +13,12 @@ import { fetchFilters, applyFilter, duplicateFilterAsync, deleteFilterAsync, upd
 import { RootState } from "../redux/store";
 import { useSelector } from "react-redux";
 import {useAppDispatch} from "../redux/hooks";
+import { useNavigate } from "react-router-dom";
 
 const ManageFilters = () => {
   
   const dispatch = useAppDispatch();
+  const navigate = useNavigate();
 
   const [search, setSearch] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState(""); // New state for debounced search
@@ -347,8 +349,8 @@ const ManageFilters = () => {
                         horizontal: "center",
                       }}
                     >
-                      <MenuItem onClick={()=>handleEditFilter(filter)}>Edit</MenuItem>
-                      <MenuItem onClick={() => openDeleteOneModal(filter._id)}>Delete</MenuItem>
+                      <MenuItem onClick={() => navigate(`/edit-filter/${filter._id}`)}>Edit</MenuItem>
+                      <MenuItem onClick={() => handleDeleteFilter(filter._id)}>Delete</MenuItem>
                     </Menu>
                     </Box>
                   </TableCell>

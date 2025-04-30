@@ -1,57 +1,45 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
-import { fetchFilterData,getFilters, getSingleFilter, duplicateFilter, deleteFilter, updateFilter  } from "../../api/apiClient";
+import { fetchFilterData, getFilters,getFilterById, getSingleFilter, duplicateFilter, deleteFilter, updateFilter, createOrUpdateFilter } from "../../api/apiClient";
 
+interface FilterState {
+  data: any;
+  filters: any[];
+  currentPage: number;
+  totalPages: number;
+  loading: boolean;
+  error: string | null;
+  appliedFilter: any | null;
+  isDraft: boolean;
+  estimatedAudience: number;
+}
 
-// interface FiltersState {
-//     data: any; // Adjust this type based on your API response
-//     loading: boolean;
-//     error: string | null;
-//   }
-  
-//   const initialState: FiltersState = {
-//     data: null,
-//     loading: false,
-//     error: null,
-//   };
+const initialState: FilterState = {
+  data: {},
+  filters: [],
+  currentPage: 1,
+  totalPages: 1,
+  loading: false,
+  error: null,
+  appliedFilter: null,
+  isDraft: false,
+  estimatedAudience: 0,
+};
 
-
-  interface FilterState {
-    data: any; 
-    filters: any[];
-    currentPage: number;
-    totalPages: number;
-    loading: boolean;
-    error: string | null;
-    appliedFilter: any | null;
-    isDraft: boolean;
-  }
-  
-  const initialState: FilterState = {
-    data: {},
-    filters: [],
-    currentPage: 1,
-    totalPages: 1,
-    loading: false,
-    error: null,
-    appliedFilter: null,
-    isDraft: false,
-  };
-  
-  //remove this later
-  export const fetchFiltersData = createAsyncThunk(
-    "filters/fetchFilterData",
-    async(filterId: string, {rejectWithValue})=>{   
-        try{
-            const response = await fetchFilterData(filterId);
-            return response.data;
-        }catch (error: any){
-            return rejectWithValue(error.message);        
-        }
+//remove this later
+export const fetchFiltersData = createAsyncThunk(
+  "filters/fetchFilterData",
+  async (filterId: string, { rejectWithValue }) => {
+    try {
+      const response = await fetchFilterData(filterId);
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue(error.message);
     }
-  )
+  }
+)
 
-  //added here
-  
+//added here
+
 // Async thunk for fetching filters
 export const fetchFilters = createAsyncThunk(
   "filters/fetchFilters",
@@ -93,6 +81,19 @@ export const fetchFilters = createAsyncThunk(
   }
 );
 
+export const fetchFilterById = createAsyncThunk(
+  "filters/fetchFilterById",
+  async (filterId: string, { rejectWithValue }) => {
+    try {
+      const response = await getFilterById(filterId);
+      return response;
+    } catch (error: any) {
+      return rejectWithValue(error.message);
+    }
+  }
+);
+
+
 // Async thunk for applying a filter
 export const applyFilter = createAsyncThunk("filters/applyFilter", async (filterId: string) => {
   const data = await getSingleFilter(filterId);
@@ -124,7 +125,7 @@ export const deleteFilterAsync = createAsyncThunk(
   }
 );
 
-// Thunk to update a filter
+// Update a filter
 export const updateFilterAsync = createAsyncThunk(
   "filters/updateFilter",
   async ({ filterId, updatedData }: { filterId: string; updatedData: any }, { rejectWithValue }) => {
@@ -137,26 +138,38 @@ export const updateFilterAsync = createAsyncThunk(
   }
 );
 
+// ✅ Create or Update filter and fetch estimated audience
+export const fetchEstimatedAudience = createAsyncThunk(
+  "filters/fetchEstimatedAudience",
+  async (payload: any, { rejectWithValue }) => {
+    try {
+      const response = await createOrUpdateFilter(payload);
+      return response.data.filter.estimatedAudience;
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data?.message || "API error");
+    }
+  }
+);
 
-  const filtersSlice = createSlice({
-    name: "filters",
-    initialState,
-    reducers: {},
-    extraReducers: (builder) => {
-      builder
-        .addCase(fetchFiltersData.pending, (state) => {
-          state.loading = true;
-          state.error = null;
-        })
-        .addCase(fetchFiltersData.fulfilled, (state, action) => {
-          state.loading = false;
-          state.data = action.payload;
-        })
-        .addCase(fetchFiltersData.rejected, (state, action) => {
-          state.loading = false;
-          state.error = action.payload as string;
-        })
-        
+const filtersSlice = createSlice({
+  name: "filters",
+  initialState,
+  reducers: {},
+  extraReducers: (builder) => {
+    builder
+      .addCase(fetchFiltersData.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchFiltersData.fulfilled, (state, action) => {
+        state.loading = false;
+        state.data = action.payload;
+      })
+      .addCase(fetchFiltersData.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      })
+
       .addCase(fetchFilters.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -168,6 +181,18 @@ export const updateFilterAsync = createAsyncThunk(
         state.totalPages = action.payload.totalPages;
       })
       .addCase(fetchFilters.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      })
+      .addCase(fetchFilterById.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchFilterById.fulfilled, (state, action) => {
+        state.loading = false;
+        state.data = action.payload;
+      })
+      .addCase(fetchFilterById.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
       })
@@ -197,8 +222,21 @@ export const updateFilterAsync = createAsyncThunk(
       })
       .addCase(updateFilterAsync.rejected, (state, action) => {
         state.error = action.payload as string;
+      })
+      // Fetch estimated audience
+      .addCase(fetchEstimatedAudience.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchEstimatedAudience.fulfilled, (state, action) => {
+        state.loading = false;
+        state.estimatedAudience = action.payload;
+      })
+      .addCase(fetchEstimatedAudience.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
       });
-    },
-  });
-  
-  export default filtersSlice.reducer;
+  },
+});
+
+export default filtersSlice.reducer;

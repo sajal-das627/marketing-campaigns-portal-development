@@ -1,22 +1,29 @@
-import 
-// React,
- { useEffect, useState } from "react";
-import { Box, Typography } from "@mui/material";
+// src/components/FilterBuilder/AudiencePreview.tsx
+import React from "react";
+import { useSelector } from "react-redux";
+import { RootState } from "../../redux/store"; 
+import { Box, Card, Typography } from "@mui/material";
 
-const AudiencePreview = ({ filters }: { filters: any[] }) => {
-  const [audienceCount, setAudienceCount] = useState(0);
-
-  useEffect(() => {
-    const baseCount = 5000; 
-    const adjustedCount = Math.max(100, baseCount - filters.length * 500); 
-    setAudienceCount(adjustedCount);
-  }, [filters]);
+const AudiencePreview = () => {
+  // 👇 Corrected to state.filter instead of state.filters
+  const { estimatedAudience, loading } = useSelector((state: RootState) => state.filter);
 
   return (
-    <Box sx={{ marginTop: 4, padding: 2, backgroundColor: "#f0f4c3" }}>
-      <Typography variant="h6">👥 Real-Time Audience Preview</Typography>
-      <Typography variant="body1">Estimated Audience Size: {audienceCount} people</Typography>
-    </Box>
+    <Card sx={{ p: 2, width: 300 }}>
+      <Typography variant="h6">Filter Summary</Typography>
+      <Typography variant="subtitle1" sx={{ mb: 2, color: "#A3AABC" }}>
+        Preview your audience
+      </Typography>
+      <Typography variant="body1" sx={{ mb: 0, fontWeight: 600 }}>
+        Estimated Audience
+      </Typography>
+      <Box sx={{ display: "flex", alignItems: "flex-end" }}>
+        <Typography variant="h4" sx={{ fontWeight: 600, marginRight: "4px" }}>
+          {loading ? "..." : estimatedAudience}
+        </Typography>
+        <Typography sx={{ color: "#A3AABC" }}>people</Typography>
+      </Box>
+    </Card>
   );
 };
 
