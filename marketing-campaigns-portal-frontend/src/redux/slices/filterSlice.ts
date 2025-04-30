@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
-import { fetchFilterData, getFilters, getSingleFilter, duplicateFilter, deleteFilter, updateFilter, createOrUpdateFilter } from "../../api/apiClient";
+import { fetchFilterData, getFilters,getFilterById, getSingleFilter, duplicateFilter, deleteFilter, updateFilter, createOrUpdateFilter } from "../../api/apiClient";
 
 interface FilterState {
   data: any;
@@ -80,6 +80,19 @@ export const fetchFilters = createAsyncThunk(
     }
   }
 );
+
+export const fetchFilterById = createAsyncThunk(
+  "filters/fetchFilterById",
+  async (filterId: string, { rejectWithValue }) => {
+    try {
+      const response = await getFilterById(filterId);
+      return response;
+    } catch (error: any) {
+      return rejectWithValue(error.message);
+    }
+  }
+);
+
 
 // Async thunk for applying a filter
 export const applyFilter = createAsyncThunk("filters/applyFilter", async (filterId: string) => {
@@ -168,6 +181,18 @@ const filtersSlice = createSlice({
         state.totalPages = action.payload.totalPages;
       })
       .addCase(fetchFilters.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      })
+      .addCase(fetchFilterById.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchFilterById.fulfilled, (state, action) => {
+        state.loading = false;
+        state.data = action.payload;
+      })
+      .addCase(fetchFilterById.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
       })

@@ -47,6 +47,7 @@ import Templates from "./components/Templates/Templates";
 import Login from "./features/auth/Login";
 import Header from "layout/Header";
 import FilterBuilder1 from "./components/FilterBuilder/FilterBuilder1";
+import EditFilter from "./components/FilterBuilder/EditFilter";
 
 import ResponsiveLayout from "layout/ResponsiveLayout";
 
@@ -86,6 +87,8 @@ const App = () => {
             <Route path="/templates-old" element={<TemplateManagementOld />} />
             <Route path="/create-templates" element={<TemplateManagement />} />
             <Route path="/filters" element={<ManageFilter />} />
+            <Route path="/edit-filter/:id" element={<EditFilter />} />
+
           </Routes>
         </Box>
       </Box>

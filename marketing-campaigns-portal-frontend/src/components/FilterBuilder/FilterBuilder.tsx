@@ -28,6 +28,12 @@ import { RootState, AppDispatch } from "../../redux/store"; // 👈 Correct impo
 import { debounce } from "lodash";
 import AudiencePreview from "./AudiencePreview";
 
+interface FilterBuilderProps {
+  mode?: "edit" | "create";
+  initialData?: any;
+  onSave?: (data: any) => void;
+  onDiscard?: () => void;
+}
 
 interface Criteria {
   label: string;
@@ -193,7 +199,12 @@ const DropGroup: React.FC<DropGroupProps> = ({
   );
 };
 
-const App: React.FC = () => {
+const App: React.FC<FilterBuilderProps> = ({
+  mode = "create",
+  initialData,
+  onSave,
+  onDiscard,
+}) => {
   const dispatch = useDispatch<AppDispatch>();      // 👈 Add <AppDispatch> here
 
   const [groupsByTab, setGroupsByTab] = useState<{ [tab: string]: any[] }>({});
@@ -228,6 +239,42 @@ const App: React.FC = () => {
 
   const [isAlertModalOpen, setIsAlertModalOpen] = useState(false);
   const [alertModalMessage, setAlertModalMessage] = useState<string>("");
+
+  useEffect(() => {
+    if (mode === "edit" && initialData) {
+      setSaveFilterName(initialData.name || "");
+      setSaveDescription(initialData.description || "");
+      setSaveTags((initialData.tags || []).join(", "));
+
+      const tabKey = "Tab1"; // Or infer from initialData if needed
+      const groups = initialData.conditions || [];
+
+      setGroupsByTab({
+        [tabKey]: groups.map((group: any, i: number) => ({
+          id: i,
+          criteria: group.criteria.map((c: any) => ({
+            label: c.field,
+            operator: c.operator,
+            value: c.value,
+            dataType: "string" // Set actual data type if available
+          }))
+        }))
+      });
+
+      const groupOps: any = {};
+      const logicOps: any = {};
+
+      groups.forEach((group: any, index: number) => {
+        groupOps[index] = group.groupOperator;
+        if (index > 0) logicOps[index] = initialData.logicalOperator || "OR";
+      });
+
+      setGroupOperatorsByTab({ [tabKey]: groupOps });
+      setLogicalOperatorsByTab({ [tabKey]: logicOps });
+      setActiveTab(tabKey);
+    }
+  }, [initialData, mode]);
+
 
 
   const showWarningModal = (message: string) => {
@@ -481,7 +528,6 @@ const App: React.FC = () => {
     }
 
     const groups = groupsByTab[activeTab];
-
     if (!groups || groups.length === 0) {
       showWarningModal("Please create at least one group before saving.");
       return;
@@ -510,7 +556,6 @@ const App: React.FC = () => {
       })),
     }));
 
-
     const payload = {
       name: saveFilterName.trim(),
       description: saveDescription.trim(),
@@ -522,19 +567,23 @@ const App: React.FC = () => {
         conditions.length > 1
           ? logicalOperatorsByTab[activeTab]?.[1] || "OR"
           : undefined,
-      estimatedAudience, // Static audience
+      estimatedAudience,
     };
 
-
     try {
-      await createOrUpdateFilter(payload);
-      alert("Filter Saved Successfully!");
-      setIsSaveFilterModalOpen(false);
+      if (mode === "edit" && onSave) {
+        onSave(payload); // pass data to parent (EditFilter page)
+      } else {
+        await createOrUpdateFilter(payload);
+        alert("Filter Saved Successfully!");
+        setIsSaveFilterModalOpen(false);
+      }
     } catch (error) {
       console.error("Error saving filter:", error);
       setIsSaveFilterModalOpen(false);
     }
   };
+
 
   const handleSaveDraftFilter = async () => {
     if (!saveFilterName.trim()) {
@@ -609,10 +658,28 @@ const App: React.FC = () => {
           <Typography variant="h4" sx={{ mb: 2 }}>
             Build Your Audience Filter
           </Typography>
-          <Typography variant="subtitle1" sx={{ mb: 2, color: "#A3AABC" }}>
-            Use the tools below to define the exact audience you want to target.
-            Drag, drop, or select options to create powerful filters with ease.
-          </Typography>
+          {mode === "edit" && (
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, maxWidth: 500, mb: 3 }}>
+              <TextField
+                label="Filter Name"
+                value={saveFilterName}
+                onChange={(e) => setSaveFilterName(e.target.value)}
+                required
+              />
+              <TextField
+                label="Description"
+                value={saveDescription}
+                onChange={(e) => setSaveDescription(e.target.value)}
+                required
+              />
+              <TextField
+                label="Tags (comma separated)"
+                value={saveTags}
+                onChange={(e) => setSaveTags(e.target.value)}
+              />
+            </Box>
+          )}
+
         </Box>
         <DndProvider backend={HTML5Backend}>
           <Box sx={{ display: "flex", gap: 2, p: 2 }}>
@@ -826,19 +893,38 @@ const App: React.FC = () => {
                 </Button>
               </Box>
               {/* Save Buttons */}
-              <Box sx={{ display: "flex", justifyContent: "flex-end", gap: 2, mt: 3 }}>
-                <Button
-                  variant="outlined"
-                  color="secondary"
-                  onClick={handleSaveDraftFilter}
-                >
-                  Save Draft
-                </Button>
+              {mode === "edit" ? (
+                <Box sx={{ display: "flex", justifyContent: "flex-end", gap: 2, mt: 3 }}>
+                  <Button
+                    variant="outlined"
+                    color="secondary"
+                    onClick={() => onDiscard?.()}
+                  >
+                    Discard
+                  </Button>
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    onClick={handleConfirmSaveFilter}
+                  >
+                    Save Changes
+                  </Button>
+                </Box>
+              ) : (
+                <Box sx={{ display: "flex", justifyContent: "flex-end", gap: 2, mt: 3 }}>
+                  <Button
+                    variant="outlined"
+                    color="secondary"
+                    onClick={handleSaveDraftFilter}
+                  >
+                    Save Draft
+                  </Button>
+                  <Button variant="contained" color="primary" onClick={handleSaveFilter}>
+                    Save Filter
+                  </Button>
+                </Box>
+              )}
 
-                <Button variant="contained" color="primary" onClick={handleSaveFilter}>
-                  Save Filter
-                </Button>
-              </Box>
             </Card>
             <Card sx={{ p: 2, width: 300 }}>
               <Typography variant="h6" sx={{}}>
@@ -922,6 +1008,8 @@ const App: React.FC = () => {
                 >
                   Save
                 </Button>
+            
+
               </Box>
 
             </Card>
