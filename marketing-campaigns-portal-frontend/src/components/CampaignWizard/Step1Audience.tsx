@@ -8,51 +8,52 @@ import {
    CampaignData } from "../../types/campaign";
 import FilterModal from './FilterModal';
 
-// import {generateStatement } from '../../utils/generateStatement'
-import {generateStatement, GroupsData } from '../../utils/generateStatement'
+import {generateStatement } from '../../utils/generateStatement'
+// import {generateStatement, GroupsData } from '../../utils/generateStatement'
 
 import { fetchFilters } from "../../redux/slices/filterSlice"
 import { RootState } from "../../redux/store";
 import { useSelector } from "react-redux";
 import { useAppDispatch } from "../../redux/hooks";
 import { useNavigate } from "react-router-dom";
-
-const data: GroupsData = {
-  groups: [
-    {
-      groupId: 'group1',
-      groupOperator: 'OR',
-      conditions: [
-        {
-          field: 'Email Opened',
-          operator: 'Equals',
-          value: 'Yes',
-        },
-        {
-          field: 'Last Purchase Date',
-          operator: 'Before',
-          value: '2024-05-18',
-        },
-      ],
-    },
-    {
-      groupId: 'group2',
-      groupOperator: 'OR',
-      conditions: [
-        {
-          field: 'Total Purchase Date',
-          operator: 'Equals',
-          value: '0',
-        },
-        {
-          field: 'Customer Type',
-          operator: 'Equals',
-          value: 'New',
-        },
-      ],
-    },
-  ],
-};
+import {FilterStatement} from '../../utils/genState'
+import { ConditionGroup } from "types/filter";
+// const data: GroupsData = {
+//   groups: [
+//     {
+//       groupId: 'group1',
+//       groupOperator: 'OR',
+//       conditions: [
+//         {
+//           field: 'Email Opened',
+//           operator: 'Equals',
+//           value: 'Yes',
+//         },
+//         {
+//           field: 'Last Purchase Date',
+//           operator: 'Before',
+//           value: '2024-05-18',
+//         },
+//       ],
+//     },
+//     {
+//       groupId: 'group2',
+//       groupOperator: 'OR',
+//       conditions: [
+//         {
+//           field: 'Total Purchase Date',
+//           operator: 'Equals',
+//           value: '0',
+//         },
+//         {
+//           field: 'Customer Type',
+//           operator: 'Equals',
+//           value: 'New',
+//         },
+//       ],
+//     },
+//   ],
+// };
 
 interface AudienceSelectorProps {
   handleChange: (event: any) => void;
@@ -127,7 +128,7 @@ const AudienceSelector: React.FC<AudienceSelectorProps> = ({ handleChange, campa
     setIsfilterModalId(null);
   };
   
-  const summary = generateStatement(data.groups);
+  // const summary = generateStatement(data.groups);
 
   return (
     
@@ -202,25 +203,35 @@ const AudienceSelector: React.FC<AudienceSelectorProps> = ({ handleChange, campa
                 </Typography> */}
               </Card>
 </Box>
-        {filters.map((audience) => (
-    <>
-    <Grid container spacing={2} mb={2}>      
-        <Grid size={{ xs: 12 }} key={audience._id?.toString()}>
+{filters.map((audience) => {
+  const summary = generateStatement(
+    [{
+      ...audience,
+      conditions: audience.conditions
+    }],
+    audience.logicalOperator
+  );
+  console.log('audience.conditions', audience.conditions);
+
+  return (
+    <React.Fragment key={audience._id?.toString()}>
+      <Grid container spacing={2} mb={2}>
+        <Grid size={{xs:12}}>
           <Card
             variant="outlined"
             sx={{ border: isSelected(audience._id?.toString()) }}
-            onClick={() =>{
+            onClick={() => {
               handleChange({
-                target: { name: "audience", value: audience._id?.toString() },
+                target: { name: 'audience', value: audience._id?.toString() },
               } as any);
-              setAudienceName(audience.name);   
+              setAudienceName(audience.name);
             }}
           >
             <CardActionArea>
-              <CardContent sx={{ display: "flex" }}>
+              <CardContent sx={{ display: 'flex' }}>
                 <Box
                   component="img"
-                  src={'/icons/criteriaBased_Campaign.png'}
+                  src="/icons/criteriaBased_Campaign.png"
                   alt={`${audience.name} Icon`}
                   sx={{ width: 50, height: 50, mr: { xs: 1, md: 2 }, flexShrink: 0 }}
                 />
@@ -234,22 +245,23 @@ const AudienceSelector: React.FC<AudienceSelectorProps> = ({ handleChange, campa
                 </Box>
                 <Typography
                   sx={{
-                    display: "flex",
-                    alignItems: "center",
-                    marginLeft: "auto",
-                    color: "#495057",
-                    fontSize: "14px",
-                    borderLeft: "2px solid #ECEEF6",
-                    paddingLeft: "8px",
+                    display: 'flex',
+                    alignItems: 'center',
+                    marginLeft: 'auto',
+                    color: '#495057',
+                    fontSize: '14px',
+                    borderLeft: '2px solid #ECEEF6',
+                    paddingLeft: '8px',
                   }}
                 >
-                  <IconButton 
-                  onClick={(e) => {
-                    e.stopPropagation();  
-                    handleFilterModal(audience._id?.toString() ?? "");
-                  }} ><VisibilityIcon />
+                  <IconButton
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleFilterModal(audience._id?.toString() ?? '');
+                    }}
+                  >
+                    <VisibilityIcon />
                   </IconButton>
-                    
                   <span>View</span>
                 </Typography>
               </CardContent>
@@ -257,22 +269,23 @@ const AudienceSelector: React.FC<AudienceSelectorProps> = ({ handleChange, campa
           </Card>
         </Grid>
       </Grid>
-    {isfilterModalId === audience._id?.toString() && (
 
-  <FilterModal 
-    open={true} 
-    onClose={handleClose}
-    name={audience.name ?? ""} 
-    description={audience.description ?? ""} 
-    tags={audience.tags?? []}  // Ensure it's an array if needed
-    createdOn={audience.createdAt ?? ""} 
-    audience={audience.audienceCount ?? 0}  
-    summary={summary ?? ""} //pending working on it
-    // summary={generateStatement(audience.conditions ?? []) ?? ""} //pending working on it
-  />
-    )}
-  </>
-  ))}
+      {isfilterModalId === audience._id?.toString() && (
+        <FilterModal
+          open={true}
+          onClose={handleClose}
+          name={audience.name ?? ''}
+          description={audience.description ?? ''}
+          tags={audience.tags ?? []}
+          createdOn={audience.createdAt ?? ''}
+          audience={audience.audienceCount ?? 0}
+          summary={summary}
+        />
+      )}
+    </React.Fragment>
+  );
+})}
+
   {/* Pagination */}
   <div
               style={{
