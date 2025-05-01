@@ -14,7 +14,8 @@ import {
   TableBody,
   TableRow,
   TableCell,
-  Stack, Modal, TextareaAutosize,
+  Stack, Modal, 
+  TextareaAutosize,
   FormControl,
   InputLabel,
   InputBase,
@@ -41,15 +42,14 @@ import { useDispatch, useSelector } from "react-redux";
 import {
   getTemplates, getRecentlyUsedTemplates, toggleFavorite,
   getFavoriteTemplates, setFilters, setActiveTab, getTemplateById,
-   clearSelectedTemplate, 
-   updateTemplate,
-    deleteTemplate, 
-    restoreTemplate,
-    duplicateTemplate, 
-    
-      setAllTemplates,
-      setRecentTemplates,
-      setFavoriteTemplates,
+  clearSelectedTemplate, 
+  updateTemplate,
+  deleteTemplate, 
+  restoreTemplate,
+  duplicateTemplate,     
+  setAllTemplates,
+  setRecentTemplates,
+  setFavoriteTemplates,
 } from "../../redux/slices/templateSlice";
 import { RootState } from "../../redux/store";
 import { useDebounce } from "use-debounce";
@@ -94,13 +94,6 @@ const TemplatesTable: React.FC = () => {
       }
     }, [selectedTemplate]);
 
-    // const handleAnchorClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-    //     setAnchorEl(event.currentTarget);
-    //   };
-    // const handleAnchorClose = () =>{
-    //   setAnchorEl(null);
-    // }
-    
     const handleAnchorClick = (event: React.MouseEvent<HTMLElement>, id: string) => {
       setMenuAnchorEl((prev) => ({
         ...prev,
@@ -600,8 +593,7 @@ const TemplatesTable: React.FC = () => {
                       <MenuItem onClick={() => handleEditClick(template._id)}>Edit</MenuItem>
                       <MenuItem onClick={() => handleDuplicateTemplate(template._id)}>Duplicate</MenuItem>
                       </>
-                    )}
-                    
+                    )}                   
 
                     {template.isDeleted ? (
                         <MenuItem color="success" onClick={() => handleRestoreTemplate(template._id)}>Restore</MenuItem>
