@@ -15,6 +15,9 @@ import {
   Typography,
   InputBase,
 } from '@mui/material';
+import SaveIcon from '@mui/icons-material/Save';
+import VisibilityIcon from '@mui/icons-material/Visibility';
+import SendIcon from '@mui/icons-material/Send';
 
 type TemplateType = 'Email' | 'SMS' | 'Basic' | 'Designed' | 'Custom';
 type CategoryType =
@@ -122,14 +125,15 @@ const TemplateEditor: React.FC<TemplateEditorProps> = ({
       SMS Template Creater
       </Typography>
         <Box>
-          <Button  variant="contained" sx={{ minWidth: '180px',bgcolor: '#0057D9', color: '#fff  ', p: 1, m:1, ":hover": { bgcolor: '#2068d5' } }}>
-            Send&nbsp;Test
+          <Button  variant="outlined" sx={{ minWidth: '160px',p: 1, m:1, ":hover": { bgcolor: '#fff' } }}>
+            <SendIcon />&nbsp; Send&nbsp;Test
           </Button>
-          <Button  variant="contained" sx={{ minWidth: '180px',bgcolor: '#0057D9', color: '#fff  ', p: 1, m:1, ":hover": { bgcolor: '#2068d5' } }}>
-            Preview
+          <Button  variant="contained" sx={{ minWidth: '160px',bgcolor: '#0057D9', color: '#fff  ', p: 1, m:1, ":hover": { bgcolor: '#2068d5' } }}>
+          <VisibilityIcon /> &nbsp; Preview
           </Button>
-          <Button  variant="contained" sx={{ minWidth: '180px',bgcolor: '#0057D9', color: '#fff  ', p: 1, m:1, ":hover": { bgcolor: '#2068d5' } }}>
-            Save Template
+          
+          <Button  variant="contained"  color="success" sx={{ minWidth: '180px',  p: 1, m:1, ":hover": { bgcolor: 'green' } }}>
+           <SaveIcon /> &nbsp; Save Template
           </Button>
         </Box>   
       </Box>   
