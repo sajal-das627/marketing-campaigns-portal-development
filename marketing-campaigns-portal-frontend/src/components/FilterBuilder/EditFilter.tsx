@@ -18,7 +18,7 @@ const EditFilter: React.FC = () => {
       } catch (error) {
         console.error("Failed to load filter:", error);
         alert("Failed to load filter data");
-        navigate("/manage-filters");
+        navigate("/filters");
       } finally {
         setLoading(false);
       }

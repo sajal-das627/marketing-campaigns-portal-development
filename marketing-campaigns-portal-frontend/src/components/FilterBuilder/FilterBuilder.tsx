@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { DndProvider, useDrag, useDrop } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
+import { useNavigate } from "react-router-dom";
 import {
   Box,
   Button,
@@ -206,7 +207,7 @@ const App: React.FC<FilterBuilderProps> = ({
   onDiscard,
 }) => {
   const dispatch = useDispatch<AppDispatch>();      // 👈 Add <AppDispatch> here
-
+  const navigate = useNavigate();
   const [groupsByTab, setGroupsByTab] = useState<{ [tab: string]: any[] }>({});
 
   const [groupOperatorsByTab, setGroupOperatorsByTab] = useState<{ [tab: string]: { [groupId: number]: string } }>({});
@@ -245,10 +246,10 @@ const App: React.FC<FilterBuilderProps> = ({
       setSaveFilterName(initialData.name || "");
       setSaveDescription(initialData.description || "");
       setSaveTags((initialData.tags || []).join(", "));
-  
+
       const tabKey = "Tab1";
       const groups = initialData.groups || [];
-  
+
       const formattedGroups = groups.map((group: any) => ({
         id: group.groupId, // ✅ use groupId directly
         criteria: group.conditions.map((c: any) => ({
@@ -258,24 +259,24 @@ const App: React.FC<FilterBuilderProps> = ({
           dataType: "string",
         })),
       }));
-  
+
       const groupOps: any = {};
       const logicOps: any = {};
-  
+
       groups.forEach((group: any, index: number) => {
         groupOps[group.groupId] = group.groupOperator;
         if (index > 0) logicOps[index] = initialData.logicalOperator || "OR";
       });
-  
+
       setGroupsByTab({ [tabKey]: formattedGroups });
       setGroupOperatorsByTab({ [tabKey]: groupOps });
       setLogicalOperatorsByTab({ [tabKey]: logicOps });
       setActiveTab(tabKey);
     }
   }, [initialData, mode]);
-  
-  
-  
+
+
+
 
 
 
@@ -460,8 +461,8 @@ const App: React.FC<FilterBuilderProps> = ({
       return { ...prev, [activeTab]: updatedGroups };
     });
   };
-  
-  
+
+
 
   const fetchBlocks = () => {
     getCriteriaBlocks().then((res) => {
@@ -513,12 +514,12 @@ const App: React.FC<FilterBuilderProps> = ({
 
   const handleSaveFilter = () => {
     const groups = groupsByTab[activeTab];
-  
+
     if (!groups || groups.length === 0) {
       showWarningModal("Please create at least one group before saving.");
       return;
     }
-  
+
     for (const group of groups) {
       if (!group.criteria || group.criteria.length === 0) {
         showWarningModal("Each group must have at least one criteria block.");
@@ -531,14 +532,14 @@ const App: React.FC<FilterBuilderProps> = ({
         }
       }
     }
-  
+
     // ✅ Passed all criteria checks — reset modal fields and open modal
     setSaveFilterName("");
     setSaveDescription("");
     setSaveTags("");
     setIsSaveFilterModalOpen(true);
   };
-  
+
   const handleConfirmSaveFilter = async () => {
     if (!saveFilterName.trim()) {
       showWarningModal("Filter Name is required.");
@@ -599,7 +600,7 @@ const App: React.FC<FilterBuilderProps> = ({
       } else {
         await createOrUpdateFilter(payload);
         alert("Filter Saved Successfully!");
-        setIsSaveFilterModalOpen(false);
+        navigate("/filters?isDraft=false"); // ✅ or use state method if preferred
       }
     } catch (error) {
       console.error("Error saving filter:", error);
@@ -609,16 +610,6 @@ const App: React.FC<FilterBuilderProps> = ({
 
 
   const handleSaveDraftFilter = async () => {
-    if (!saveFilterName.trim()) {
-      showWarningModal("Filter Name is required.");
-      return;
-    }
-
-    if (!saveDescription.trim()) {
-      showWarningModal("Description is required.");
-      return;
-    }
-
     const groups = groupsByTab[activeTab];
 
     if (!groups || groups.length === 0) {
@@ -650,8 +641,8 @@ const App: React.FC<FilterBuilderProps> = ({
     }));
 
     const payload = {
-      name: saveFilterName.trim(),
-      description: saveDescription.trim(),
+      name: saveFilterName.trim() || "Untitled Draft",
+      description: saveDescription.trim() || "Draft Description",
       tags: saveTags.split(",").map((tag) => tag.trim()).filter(tag => tag),
       conditions,
       customFields: { region: "North America", campaign: "Summer Sale" },
@@ -666,7 +657,7 @@ const App: React.FC<FilterBuilderProps> = ({
     try {
       await createOrUpdateFilter(payload);
       alert("Draft Saved Successfully!");
-      setIsSaveFilterModalOpen(false);
+      navigate("/filters?isDraft=true");
     } catch (error) {
       console.error("Error saving draft:", error);
       setIsSaveFilterModalOpen(false);
@@ -695,11 +686,14 @@ const App: React.FC<FilterBuilderProps> = ({
                 onChange={(e) => setSaveDescription(e.target.value)}
                 required
               />
-              <TextField
-                label="Tags (comma separated)"
-                value={saveTags}
-                onChange={(e) => setSaveTags(e.target.value)}
-              />
+              {(initialData?.tags?.length ?? 0) > 0 && (
+                <TextField
+                  label="Tags (comma separated)"
+                  value={saveTags}
+                  onChange={(e) => setSaveTags(e.target.value)}
+                />
+              )}
+
             </Box>
           )}
 
@@ -1031,7 +1025,7 @@ const App: React.FC<FilterBuilderProps> = ({
                 >
                   Save
                 </Button>
-            
+
 
               </Box>
 
