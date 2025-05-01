@@ -1,8 +1,9 @@
-import React, {useState, useEffect} from "react";
-import { Typography, Box, Tabs, Tab, TextField, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Checkbox, Button, Select, MenuItem, InputAdornment, IconButton, Menu,
+import React, { useState, useEffect } from "react";
+import {
+  Typography, Box, Tabs, Tab, TextField, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Checkbox, Button, Select, MenuItem, InputAdornment, IconButton, Menu,
   SelectChangeEvent, Snackbar, Alert,
   Divider, Modal,
- } from "@mui/material";
+} from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
@@ -16,9 +17,10 @@ import {useAppDispatch} from "../redux/hooks";
 import { useNavigate } from "react-router-dom";
 
 const ManageFilters = () => {
-  
+
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
+  const [selectedActionFilterId, setSelectedActionFilterId] = useState<string | null>(null);
 
   const [search, setSearch] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState(""); // New state for debounced search
@@ -37,7 +39,7 @@ const ManageFilters = () => {
     
   const [selectedFilters, setSelectedFilters] = useState<string[]>([]);
   const [selectAll, setSelectAll] = useState(false);
-  
+
   const [activeSubTab, setActiveSubTab] = useState<"saved" | "drafts">("saved");
   const isDraft = activeSubTab === "drafts";
 
@@ -72,7 +74,7 @@ const ManageFilters = () => {
   // const handleSelectAll = (event: React.ChangeEvent<HTMLInputElement>) => {
   //   const checked = event.target.checked;
   //   setSelectAll(checked);
-  
+
   //   // Select or deselect all filtered rows for the current page
   //   if (checked) {
   //     setSelectedRows(filters.map((filter) => filter._id)); // Select all filtered rows on current page
@@ -94,7 +96,7 @@ const ManageFilters = () => {
   //   });
   // };
 
-  
+
   const handleSelectFilter = (filterId: string) => {
     setSelectedFilters((prevSelected) =>
       prevSelected.includes(filterId)
@@ -125,8 +127,8 @@ const ManageFilters = () => {
   };
 
   const handleTabChange = (event: React.SyntheticEvent, newValue: "saved" | "drafts") => {
-    
-    setActiveSubTab(newValue); 
+
+    setActiveSubTab(newValue);
     setPage(1);
   }
 
@@ -134,8 +136,8 @@ const ManageFilters = () => {
   //  
   useEffect(() => {
     const handler = setTimeout(() => {
-      setDebouncedSearch(search); 
-    }, 400);   
+      setDebouncedSearch(search);
+    }, 400);
     return () => clearTimeout(handler); // Cleanup function to clear timeout on every new keystroke
   }, [search]);
 
@@ -183,7 +185,7 @@ const ManageFilters = () => {
     setEditModalOpen(true);
     setMenuAnchorEl({});
   };
-  
+
   const handleUpdateFilter = async () => {
     if (selectedFilter) {
       await dispatch(updateFilterAsync({ filterId: selectedFilter._id, updatedData: selectedFilter }));
@@ -191,7 +193,7 @@ const ManageFilters = () => {
     }
   };
 
-  
+
   const handleDeleteSelectedFilters = () => {
     if (selectedFilters.length === 0) {
       alert("No filters selected!");
@@ -217,16 +219,16 @@ const ManageFilters = () => {
       </Typography>
 
       <Snackbar
-          open={showDeleteAlert}
-          autoHideDuration={3000}
-          onClose={() => setShowDeleteAlert(false)}
-          anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
-          // sx={{mt:8}}
-        >
-          <Alert severity="success" onClose={() => setShowDeleteAlert(false)} sx={{ width: '100%' }}>
-            Campaign deleted successfully!
-          </Alert>
-        </Snackbar>
+        open={showDeleteAlert}
+        autoHideDuration={3000}
+        onClose={() => setShowDeleteAlert(false)}
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+      // sx={{mt:8}}
+      >
+        <Alert severity="success" onClose={() => setShowDeleteAlert(false)} sx={{ width: '100%' }}>
+          Campaign deleted successfully!
+        </Alert>
+      </Snackbar>
 
         {/* <DeleteModal open={modalData.open} handleClose={()=>setIsDeleteModalopen(false)} handleConfirm={handleDeleteSelectedFilters} title='Delete Selected Filters' message='Are you sure you want to delete these filters? This action cannot be undone.'  /> */}
         <DeleteModal open={modalData.open} 
@@ -247,7 +249,7 @@ const ManageFilters = () => {
           <TextField
             variant="outlined"
             placeholder="Search Filters"
-            size="small"            
+            size="small"
             value={search}
             onChange={handleSearchChange}
             InputProps={{
@@ -256,7 +258,7 @@ const ManageFilters = () => {
                   <SearchIcon color="action" />
                 </InputAdornment>
               ),
-            }} 
+            }}
             sx={{ width: 250, backgroundColor: "#f5f5f5" }}
           />
 
@@ -265,14 +267,14 @@ const ManageFilters = () => {
             defaultValue=""
             variant="outlined"
             size="small"
-            IconComponent={ExpandMoreIcon}            
+            IconComponent={ExpandMoreIcon}
             value={sortBy === "name" ? `name_${order}` : sortBy}
             onChange={handleSortChange}
             sx={{ width: 120, backgroundColor: "#f5f5f5" }}
           >
-          <MenuItem value="">Sort by</MenuItem>
-          <MenuItem value="name_asc">Name (A to Z)</MenuItem>
-          <MenuItem value="name_desc">Name (Z to A)</MenuItem>
+            <MenuItem value="">Sort by</MenuItem>
+            <MenuItem value="name_asc">Name (A to Z)</MenuItem>
+            <MenuItem value="name_desc">Name (Z to A)</MenuItem>
           </Select>
         </Box>
 
@@ -301,16 +303,16 @@ const ManageFilters = () => {
             </TableHead>
 
             {loading ? (
-        <Typography variant="body1">Loading filters...</Typography>
-      ) : error ? (
-        <Typography variant="body1" color="error">
-          {error}
-        </Typography>
-      ) : (
-            <TableBody>
-            {filters.length > 0 ? (
-                    filters
-                      .filter((filter) => filter && filter.name 
+              <Typography variant="body1">Loading filters...</Typography>
+            ) : error ? (
+              <Typography variant="body1" color="error">
+                {error}
+              </Typography>
+            ) : (
+              <TableBody>
+                {filters.length > 0 ? (
+                  filters
+                    .filter((filter) => filter && filter.name
                       // && filter.isDraft == tabValue
                     )
                       .map((filter, index) => (
@@ -364,115 +366,115 @@ const ManageFilters = () => {
             </TableBody>
             )}
           </Table>
-        </TableContainer>         
-      </Box>      
-            {/* Pagination */}
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-                marginTop: "20px",
-              }}
-            >
-              <Button
-                variant="outlined"
-                disabled={page === 1}
-                onClick={() => setPage(page - 1)}
-                sx={{ marginRight: "10px" }}
-              >
-                Previous
-              </Button>
-              <Typography>
-                Page <strong>{currentPage || page}</strong> of <strong>{totalPages || 1}</strong>
-              </Typography>
-              <Button
-                variant="outlined"
-                disabled={page === totalPages}
-                onClick={() => setPage(page + 1)}
-                sx={{ marginLeft: "10px" }}
-              >
-                Next
-              </Button>
+        </TableContainer>
+      </Box>
+      {/* Pagination */}
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          marginTop: "20px",
+        }}
+      >
+        <Button
+          variant="outlined"
+          disabled={page === 1}
+          onClick={() => setPage(page - 1)}
+          sx={{ marginRight: "10px" }}
+        >
+          Previous
+        </Button>
+        <Typography>
+          Page <strong>{currentPage || page}</strong> of <strong>{totalPages || 1}</strong>
+        </Typography>
+        <Button
+          variant="outlined"
+          disabled={page === totalPages}
+          onClick={() => setPage(page + 1)}
+          sx={{ marginLeft: "10px" }}
+        >
+          Next
+        </Button>
+      </div>
+
+      {/* Modal for Applied Filter */}
+      <Modal open={openModal} onClose={() => setOpenModal(false)}>
+        <Box sx={{
+          position: "absolute",
+          top: "50%",
+          left: "50%",
+          transform: "translate(-50%, -50%)",
+          width: 450,
+          bgcolor: "background.paper",
+          boxShadow: 24,
+          p: 4,
+          borderRadius: 2,
+        }}>
+          <IconButton sx={{ position: "absolute", top: 8, right: 8 }} onClick={() => setOpenModal(false)}>
+            <CloseIcon />
+          </IconButton>
+          <Typography variant="h6" gutterBottom>
+            Saved Filters
+          </Typography>
+          <Divider sx={{ marginBottom: 2 }} />
+          {appliedFilter ? (
+            <div>
+              <Typography><strong>Filter Name:</strong> {appliedFilter.name}</Typography>
+              <Typography><strong>Description:</strong> {appliedFilter.description || "No description"}</Typography>
+              <Typography><strong>Tags:</strong> {appliedFilter.tags?.join(", ") || "N/A"}</Typography>
+              <Typography><strong>Last Used:</strong> {appliedFilter.lastUsed}</Typography>
+              <Typography><strong>CTR %:</strong> {appliedFilter.ctr}</Typography>
+              <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 10 }}>
+                <Button variant="outlined" onClick={() => setOpenModal(false)} sx={{ marginRight: 1 }}>
+                  Cancel
+                </Button>
+                <Button variant="contained" color="primary" onClick={() => setOpenModal(false)}>
+                  Reuse for New Campaign
+                </Button>
+              </div>
             </div>
-      
-            {/* Modal for Applied Filter */}
-            <Modal open={openModal} onClose={() => setOpenModal(false)}>
-            <Box sx={{
-                position: "absolute",
-                top: "50%",
-                left: "50%",
-                transform: "translate(-50%, -50%)",
-                width: 450,
-                bgcolor: "background.paper",
-                boxShadow: 24,
-                p: 4,
-                borderRadius: 2,
-              }}>
-                  <IconButton sx={{ position: "absolute", top: 8, right: 8 }} onClick={() => setOpenModal(false)}>
-                  <CloseIcon />
-                </IconButton>
-                <Typography variant="h6" gutterBottom>
-                  Saved Filters
-                </Typography>
-                <Divider sx={{ marginBottom: 2 }} />
-                {appliedFilter ? (
-                  <div>
-                    <Typography><strong>Filter Name:</strong> {appliedFilter.name}</Typography>
-                    <Typography><strong>Description:</strong> {appliedFilter.description || "No description"}</Typography>
-                    <Typography><strong>Tags:</strong> {appliedFilter.tags?.join(", ") || "N/A"}</Typography>
-                    <Typography><strong>Last Used:</strong> {appliedFilter.lastUsed}</Typography>
-                    <Typography><strong>CTR %:</strong> {appliedFilter.ctr}</Typography>
-                    <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 10 }}>
-                      <Button variant="outlined" onClick={() => setOpenModal(false)} sx={{ marginRight: 1 }}>
-                        Cancel
-                      </Button>
-                      <Button variant="contained" color="primary"  onClick={() => setOpenModal(false)}>
-                        Reuse for New Campaign
-                      </Button>
-                    </div>
-                  </div>
-                ) : (
-                  <Typography>Loading filter details...</Typography>
-                )}
-              </Box>
-            </Modal>
-      
-            {/* Edit Filter Modal */}
-            <Modal open={editModalOpen} onClose={() => setEditModalOpen(false)}>
-              <Box sx={{
-                position: "absolute",
-                top: "50%",
-                left: "50%",
-                transform: "translate(-50%, -50%)",
-                width: 400,
-                bgcolor: "background.paper",
-                boxShadow: 24,
-                p: 4,
-                borderRadius: 2,
-              }}>
-                <IconButton sx={{ position: "absolute", top: 8, right: 8 }} onClick={() => setEditModalOpen(false)}>
-                  <CloseIcon />
-                </IconButton>
-                <Typography variant="h6">Edit Filter</Typography>
-                <Divider sx={{ marginBottom: 2 }} />
-                <TextField
-                  label="Filter Name"
-                  fullWidth
-                  value={selectedFilter?.name || ""}
-                  onChange={(e) => setSelectedFilter({ ...selectedFilter, name: e.target.value })}
-                  sx={{ marginBottom: 2 }}
-                />
-                <TextField
-                  label="Description"
-                  fullWidth
-                  value={selectedFilter?.description || ""}
-                  onChange={(e) => setSelectedFilter({ ...selectedFilter, description: e.target.value })}
-                  sx={{ marginBottom: 2 }}
-                />
-                <Button variant="contained" onClick={handleUpdateFilter}>Update</Button>
-              </Box>
-            </Modal>
+          ) : (
+            <Typography>Loading filter details...</Typography>
+          )}
+        </Box>
+      </Modal>
+
+      {/* Edit Filter Modal */}
+      <Modal open={editModalOpen} onClose={() => setEditModalOpen(false)}>
+        <Box sx={{
+          position: "absolute",
+          top: "50%",
+          left: "50%",
+          transform: "translate(-50%, -50%)",
+          width: 400,
+          bgcolor: "background.paper",
+          boxShadow: 24,
+          p: 4,
+          borderRadius: 2,
+        }}>
+          <IconButton sx={{ position: "absolute", top: 8, right: 8 }} onClick={() => setEditModalOpen(false)}>
+            <CloseIcon />
+          </IconButton>
+          <Typography variant="h6">Edit Filter</Typography>
+          <Divider sx={{ marginBottom: 2 }} />
+          <TextField
+            label="Filter Name"
+            fullWidth
+            value={selectedFilter?.name || ""}
+            onChange={(e) => setSelectedFilter({ ...selectedFilter, name: e.target.value })}
+            sx={{ marginBottom: 2 }}
+          />
+          <TextField
+            label="Description"
+            fullWidth
+            value={selectedFilter?.description || ""}
+            onChange={(e) => setSelectedFilter({ ...selectedFilter, description: e.target.value })}
+            sx={{ marginBottom: 2 }}
+          />
+          <Button variant="contained" onClick={handleUpdateFilter}>Update</Button>
+        </Box>
+      </Modal>
     </Box>
   );
 };

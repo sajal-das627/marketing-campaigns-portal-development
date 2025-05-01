@@ -86,6 +86,7 @@ export const fetchFilterById = createAsyncThunk(
   async (filterId: string, { rejectWithValue }) => {
     try {
       const response = await getFilterById(filterId);
+      console.log("Fetched filter data:", response);
       return response;
     } catch (error: any) {
       return rejectWithValue(error.message);
@@ -189,6 +190,7 @@ const filtersSlice = createSlice({
         state.error = null;
       })
       .addCase(fetchFilterById.fulfilled, (state, action) => {
+        console.log("Fetched filter data:", action.payload);
         state.loading = false;
         state.data = action.payload;
       })

@@ -13,11 +13,12 @@ const EditFilter: React.FC = () => {
     const fetchFilter = async () => {
       try {
         const response = await getFilterById(id as string);
-        setFilterData(response.filter);
+        console.log("Fetched filter data 1:", response);
+        setFilterData(response);
       } catch (error) {
         console.error("Failed to load filter:", error);
         alert("Failed to load filter data");
-        navigate("/manage-filters");
+        navigate("/filters");
       } finally {
         setLoading(false);
       }
