@@ -21,6 +21,7 @@ const ManageFilters = () => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const [selectedActionFilterId, setSelectedActionFilterId] = useState<string | null>(null);
+  const [highlightedId, setHighlightedId] = useState<string | null>(null);
 
   const [search, setSearch] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState(""); // New state for debounced search
@@ -168,8 +169,17 @@ const ManageFilters = () => {
   };
 
   const handleDuplicateFilter = async (filterId: string) => {
-    await dispatch(duplicateFilterAsync(filterId));
+    const resultAction = await dispatch(duplicateFilterAsync(filterId));
+    const newFilter = resultAction.payload.filter || resultAction.payload;
+  
+    if (newFilter && newFilter._id) {
+      setHighlightedId(newFilter._id);
+      setTimeout(() => setHighlightedId(null), 3000);
+    }
   };
+  
+  
+
 
   const handleDeleteFilter = (filterId: string) => {
     // if (window.confirm("Are you sure you want to delete this filter?")) {

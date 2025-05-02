@@ -435,7 +435,14 @@ export const duplicateFilter = async (req: Request, res: Response) => {
     const duplicatedFilter = new Filter(filterData);
     await duplicatedFilter.save();
 
-    res.status(201).json({ message: "Filter Duplicated Successfully", filter: duplicatedFilter });
+    res.status(201).json({
+      message: "Filter Duplicated Successfully",
+      filter: {
+        ...duplicatedFilter.toObject(),
+        originalId: filterId, // ✅ Needed by frontend to insert next to original
+      },
+    });
+    
   } catch (error) {
     console.error("Error duplicating filter:", error);
     res.status(500).json({ message: "Internal Server Error" });
