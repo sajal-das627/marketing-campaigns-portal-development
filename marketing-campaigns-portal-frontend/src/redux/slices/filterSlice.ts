@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
-import { fetchFilterData, getFilters,getFilterById, getSingleFilter, duplicateFilter, deleteFilter, updateFilter, createOrUpdateFilter } from "../../api/apiClient";
+import { fetchFilterData, getFilters, getFilterById, getSingleFilter, duplicateFilter, deleteFilter, updateFilter, createOrUpdateFilter } from "../../api/apiClient";
 
 interface FilterState {
   data: any;
@@ -202,10 +202,25 @@ const filtersSlice = createSlice({
         state.appliedFilter = action.payload;
       })
       .addCase(duplicateFilterAsync.fulfilled, (state, action) => {
-        if (action.payload) {
-          state.filters = [...state.filters, action.payload]; // Append the duplicated filter
+        const duplicated = action.payload.filter || action.payload; // support { filter, message } shape
+        const originalId = action.payload.originalId || action.payload.filter?.originalId;
+      
+        if (duplicated && originalId) {
+          const originalIndex = state.filters.findIndex(f => f._id === originalId);
+          if (originalIndex !== -1) {
+            const newFilters = [...state.filters];
+            // ✅ Attach originalId to duplicated for frontend to use
+            duplicated.originalId = originalId;
+            newFilters.splice(originalIndex + 1, 0, duplicated);
+            state.filters = newFilters;
+          } else {
+            state.filters = [duplicated, ...state.filters];
+          }
         }
       })
+      
+
+
       .addCase(duplicateFilterAsync.rejected, (state, action) => {
         state.error = action.payload as string;
       })

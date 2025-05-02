@@ -21,6 +21,7 @@ const ManageFilters = () => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const [selectedActionFilterId, setSelectedActionFilterId] = useState<string | null>(null);
+  const [highlightedId, setHighlightedId] = useState<string | null>(null);
 
   const [search, setSearch] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState(""); // New state for debounced search
@@ -139,8 +140,17 @@ const ManageFilters = () => {
   };
 
   const handleDuplicateFilter = async (filterId: string) => {
-    await dispatch(duplicateFilterAsync(filterId));
+    const resultAction = await dispatch(duplicateFilterAsync(filterId));
+    const newFilter = resultAction.payload.filter || resultAction.payload;
+  
+    if (newFilter && newFilter._id) {
+      setHighlightedId(newFilter._id);
+      setTimeout(() => setHighlightedId(null), 3000);
+    }
   };
+  
+  
+
 
   const handleDeleteFilter = (filterId: string) => {
     // if (window.confirm("Are you sure you want to delete this filter?")) {
@@ -273,79 +283,86 @@ const ManageFilters = () => {
             ) : (
               <TableBody>
                 {filters.length > 0 ? (
-                  filters
-                    .filter((filter) => filter && filter.name
-                      // && filter.isDraft == tabValue
-                    )
-                    .map((filter, index) => (
-                      <TableRow key={index}>
+                  filters.map((filter, index) => {
+                    if (!filter || !filter._id) return null;
+
+                    return (
+                      <TableRow
+                      key={filter._id}
+                      sx={{
+                        backgroundColor: filter._id === highlightedId ? "#fff9c4" : "inherit",
+                        transition: "background-color 0.3s ease"
+                      }}
+                    >
+                    
                         <TableCell>
                           <Checkbox
                             checked={selectedFilters.includes(filter._id)}
                             onChange={() => handleSelectFilter(filter._id)}
                           />
                         </TableCell>
-                        <TableCell style={{ color: "#4170ba", fontWeight: "600" }}>{filter.name}</TableCell>
-                        <TableCell style={{ fontWeight: "600" }}>{filter.tags}</TableCell>
-                        <TableCell style={{ fontWeight: "600" }}>{filter.description}</TableCell>
-                        <TableCell >
+                        <TableCell style={{ color: "#4170ba", fontWeight: "600" }}>
+                          {filter.name || "Unnamed Filter"}
+                        </TableCell>
+                        <TableCell style={{ fontWeight: "600" }}>{filter.tags?.join(", ")}</TableCell>
+                        <TableCell style={{ fontWeight: "600" }}>{filter.description || "—"}</TableCell>
+                        <TableCell>
                           <Box sx={{ display: "flex" }}>
-
-                            <Button variant="contained" color="success" size="small" onClick={() => handleApplyFilter(filter._id)} style={{ marginRight: 8 }}>Apply</Button>
-                            <Button variant="contained" color="warning" size="small" onClick={() => handleDuplicateFilter(filter._id)} >Duplicate</Button>
+                            <Button
+                              variant="contained"
+                              color="success"
+                              size="small"
+                              onClick={() => handleApplyFilter(filter._id)}
+                              style={{ marginRight: 8 }}
+                            >
+                              Apply
+                            </Button>
+                            <Button
+                              variant="contained"
+                              color="warning"
+                              size="small"
+                              onClick={() => handleDuplicateFilter(filter._id)}
+                            >
+                              Duplicate
+                            </Button>
 
                             <IconButton
                               onClick={(event) => {
-                                setSelectedActionFilterId(filter._id); // ✅ Store the correct filter ID
+                                setSelectedActionFilterId(filter._id);
                                 handleClick(event);
                               }}
                             >
                               <MoreVertIcon />
                             </IconButton>
 
-
                             <Menu
                               anchorEl={anchorEl}
                               open={open}
                               onClose={handleClose}
-                              anchorOrigin={{
-                                vertical: "bottom",
-                                horizontal: "center",
-                              }}
-                              transformOrigin={{
-                                vertical: "top",
-                                horizontal: "center",
-                              }}
+                              anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+                              transformOrigin={{ vertical: "top", horizontal: "center" }}
                             >
-                              <MenuItem
-                                onClick={() => {
-                                  if (selectedActionFilterId) navigate(`/edit-filter/${selectedActionFilterId}`);
-                                  handleClose();
-                                }}
-                              >
-                                Edit
-                              </MenuItem>
-
-                              <MenuItem
-                                onClick={() => {
-                                  if (selectedActionFilterId) handleDeleteFilter(selectedActionFilterId);
-                                  handleClose();
-                                }}
-                              >
-                                Delete
-                              </MenuItem>
-
+                              <MenuItem onClick={() => {
+                                if (selectedActionFilterId) navigate(`/edit-filter/${selectedActionFilterId}`);
+                                handleClose();
+                              }}>Edit</MenuItem>
+                              <MenuItem onClick={() => {
+                                if (selectedActionFilterId) handleDeleteFilter(selectedActionFilterId);
+                                handleClose();
+                              }}>Delete</MenuItem>
                             </Menu>
                           </Box>
                         </TableCell>
                       </TableRow>
-                    ))
+                    );
+                  })
                 ) : (
                   <TableRow>
-                    <TableCell colSpan={4}>No filters found</TableCell>
+                    <TableCell colSpan={5}>No filters found</TableCell>
                   </TableRow>
                 )}
               </TableBody>
+
             )}
           </Table>
         </TableContainer>
