@@ -18,7 +18,7 @@ import {
   MenuItem,
   IconButton,
   Select,
-  Container,
+  Alert,
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { CloseRounded, DragIndicator } from "@mui/icons-material";
@@ -666,8 +666,8 @@ const App: React.FC<FilterBuilderProps> = ({
 
 
   return (
-    <Container>
-      <Box>
+    
+      <Box sx={{ minWidth: "100%"}}>
         <Box sx={{ m: 2 }}>
           <Typography variant="h4" sx={{ mb: 2 }}>
             Build Your Audience Filter
@@ -700,7 +700,7 @@ const App: React.FC<FilterBuilderProps> = ({
         </Box>
         <DndProvider backend={HTML5Backend}>
           <Box sx={{ display: "flex", gap: 2, p: 2 }}>
-            <Card sx={{ p: 2, width: 300 }}>
+            <Card sx={{ p: 2, width: 335 }}>
               <Tabs value={activeTab} onChange={handleTabChange}>
                 {Object.keys(criteriaTabs).map((tab, index) => (
                   <Tab
@@ -1034,6 +1034,12 @@ const App: React.FC<FilterBuilderProps> = ({
           <Dialog open={isModalOpen} onClose={handleCloseModal}>
             <DialogTitle>Add New Criteria Block</DialogTitle>
             <DialogContent>
+            {warningMessage.length > 0 &&(
+                      <Alert variant='outlined' severity="warning" sx={{mb:1}}>
+                        {warningMessage}
+                      </Alert>
+                    )}
+
               <TextField
                 label="Name of Block"
                 fullWidth
@@ -1063,6 +1069,7 @@ const App: React.FC<FilterBuilderProps> = ({
                 label="Operator"
                 fullWidth
                 value={newCriteria.dataType ? operators[newCriteria.dataType] : ""}
+                // value={newCriteria.dataType ? operators[newCriteria.dataType] : ""}
                 onChange={(e) =>
                   setNewCriteria({
                     ...newCriteria,
@@ -1125,7 +1132,7 @@ const App: React.FC<FilterBuilderProps> = ({
           </Dialog>
         </DndProvider>
       </Box>
-    </Container>
+    
   );
 };
 
