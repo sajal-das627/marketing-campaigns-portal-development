@@ -19,6 +19,11 @@ import SaveIcon from '@mui/icons-material/Save';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import SendIcon from '@mui/icons-material/Send';
 
+import { RootState } from "../../redux/store";
+import {useAppDispatch} from '../../redux/hooks'
+import { createTemplateThunk } from "../../redux/slices/templateSlice";
+import { Template } from 'types/template';
+
 type TemplateType = 'Email' | 'SMS' | 'Basic' | 'Designed' | 'Custom';
 type CategoryType =
   | 'Promotional'
@@ -29,18 +34,6 @@ type CategoryType =
   | 'Action'
   | 'Product'
   | 'Holiday';
-
-interface Template {
-  name: string;
-  subject?: string;
-  type: TemplateType;
-  category: CategoryType;
-  tags: string[];
-  senderId: string;
-  campaign?: string;
-  includeOptOut: boolean;
-  content: { message: string };
-}
 
 const VARIABLE_OPTIONS = [
   'FirstName',
@@ -64,6 +57,7 @@ const TemplateEditor: React.FC<TemplateEditorProps> = ({
   campaigns = [],
 }) => {
   const [form, setForm] = useState<Template>({
+    _id: template?._id || '',
     name: template?.name || '',
     subject: template?.subject || '',
     type: template?.type || 'SMS',
@@ -73,7 +67,29 @@ const TemplateEditor: React.FC<TemplateEditorProps> = ({
     campaign: template?.campaign || '',
     includeOptOut: template?.includeOptOut ?? false,
     content: { message: template?.content.message || '' },
+    layout: template?.layout || 'Custom',
+    createdAt: template?.createdAt || '',
+    lastModified: template?.lastModified || '',
+    // approved: template?.approved ?? false,
+    // approvedBy: template?.approvedBy || '',
+    // approvedAt: template?.approvedAt || '',
+    favorite: template?.favorite ?? false,
+    isDeleted: template?.isDeleted ?? false,
+    version: template?.version ?? 1,
   });
+  // const [form, setForm] = useState<Template>({
+  //   name: template?.name || '',
+  //   subject: template?.subject || '',
+  //   type: template?.type || 'SMS',
+  //   category: template?.category || 'Transactional',
+  //   tags: template?.tags || [],
+  //   senderId: template?.senderId || '',
+  //   campaign: template?.campaign || '',
+  //   includeOptOut: template?.includeOptOut ?? false,
+  //   content: { message: template?.content.message || '' },
+  // });
+
+  const dispatch = useAppDispatch();
 
   const messageRef = useRef<HTMLTextAreaElement>(null);
 
@@ -102,9 +118,13 @@ const TemplateEditor: React.FC<TemplateEditorProps> = ({
     }, 0);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async(e: React.FormEvent) => {
     e.preventDefault();
+    
     console.log('Submitting template:', form);
+    await dispatch(createTemplateThunk(form));
+
+    console.log('Form Submitted')
     // TODO: send `form` to your API
   };
 

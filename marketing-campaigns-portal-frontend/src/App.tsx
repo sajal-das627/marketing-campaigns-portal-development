@@ -42,13 +42,16 @@ import CampaignWizard from "./components/CampaignWizard/CampaignWizard";
 import Dashboard from "./components/Dashboard";
 import FilterBuilder from "./components/FilterBuilder/FilterBuilder";
 import SavedFilters from "./components/FilterBuilder/SavedFilters";
-import ManageFilter from "./components/Filters";
-import CreateTemplates from "./components/Templates/CreateTemplates";
+import ManageFilter from "./components/ManageFilter/ManageFilter";
+// import ManageFilter from "./components/Filters";
+import CreateTemplates from "./components/Templates/SMSEmailModal";
+import EditFilter from "./components/FilterBuilder/EditFilter";
 // import TemplateManagementOld from "./components/Templates/TemplateManagementOld";
 import Templates from "./components/Templates/Templates";
 import Login from "./features/auth/Login";
 import EditorSample from './components/EditorSample/App/'
-import SMSEditor from './components/Templates/SMSEditor'
+import SMSEditor from './components/Templates/SMSEditor';
+import EmailTemplates from './components/Templates/EmailTemplates';
 // import Header from "layout/Header";
 
 import ResponsiveLayout from "layout/ResponsiveLayout";
@@ -89,10 +92,11 @@ const AppContent = () => {
               <Route path="/create-filters" element={<FilterBuilder />} />
               <Route path="/templates" element={<Templates />} />
               <Route path="/create-templates" element={<CreateTemplates />} />
-              {/* <Route path="/build-template" element={<EditorSample />} /> */}
+              <Route path="/email-templates" element={<EmailTemplates />} />
+              <Route path="/build-template" element={<EditorSample />} />
               <Route path="/build-sms" element={<SMSEditor />} />
               <Route path="/filters" element={<ManageFilter />} />
-
+              <Route path="/edit-filter/:id" element={<EditFilter />} />
               {/* <Route path="/templates-old" element={<TemplateManagementOld />} /> */}
             </Routes>
           </Box>

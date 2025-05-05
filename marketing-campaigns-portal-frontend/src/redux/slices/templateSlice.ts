@@ -10,8 +10,9 @@ import {
   deleteTemplateById,
   restoreTemplateById,  // ✅ newly imported
   duplicateTemplateById,
+  createTemplate,
 } from "../../api/apiClient";
-
+import { Template as TemplateType} from "../../types/template"; // Adjust the import path as necessary
 export interface Template {
   _id: string;
   name: string;
@@ -31,6 +32,22 @@ export interface TemplateQuery {
   page?: number;
   limit?: number;
 }
+
+
+export const createTemplateThunk = createAsyncThunk<any, TemplateType>(
+  "templates/createTemplate",
+  async (data: TemplateType, thunkAPI): Promise<any> => {
+    try {
+      const res: any = await createTemplate(data); // assumes same-named function from apiClient
+      return res.data;
+    } catch (err: any) {
+      return thunkAPI.rejectWithValue(
+        err.response?.data?.message || "Failed to create template"
+      );
+    }
+  }
+);
+
 
 export const getTemplates = createAsyncThunk(
   "templates/getTemplates",
@@ -222,6 +239,19 @@ const templateSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
+    .addCase(createTemplateThunk.pending, (state) => {
+      state.loading = true;
+      state.error = null;
+    })
+    .addCase(createTemplateThunk.fulfilled, (state, action) => {
+      state.loading = false;
+      state.allTemplates.unshift(action.payload);
+    })
+    .addCase(createTemplateThunk.rejected, (state, action) => {
+      state.loading = false;
+      state.error = action.payload as string;
+    })
+    
       .addCase(getTemplates.pending, (state) => {
         state.loading = true;
       })

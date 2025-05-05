@@ -29,10 +29,10 @@ interface Step2TemplatesProps {
 // Dummy template data with required properties
 const templates: Template[] = [
   {
-    id: new Types.ObjectId("65f8e3c5a9b7d1a8f4e12348"),
+    id: new Types.ObjectId("6814e2c6fc925201dd2b1404"),
     type: "Email",
     created_at: "2021-10-01",
-    title: "Welcome Email Template",
+    title: "May Email Template",
     description: "A warm welcome email template.",
     image: "/images/welcome-template.png",
   },

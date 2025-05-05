@@ -16,7 +16,17 @@ export interface Template {
     version: number
   
     // ← this is the JSON blob you need
-    content: TReaderDocument
+    // content: TReaderDocument
+
+    //remove below later
+    // approved : boolean;
+    // approvedBy: string;
+    // approvedAt: string;
+    senderId : string;
+    campaign : string;
+    includeOptOut : boolean;
+    content : any;
+
   }
 // export interface Template {
 //     _id: string;

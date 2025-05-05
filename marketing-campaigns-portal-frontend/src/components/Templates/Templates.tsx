@@ -23,9 +23,9 @@ import {
   Container,
   Menu,
   Button,
-  Dialog,
-  DialogActions,
-  DialogContent,
+  // Dialog,
+  // DialogActions,
+  // DialogContent,
   Tooltip,
   Divider,
   Grid2 as Grid,
@@ -56,6 +56,7 @@ import { useDebounce } from "use-debounce";
 import DeleteModal from "../Modals/DeleteModal";
 import CloseIcon from '@mui/icons-material/Close';
 import type { Template } from "../../redux/slices/templateSlice";
+import CustomPreview from "./CustomPreview";
 
 const TemplatesTable: React.FC = () => {
   
@@ -64,16 +65,28 @@ const TemplatesTable: React.FC = () => {
       // const openAnchor = Boolean(anchorEl);
   
     const dispatch = useDispatch();
+    // const {
+    //   allTemplates = [], recentTemplates = [], favoriteTemplates = [],
+    //   filters, totalPages, activeTab, selectedTemplate,
+    // } = useSelector((state: RootState) => state.template || {});
+
     const {
-      allTemplates = [], recentTemplates = [], favoriteTemplates = [],
-      filters, totalPages, activeTab, selectedTemplate,
+      allTemplates = [],
+      recentTemplates = [],
+      favoriteTemplates = [],
+      filters = { page: 1, limit: 10, type: "", category: "", sortBy: "" },
+      totalPages = 1,
+      activeTab = "all",
+      selectedTemplate = null,
     } = useSelector((state: RootState) => state.template || {});
 
+    console.log(allTemplates)
     const [isDeleteModalopen, setIsDeleteModalopen] = useState(false);
     const [openEditModal, setOpenEditModal] = useState(false);
     const [editName, setEditName] = useState("");
     const [editContent, setEditContent] = useState("");
     const [open, setOpen] = useState(false);
+    const [openIndex, setOpenIndex] = useState<string | null>(null);
     const [searchTerm, setSearchTerm] = useState("");
     const [debouncedSearch] = useDebounce(searchTerm, 500);
     const [totalLocalFavorites, setTotalLocalFavorites] = useState(1);
@@ -150,13 +163,17 @@ const TemplatesTable: React.FC = () => {
   
     const handleViewTemplate = (templateId: string) => {
       dispatch(getTemplateById(templateId) as any);
-      setOpen(true);
+      // setOpen(true);
+      console.log("view template", templateId);
+      setOpenIndex(templateId);
     };
   
     const handleClose = () => {
       setOpen(false);
-      dispatch(clearSelectedTemplate());
-      refreshActiveTab();
+      setOpenIndex(null);
+
+      // dispatch(clearSelectedTemplate());
+      // refreshActiveTab();
     };
   
     const handleFilterChange = (e: any) => {
@@ -679,6 +696,9 @@ const TemplatesTable: React.FC = () => {
                   <Typography variant="body2" color="#007BFF" fontWeight={500}>
                     View
                   </Typography>
+                  
+                  {/* <CustomPreview  key={template.id}  doc={template.design} html={template.html} open={openIndex === template.id} handleClose={handleClose}/> */}
+                  {/* <CustomPreview doc={template.content} /> */}
                 </Box>
               </Tooltip>
               <IconButton onClick={(e) => handleAnchorClick(e, template._id)}>
@@ -711,6 +731,11 @@ const TemplatesTable: React.FC = () => {
               </Menu>
             </Stack>
           </Card>
+          {/* {openIndex === template._id &&
+          ( 
+          <CustomPreview  key={selectedTemplate.id}  doc={selectedTemplate.design} html={selectedTemplate.html} open={openIndex === selectedTemplate.id} handleClose={handleClose}/>
+          )} */}
+
           </Grid>
         ))}
         </Grid>
@@ -735,7 +760,17 @@ const TemplatesTable: React.FC = () => {
             </Box>
       </Card>
 
-      <Modal open={open} onClose={handleClose}>
+      { selectedTemplate && selectedTemplate._id === openIndex && (
+                  <CustomPreview  key={selectedTemplate.id}  
+                  doc={selectedTemplate.design} 
+                  html={selectedTemplate.html} 
+                  // open={openIndex === selectedTemplate.id} 
+                  open={true}
+                  // handleClose={()=> setOpen(false)}/>
+                  handleClose={handleClose}/>
+      )}
+
+      {/* <Modal open={open} onClose={handleClose}>
         <Dialog
               open={open}
               onClose={handleClose}
@@ -806,7 +841,7 @@ const TemplatesTable: React.FC = () => {
             <Typography>Loading template...</Typography>
           )}
         </Dialog>
-      </Modal>
+      </Modal> */}
 
       <Modal open={openEditModal} onClose={handleCloseEditModal}>
         <Box sx={{ p: 4, bgcolor: "background.paper", m: "auto", mt: 8, width: 500, borderRadius: 2 }}>

@@ -8,12 +8,12 @@ import SearchIcon from "@mui/icons-material/Search";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import CloseIcon from '@mui/icons-material/Close';
-import DeleteModal from "./Modals/DeleteModal";
+import DeleteModal from "../Modals/DeleteModal";
 
-import { fetchFilters, applyFilter, duplicateFilterAsync, deleteFilterAsync, updateFilterAsync  } from "../redux/slices/filterSlice";
-import { RootState } from "../redux/store";
+import { fetchFilters, applyFilter, duplicateFilterAsync, deleteFilterAsync, updateFilterAsync  } from "../../redux/slices/filterSlice";
+import { RootState } from "../../redux/store";
 import { useSelector } from "react-redux";
-import {useAppDispatch} from "../redux/hooks";
+import {useAppDispatch} from "../../redux/hooks";
 import { useNavigate } from "react-router-dom";
 
 const ManageFilters = () => {
@@ -174,7 +174,7 @@ const ManageFilters = () => {
   
     if (newFilter && newFilter._id) {
       setHighlightedId(newFilter._id);
-      setTimeout(() => setHighlightedId(null), 3000);
+      setTimeout(() => setHighlightedId(null), 8000);
     }
   };
   
@@ -326,7 +326,10 @@ const ManageFilters = () => {
                       // && filter.isDraft == tabValue
                     )
                       .map((filter, index) => (
-                <TableRow key={filter._id} sx={{              
+                <TableRow key={filter._id} sx={{       
+                  boxShadow: filter._id === highlightedId
+                  ? 'inset 0px 0px 10px #ff9800'
+                  : 'inset 0px 0px 10px #fff',
                                       bgcolor: index%2 === 0? 'white' : '#FAFAFA', 
                 }}>
                   <TableCell>
@@ -362,7 +365,7 @@ const ManageFilters = () => {
                       }}
                     >
                       <MenuItem onClick={() => navigate(`/edit-filter/${filter._id}`)}>Edit</MenuItem>
-                      <MenuItem onClick={() => handleDeleteFilter(filter._id)}>Delete</MenuItem>
+                      <MenuItem onClick={() => openDeleteOneModal(filter._id)}>Delete</MenuItem>
                     </Menu>
                     </Box>
                   </TableCell>

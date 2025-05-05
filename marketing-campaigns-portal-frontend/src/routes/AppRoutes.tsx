@@ -8,8 +8,8 @@ import CampaignWizard from "../components/CampaignWizard/CampaignWizard";
 import Dashboard from "../components/Dashboard";
 import FilterBuilder from "../components/FilterBuilder/FilterBuilder";
 import SavedFilters from "../components/FilterBuilder/SavedFilters";
-import ManageFilter from "../components/Filters";
-import TemplateManagement from "../components/Templates/CreateTemplates";
+// import ManageFilter from "../components/Filters";
+import TemplateManagement from "../components/Templates/SMSEmailModal";
 import Login from "../features/auth/Login";
 // import Header from "layout/Header";
 
@@ -31,7 +31,7 @@ export const router = createBrowserRouter(
         <Route path="/create-filters" element={<FilterBuilder />} />
         <Route path="/templates" element={<TemplateManagement />} />
         <Route path="/create-templates" element={<TemplateManagement />} />
-        <Route path="/filters" element={<ManageFilter />} />
+        {/* <Route path="/filters" element={<ManageFilter />} /> */}
       </Route>
     )
   );
