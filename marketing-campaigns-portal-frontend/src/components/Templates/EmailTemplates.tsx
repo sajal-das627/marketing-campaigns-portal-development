@@ -4,8 +4,8 @@ import {
   Typography,
   Grid2 as Grid,
   Card,
-  CardMedia,
-  CardContent,
+  // CardMedia,
+  // CardContent,
   Button,
   Tabs,
   Tab,
@@ -15,37 +15,21 @@ import {
 //   Divider,
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
-import { 
-useDispatch,
- useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 import { getTemplates } from '../../redux/slices/templateSlice';
-
-
 import { RootState } from '../../redux/store';
 import { useAppDispatch } from '../../redux/hooks';
 import type { Template } from "../../redux/slices/templateSlice";
 import { Reader } from '@usewaypoint/email-builder';
 
-// interface Template {
-//   name: string;
-//   image: string;
-// }
-
-// const templates: Template[] = [
-//   { name: 'New Template', image: '/images/template1.png' },
-//   { name: 'Fantastic Template', image: '/images/template2.png' },
-//   { name: 'Intelligent Cotton Template', image: '/images/template3.png' },
-//   { name: 'Generic Fresh Tuna Template', image: '/images/template4.png' },
+// const sidebarTabs = [
+//   'All Basic Templates',
+//   'Custom',
+//   'Give an Update',
+//   'Make an Announcement',
+//   'Request Action',
+//   'Sell Product',
 // ];
-
-const sidebarTabs = [
-  'All Basic Templates',
-  'Custom',
-  'Give an Update',
-  'Make an Announcement',
-  'Request Action',
-  'Sell Product',
-];
 
 type EmailTemplateProps = {
     rootBlockId?: string;
@@ -54,11 +38,9 @@ type EmailTemplateProps = {
 
 export default function EmailTemplateGallery(props: EmailTemplateProps) {
   const [tabIndex, setTabIndex] = React.useState(0);
-  const [sidebarIndex, setSidebarIndex] = React.useState(0);
-  const [doc, setDoc] = useState<any>();
+  const [sidebarIndex, setSidebarIndex] = React.useState<string>('All');
     
   const dispatch = useAppDispatch();
-//   const dispatch = useDispatch();
 
   const templates  = useSelector(
     (state: RootState) => state.template.allTemplates
@@ -74,10 +56,8 @@ export default function EmailTemplateGallery(props: EmailTemplateProps) {
         limit: 65,
       }), []);
 
-    // const dispatch = useDispatch();
     useEffect(() => {
         dispatch(getTemplates(params));
-        // eslint-disable-next-line react-hooks/exhaustive-deps
       }, []);
 
       
@@ -87,11 +67,17 @@ export default function EmailTemplateGallery(props: EmailTemplateProps) {
     const navigate = useNavigate();
     const rootBlockId = 'root';
 
-    const decodeHTML = (html: string) => {
-        const txt = document.createElement("textarea");
-        txt.innerHTML = html;
-        return txt.value;
-    };
+    const sidebarTabs = ['All', ...new Set (
+      templates.map((temp)=>temp.category).filter(Boolean))];
+
+    console.log('sidebarTabs', sidebarTabs);
+    console.log('sidebarIndex', sidebarIndex);
+  //imp!
+    // const decodeHTML = (html: string) => {
+    //     const txt = document.createElement("textarea");
+    //     txt.innerHTML = html;
+    //     return txt.value;
+    // };
 
   return (
     <Box sx={{display:'flex', flexDirection:{xs:'column', md:'row'}, p:3 }} >
@@ -113,8 +99,8 @@ export default function EmailTemplateGallery(props: EmailTemplateProps) {
           {sidebarTabs.map((label, idx) => (
             <ListItemButton
               key={label}
-              selected={sidebarIndex === idx}
-              onClick={() => setSidebarIndex(idx)}
+              selected={sidebarIndex === label}
+              onClick={() => setSidebarIndex(label)}
             >
               <ListItemText primary={label} />
             </ListItemButton>
@@ -151,40 +137,31 @@ export default function EmailTemplateGallery(props: EmailTemplateProps) {
         <Grid container spacing={3} mt={2}>
           {templates
         //   .filter((template)=>template.type === 'Email')
+        .filter((template)=> (sidebarIndex === 'All' ? true :  template.category === sidebarIndex)
+           && (template.type === 'Email')
+          )
           .map((template: any) => (
-            <Grid size={{xs:12, sm:6, md:3 }} key={template._id}>
+            <Grid size={{xs:12, sm:6, md:6, lg: 6, xl:4 }} key={template._id}>
               <Card>
-              <Typography variant="h6">{template.name}</Typography>
               
-                <Box sx={{ width: '100%', maxHeight: '60vh', overflow: 'auto' }}>
+                {/* <Box sx={{ width: '100%', maxHeight: '60vh', overflow: 'auto' }}>
                 {template.html &&
-
                     <Box
-                    sx={{ width: '300px', height: '300px', overflow: 'auto', p: 2, m: 2 }}
+                    sx={{ width: '100%', height: '100%', overflow: 'hidden', p: 2, m: 2 }}
                     dangerouslySetInnerHTML={{ __html: decodeHTML(template.html) }}
                     />
                 }
-                </Box>
+                </Box> */}
         
-                    {template.content && template.content['root'] ? (
-                        <Reader document={template.content} rootBlockId="root" />
-                    ) : (
-                        <Typography variant="body2" color="textSecondary">
-                        — Invalid or Missing Document —
-                        </Typography>
-                    )}
+                {template.content && template.content[rootBlockId] ? (
+                    <Reader document={template.content} rootBlockId={rootBlockId} />
+                ) : (
+                    <Typography variant="body2" color="textSecondary">
+                    — Invalid or Missing Document —
+                    </Typography>
+                )}
+              <Typography sx={{color:'#6D6976', textAlign:'center'}}>{template.name}</Typography>
 
-                {/* <CardMedia
-                  component="img"
-                  height="240"
-                //   image={template.image}
-                  alt={template.name}
-                />
-                <CardContent>
-                  <Typography variant="subtitle1" align="center">
-                    {template.name}
-                  </Typography>
-                </CardContent> */}
               </Card>
             </Grid>
           ))}

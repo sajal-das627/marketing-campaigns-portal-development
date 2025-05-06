@@ -133,6 +133,8 @@ const TemplateEditor: React.FC<TemplateEditorProps> = ({
           p: 3, bgcolor: '#F8F9FE', maxWidth: '100%', overflow: 'hidden',
           // '& *': { color: '#495057' }
         }}>
+        <Box component="form" onSubmit={handleSubmit} >
+
       <Box
               display="flex"
               flexDirection={{ xs: 'column', md: 'row' }}
@@ -152,13 +154,14 @@ const TemplateEditor: React.FC<TemplateEditorProps> = ({
           <VisibilityIcon /> &nbsp; Preview
           </Button>
           
-          <Button  variant="contained"  color="success" sx={{ minWidth: '180px',  p: 1, m:1, ":hover": { bgcolor: 'green' } }}>
+          <Button type="submit" variant="contained"  color="success" sx={{ minWidth: '180px',  p: 1, m:1, ":hover": { bgcolor: 'green' } }}>
            <SaveIcon /> &nbsp; Save Template
           </Button>
         </Box>   
       </Box>   
 
-      <Box component="form" onSubmit={handleSubmit} p={3} bgcolor="background.paper"
+      <Box  p={3} bgcolor="background.paper"
+      // <Box component="form" onSubmit={handleSubmit} p={3} bgcolor="background.paper"
       sx={{
         '& .MuiOutlinedInput-notchedOutline': { border: 'none' }, 
           '&:hover .MuiOutlinedInput-notchedOutline': { border: 'none' },
@@ -253,7 +256,7 @@ const TemplateEditor: React.FC<TemplateEditorProps> = ({
           </Grid>
 
           {/* Sender ID */}
-          <Grid size={{xs:12, sm:6}} >
+          {/* <Grid size={{xs:12, sm:6}} >
             <TextField
               label="Sender ID"
               value={form.senderId}
@@ -262,10 +265,10 @@ const TemplateEditor: React.FC<TemplateEditorProps> = ({
               required
               fullWidth
             />
-          </Grid>
+          </Grid> */}
 
           {/* Campaign Select */}
-          <Grid size={{xs:12, sm:6}} >
+          {/* <Grid size={{xs:12, sm:6}} >
             <FormControl fullWidth sx={{bgcolor: "#F8F9FA", borderRadius: "6px", }} variant="outlined" size="medium">
               <InputLabel>Campaign</InputLabel>
               <Select
@@ -283,7 +286,7 @@ const TemplateEditor: React.FC<TemplateEditorProps> = ({
                 ))}
               </Select>
             </FormControl>
-          </Grid>
+          </Grid> */}
 
           {/* Category Select */}
           <Grid size={{xs:12, sm:6}} >
@@ -349,7 +352,7 @@ const TemplateEditor: React.FC<TemplateEditorProps> = ({
           </Grid>
 
           {/* Footer */}
-          <Grid size={{xs:12}} display="flex" justifyContent="space-between" alignItems="center">
+          {/* <Grid size={{xs:12}} display="flex" justifyContent="space-between" alignItems="center">
             <Typography>
               Approval Status:{' '}
               <Typography component="span" color="warning.main">
@@ -359,8 +362,9 @@ const TemplateEditor: React.FC<TemplateEditorProps> = ({
             <Button type="submit" variant="contained">
               Submit for Approval
             </Button>
-          </Grid>
+          </Grid> */}
         </Grid>
+      </Box>
       </Box>
     </Box>
   );

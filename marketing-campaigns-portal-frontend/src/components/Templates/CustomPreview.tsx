@@ -51,12 +51,12 @@ export default function CustomPreview({
       open={!!open}
       onClose={closeModal}
       fullWidth
-      maxWidth="sm"
+      // maxWidth="sm"
       sx={{
         '& .MuiDialog-paper': {
           width: '80vw',
           maxWidth: '500px',
-          maxHeight: 'none',
+          maxHeight: '100vh',
           borderRadius: '10px',
         },
       }}

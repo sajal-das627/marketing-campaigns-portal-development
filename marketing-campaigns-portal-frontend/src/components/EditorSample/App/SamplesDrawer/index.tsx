@@ -303,7 +303,7 @@ export default function SamplesDrawer() {
                 <Box sx={{display:"flex", alignItems:"center", gap:2 }}>
               <TextField
                     variant="outlined"
-                    placeholder="New Template"
+                    placeholder="New Template Name"
                     size="small"            
                     // value={search}
                     // onChange={}
@@ -318,7 +318,37 @@ export default function SamplesDrawer() {
                   <IconButton>
                     <EditIcon/>
                   </IconButton>
+                  
                   </Box>
+                  
+              <TextField
+                    variant="outlined"
+                    placeholder="Category"
+                    size="small"            
+                    // value={search}
+                    // onChange={}
+                    InputProps={{
+                      startAdornment: (
+                        <InputAdornment position="start">
+                        </InputAdornment>
+                      ),
+                    }} 
+                    sx={{ width: 200, backgroundColor: "#f5f5f5", mr:1 }}
+                  />
+              <TextField
+                    variant="outlined"
+                    placeholder="Tags"
+                    size="small"            
+                    // value={search}
+                    // onChange={}
+                    InputProps={{
+                      startAdornment: (
+                        <InputAdornment position="start">
+                        </InputAdornment>
+                      ),
+                    }} 
+                    sx={{ width: 200, backgroundColor: "#f5f5f5", mr:1 }}
+                  />
         
                 <Typography variant="h6">Blocks</Typography>
                 {BLOCK_TYPES.map((type) => (

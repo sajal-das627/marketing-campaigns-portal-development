@@ -85,7 +85,6 @@ const TemplatesTable: React.FC = () => {
     const [openEditModal, setOpenEditModal] = useState(false);
     const [editName, setEditName] = useState("");
     const [editContent, setEditContent] = useState("");
-    const [open, setOpen] = useState(false);
     const [openIndex, setOpenIndex] = useState<string | null>(null);
     const [searchTerm, setSearchTerm] = useState("");
     const [debouncedSearch] = useDebounce(searchTerm, 500);
@@ -169,7 +168,6 @@ const TemplatesTable: React.FC = () => {
     };
   
     const handleClose = () => {
-      setOpen(false);
       setOpenIndex(null);
 
       // dispatch(clearSelectedTemplate());
@@ -762,12 +760,13 @@ const TemplatesTable: React.FC = () => {
 
       { selectedTemplate && selectedTemplate._id === openIndex && (
                   <CustomPreview  key={selectedTemplate.id}  
-                  doc={selectedTemplate.design} 
+                  doc={selectedTemplate.content} 
                   html={selectedTemplate.html} 
-                  // open={openIndex === selectedTemplate.id} 
+                  // open={openIndex === selectedTemplate.id ? true : false} 
                   open={true}
                   // handleClose={()=> setOpen(false)}/>
-                  handleClose={handleClose}/>
+                  handleClose={handleClose}
+                  />
       )}
 
       {/* <Modal open={open} onClose={handleClose}>
