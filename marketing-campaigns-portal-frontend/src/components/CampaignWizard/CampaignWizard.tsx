@@ -498,7 +498,7 @@ export default function CampaignCreator() {
                   </Button>
                   <SuccessModal open={open} onClose={() => setOpen(false)}
                   title={id? "Campaign Updated Successfully" : "Campaign Created Successfully"}
-                  message={`"${audienceName}" Filter Saved Successfully`} />                    
+                  message={`"${campaignData.name}" Campaign Saved Successfully`} />                    
                 </Grid>
               </Grid>
               

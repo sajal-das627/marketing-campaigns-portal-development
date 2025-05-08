@@ -3,6 +3,8 @@ import {
   Typography, Box, Tabs, Tab, TextField, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Checkbox, Button, Select, MenuItem, InputAdornment, IconButton, Menu,
   SelectChangeEvent, Snackbar, Alert,
   Divider, Modal,
+  DialogActions,
+  Dialog,
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
@@ -412,7 +414,7 @@ const ManageFilters = () => {
       </div>
 
       {/* Modal for Applied Filter */}
-      <Modal open={openModal} onClose={() => setOpenModal(false)}>
+      {/* <Modal open={openModal} onClose={() => setOpenModal(false)}>
         <Box sx={{
           position: "absolute",
           top: "50%",
@@ -421,37 +423,83 @@ const ManageFilters = () => {
           width: 450,
           bgcolor: "background.paper",
           boxShadow: 24,
-          p: 4,
+          p: 2,
           borderRadius: 2,
-        }}>
-          <IconButton sx={{ position: "absolute", top: 8, right: 8 }} onClick={() => setOpenModal(false)}>
-            <CloseIcon />
-          </IconButton>
-          <Typography variant="h6" gutterBottom>
-            Saved Filters
-          </Typography>
+        }}> */}
+<Dialog
+      open={openModal}
+      onClose={() => setOpenModal(false)}
+      fullWidth
+      // maxWidth="sm"
+      aria-labelledby="filter-modal-title"
+      sx={{borderRadius: "10px", 
+        "& .MuiPaper-root": {
+          maxWidth:'550px',
+          // width: '100%',
+          // height: '100%',
+        },
+        // "& .MuiDialog-paper": { width: "80vw", maxWidth: "none" , height: "80vh", maxHeight:"none"},
+      }}
+    >
+
+          <Box sx={{ bgcolor: '#0057D9', width:'100%', height: 35, display:'flex', justifyContent:'space-between'}}> 
+            <Typography sx={{color: "white", ml:2,mt:0.5}}>Saved&nbsp;Filter</Typography> 
+            <IconButton onClick={() => setOpenModal(false)}>
+              <CloseIcon sx={{color:"white"}} />
+              </IconButton>
+          </Box>
           <Divider sx={{ marginBottom: 2 }} />
           {appliedFilter ? (
-            <div>
-              <Typography><strong>Filter Name:</strong> {appliedFilter.name}</Typography>
-              <Typography><strong>Description:</strong> {appliedFilter.description || "No description"}</Typography>
-              <Typography><strong>Tags:</strong> {appliedFilter.tags?.join(", ") || "N/A"}</Typography>
-              <Typography><strong>Last Used:</strong> {appliedFilter.lastUsed}</Typography>
-              <Typography><strong>CTR %:</strong> {appliedFilter.ctr}</Typography>
-              <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 10 }}>
+            <>
+              <Box
+                    sx={{
+                      display: "grid",
+                      gridTemplateColumns: "150px auto",
+                      gap: 2,
+                      width:'100%',
+                      // maxWidth: "450px",
+                      p:2,
+                    }}
+                  >
+                    <Typography sx={{color:'#A3AABC'}}>Filter Name -</Typography>
+                    <Typography sx={{color:'#6D6976'}}>{appliedFilter.name}</Typography>
+              
+                    <Typography sx={{color:'#A3AABC'}}>Description -</Typography>
+                    <Typography sx={{color:'#6D6976'}}>{appliedFilter.description}</Typography>
+              
+                    <Typography sx={{color:'#A3AABC'}}>Tags -</Typography>
+                    <Typography sx={{color:'#6D6976'}}>{appliedFilter.tags.toString().split(",").join(", ")}</Typography>
+              
+                    <Typography sx={{color:'#A3AABC'}}>Last Used -</Typography>
+                    <Typography sx={{color:'#6D6976'}}>{appliedFilter.lastUsed}</Typography>
+              
+                    <Typography sx={{color:'#A3AABC'}}>CTR % -</Typography>
+                    <Typography sx={{color:'#6D6976'}}>{appliedFilter.ctr}</Typography>
+              
+                  </Box>
+                  <DialogActions>
+                  <Button variant="outlined" onClick={() => setOpenModal(false)} sx={{ marginRight: 1, bgcolor:"#EBEBEB", color:"#6D6976"}}>
+                  Cancel
+                </Button>
+                <Button variant="contained" color="primary" sx={{bgcolor:"#0057D9"}} onClick={() => setOpenModal(false)}>
+                  Reuse for New Campaign
+                </Button>
+                        </DialogActions>
+              {/* <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 10 }}>
                 <Button variant="outlined" onClick={() => setOpenModal(false)} sx={{ marginRight: 1 }}>
                   Cancel
                 </Button>
                 <Button variant="contained" color="primary" onClick={() => setOpenModal(false)}>
                   Reuse for New Campaign
                 </Button>
-              </div>
-            </div>
+              </div> */}
+              
+            </>
+            
           ) : (
             <Typography>Loading filter details...</Typography>
           )}
-        </Box>
-      </Modal>
+          </Dialog>
 
       {/* Edit Filter Modal */}
       <Modal open={editModalOpen} onClose={() => setEditModalOpen(false)}>

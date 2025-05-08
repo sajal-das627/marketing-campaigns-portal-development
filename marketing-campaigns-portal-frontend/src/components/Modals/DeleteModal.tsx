@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import { Dialog, DialogActions, DialogContent, DialogTitle, Button, Typography } from "@mui/material";
 import DeleteIcon from '@mui/icons-material/Delete';
-import CheckCircleOutlineIcon  from '@mui/icons-material/CheckCircleOutline';
+import CheckCircleIcon  from '@mui/icons-material/CheckCircle';
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
 import CancelIcon from '@mui/icons-material/Cancel';
 
@@ -18,7 +18,7 @@ interface AllModalProps {
 
 const iconMap = {
   delete: DeleteIcon,
-  success: CheckCircleOutlineIcon,
+  success: CheckCircleIcon,
   error: ErrorOutlineIcon,
   cancel: CancelIcon,
 };
@@ -39,7 +39,7 @@ const DynamicIcon: React.FC<DynamicIconProps> = ({ type, sx = {} }) => {
         setClr("#F83738");
         break;
       case 'success':
-        setClr("#4CAF50");
+        setClr("#0057D9");
         break;
       case 'error':
         setClr("#F44336");
@@ -53,9 +53,12 @@ const DynamicIcon: React.FC<DynamicIconProps> = ({ type, sx = {} }) => {
   },[type])
   // common style object
   const iconStyle = {
-    fontSize: '30px',
-    color: 'white',
-    bgcolor: clr,
+    fontSize: '44px',
+    color: clr,
+    // fontSize: '30px',
+    // color: 'white',
+    
+    // bgcolor: clr,
     borderRadius: '25px',
     p: 0.7,
     ...sx,
