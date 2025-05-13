@@ -34,7 +34,7 @@ import {
   //  AppBar,
    Box, CssBaseline, Toolbar } from "@mui/material";
 // import Sidebar from "layout/Sidebar";
-import { Route, BrowserRouter as Router, Routes, useLocation } from "react-router-dom";
+import { Route, BrowserRouter as Router, Routes, useLocation, matchPath } from "react-router-dom";
 import ActivityLogs from "./components/ActivityLogs";
 import Analytics from "./components/Analytics";
 import Campaigns from "./components/Campaigns";
@@ -57,21 +57,24 @@ import EmailTemplates from './components/Templates/EmailTemplates';
 import { DndProvider,} from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 import ResponsiveLayout from "layout/ResponsiveLayout";
-import EditTemplates from "./components/Templates/EditTemplates";
 // const drawerWidth = 240;
+
+
 
 const AppContent = () => {
   const location = useLocation();
+  const match = matchPath('/build-template/:id', location.pathname);
 
   return (
     <>
       {/* <Header drawerWidth={drawerWidth}/>
       <Sidebar drawerWidth={drawerWidth}/> */}
 
-      {location.pathname === '/build-template'? (
+      {match ? (
         <Routes>
-          <Route path="/build-template" element={<EditorSample />} />
-        </Routes>  
+          <Route path="/build-template/:id" element={<EditorSample />} />
+        </Routes>
+       
       ):(
         <Box sx={{ display: 'flex' }}>
           <CssBaseline />
@@ -95,11 +98,10 @@ const AppContent = () => {
               <Route path="/templates" element={<Templates />} />
               <Route path="/create-templates" element={<CreateTemplates />} />
               <Route path="/email-templates" element={<EmailTemplates />} />
-              <Route path="/build-template" element={<EditorSample />} />
+              <Route path="/build-template/:id" element={<EditorSample />} />
               <Route path="/build-sms" element={<SMSEditor />} />
               <Route path="/filters" element={<ManageFilter />} />
               <Route path="/edit-filter/:id" element={<EditFilter />} />
-              <Route path="/templates1" element={<EditTemplates />} />
               
               {/* <Route path="/templates-old" element={<TemplateManagementOld />} /> */}
             </Routes>

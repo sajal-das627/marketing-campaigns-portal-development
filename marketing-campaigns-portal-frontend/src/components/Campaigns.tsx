@@ -20,7 +20,6 @@ import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import SearchIcon from "@mui/icons-material/Search";
 // import { ThemeContext } from "@emotion/react";
 import { CampaignData } from "types/campaign";
-import EditCampaignModal from "./EditCampaignModal";
 import DeleteConfirmationModal from "./Modals/DeleteModal";
 import 
 // dayjs, 
@@ -35,7 +34,6 @@ interface CampaignProp {
 
 const Campaigns: React.FC<CampaignProp> = () => {
   const [selectedCampaign, setSelectedCampaign] = useState<CampaignData | null>(null);
-  const [isEditModalOpen, setEditModalOpen] = useState(false);
   const [isEmptyCampaign, setIsEmptyCampaign] = useState(false);
   const [isDeleteModalopen, setIsDeleteModalopen] = useState(false);
   const { campaigns, loading, error, pagination } = useSelector((state: RootState) => state.campaign);
@@ -549,14 +547,6 @@ const Campaigns: React.FC<CampaignProp> = () => {
         <Typography>Page {pagination.page || 1} of {pagination.totalPages || 1}</Typography>
         <Button onClick={nextPage} disabled={filters.page >= (pagination.totalPages || 1)}>Next</Button>
       </Box>    
-
-      {selectedCampaign && (
-        <EditCampaignModal
-          open={isEditModalOpen}
-          handleClose={() => setEditModalOpen(false)}
-          campaign={selectedCampaign}
-        />
-      )}
 
     </TableContainer>
     </Container>

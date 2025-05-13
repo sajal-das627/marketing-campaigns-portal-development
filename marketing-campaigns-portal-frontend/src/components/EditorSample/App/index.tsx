@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 import { Stack, useTheme } from '@mui/material';
 // import { Box } from '@mui/material';
@@ -12,7 +12,14 @@ import
 import TemplatePanel from './TemplatePanel';
 // import BlocksDrawer from './BlockDrawer/BlockDrawer';
 import EditTemplateMain from './BlockDrawer/EditTemplateMain'
-import { Template } from 'types/template';
+import { Template } from '../../../types/template';
+import { useParams } from 'react-router-dom';
+import { getTemplateById, } from "../../../redux/slices/templateSlice";
+import { useAppDispatch } from "../../../hooks/useAppDispatch";
+import { useSelector } from "react-redux" ;
+import { RootState } from "../../../redux/store";
+import { resetDocument } from '../documents/editor/EditorContext';
+
 const SAMPLES_DRAWER_WIDTH = 240;
 
 function useDrawerTransition(cssProperty: 'margin-left' | 'margin-right', open: boolean) {
@@ -36,6 +43,8 @@ export default function App({template}: TemplateEditorProps) {
   const [open, setOpen] = useState<Boolean>(true);
   const inspectorDrawerOpen = useInspectorDrawerOpen();
   const samplesDrawerOpen = useSamplesDrawerOpen();
+  const [isEditMode, setIsEditMode] = useState<boolean>();
+
   // const [template, setTemplate] = useState<Template>();
   const [templateDetails, setTemplateDetails] = useState<Template>({
       _id: template?._id || '',
@@ -61,6 +70,103 @@ export default function App({template}: TemplateEditorProps) {
   const handleClose = () =>{
     setOpen(false);
   }
+  //edit part
+  const dispatch = useAppDispatch();
+  // Replace 'templateData' with the actual property name from your TemplateState that holds the template object
+    const templateFromApi = useSelector((state: RootState) => state.template.selectedTemplate as Template || null);
+
+  const resetState = () => {
+    setTemplateDetails({
+      _id: '',
+      name:  '',
+      subject: '',
+      type:  'Email',
+      category: 'Promotional',
+      tags:  [],
+      senderId: '',
+      campaign: '',
+      includeOptOut: false,
+      content: { message: '' },
+      layout:  'Custom',
+      createdAt: '',
+      lastModified: '',
+      favorite: false,
+      isDeleted: false,
+      version: 1,
+    });
+    resetDocument({});
+  }
+
+  const { id } = useParams<{id: string}>();
+  // const id = '68220f25c305eea6017e4104';
+  console.log('id', id);
+  useEffect(() => {
+      if (!id) resetState();
+    }, [id]);
+  useEffect(() => {
+      const CheckData = async() =>{       
+        if (id) {
+          await dispatch(getTemplateById(id) as any);
+          
+          setIsEditMode(true);
+        } 
+      }
+      CheckData();
+    }, [id, dispatch]);
+
+    function isValidEmailBuilderJson(content: any) {
+      return (
+        content &&
+        typeof content === 'object' &&
+        content.root &&
+        typeof content.root === 'object' &&
+        typeof content.root.type === 'string'
+      );
+    }
+    
+    useEffect(() => {
+      if (templateFromApi) {
+        setTemplateDetails((prev) => ({
+          ...prev,
+          ...templateFromApi,
+          tags: templateFromApi.tags ?? [],
+        }));
+    
+        if (isValidEmailBuilderJson(templateFromApi.content)) {
+          resetDocument(templateFromApi.content);
+        } else {
+          console.warn("Invalid or incomplete template JSON", templateFromApi.content);
+          // fallback empty template
+          resetDocument({
+            root: {
+              type: "EmailLayout",
+              data: {
+                childrenIds: [],
+              },
+            },
+          });
+        }
+      }
+    }, [templateFromApi]);
+    
+
+
+  // useEffect(() => {
+  //   if (templateFromApi) {
+  //     const FetchData = async() =>{
+  //       console.log('templateFromApi', templateFromApi)
+  //       setTemplateDetails(prev => ({
+  //         ...prev,
+  //         ...templateFromApi,
+  //         tags: templateFromApi.tags ?? [],
+  //       }));
+  //       await resetDocument(templateFromApi.content);
+  //     }
+  //     FetchData();
+  //   }
+  // }, [templateFromApi]);
+
+
   return (
     <>
     {/* // Box  

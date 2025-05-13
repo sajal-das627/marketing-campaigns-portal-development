@@ -59,6 +59,7 @@ import DeleteModal from "../Modals/DeleteModal";
 import CloseIcon from '@mui/icons-material/Close';
 import type { Template } from "../../redux/slices/templateSlice";
 import CustomPreview from "./CustomPreview";
+import { useNavigate, useNavigation } from "react-router-dom";
 
 const TemplatesTable: React.FC = () => {
   
@@ -97,6 +98,7 @@ const TemplatesTable: React.FC = () => {
     const [view, setView] = useState<'list' | 'grid'>('list');
     const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
+    const navigation = useNavigate();
     useEffect(() => {
       dispatch(setFilters({ page: 1 }));
     }, [debouncedSearch, filters.type, filters.category, filters.sortBy, dispatch]);
@@ -187,7 +189,8 @@ const TemplatesTable: React.FC = () => {
   
     const handleEditClick = async (id: string) => {
       await dispatch(getTemplateById(id) as any);
-      setOpenEditModal(true);
+      // setOpenEditModal(true);
+       navigation(`/build-template/${id}`);
     };
   
     const handleCloseEditModal = () => {

@@ -183,21 +183,21 @@ const Step2Templates: React.FC<Step2TemplatesProps> = ({ handleChange, campaignD
       <Typography variant="h6">Choose Template</Typography>
 
       <FormControl variant="outlined" size="small" sx={{ minWidth: {xs: 225}, bgcolor: "#F8F9FA", borderRadius: "6px", marginRight:"auto", mt: 1}}>
-                      <InputLabel htmlFor="status-select" sx={{ fontSize: "14px", boxSizing:"border-box", display: "flex", alignItems: "center", }}>
-                        <SearchIcon />&nbsp;Search by templates or tags
-                      </InputLabel>        
-                      <InputBase
-                      value={searchTerm}
-                      onChange={(e) => setSearchTerm(e.target.value)}
-                      name="search"
-                      sx={{
-                        fontSize: "14px",
-                        width: "100%",
-                        pt:0.5, 
-                        pb:1,         
-                      }}
-                    />      
-                    </FormControl>
+        <InputLabel htmlFor="status-select" sx={{ fontSize: "14px", boxSizing:"border-box", display: "flex", alignItems: "center", }}>
+          <SearchIcon />&nbsp;Search by templates or tags
+        </InputLabel>        
+        <InputBase
+        value={searchTerm}
+        onChange={(e) => setSearchTerm(e.target.value)}
+        name="search"
+        sx={{
+          fontSize: "14px",
+          width: "100%",
+          pt:0.5, 
+          pb:1,         
+        }}
+      />      
+      </FormControl>
 
       <Container maxWidth="lg" sx={{ p: 2 }}>
         {/* Notification Type Selector */}
