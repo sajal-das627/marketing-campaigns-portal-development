@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-
+import { Box } from '@mui/material';
 import { renderToStaticMarkup } from '@usewaypoint/email-builder';
 
 import { useDocument } from '../../documents/editor/EditorContext';
@@ -9,7 +9,11 @@ import HighlightedCodePanel from './helper/HighlightedCodePanel';
 export default function HtmlPanel() {
   const document = useDocument();
   const code = useMemo(() => renderToStaticMarkup(document, { rootBlockId: 'root' }), [document]);
-  return <HighlightedCodePanel type="html" value={code} />;
+  return (
+  <Box sx={{color: 'white', bgcolor:'black'}}>
+      <HighlightedCodePanel type="html" value={code} />;
+  </Box>
+  )
 }
 
 

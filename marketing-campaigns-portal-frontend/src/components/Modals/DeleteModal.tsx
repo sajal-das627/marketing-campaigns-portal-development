@@ -4,7 +4,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import CheckCircleIcon  from '@mui/icons-material/CheckCircle';
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
 import CancelIcon from '@mui/icons-material/Cancel';
-
+import WarningIcon from '@mui/icons-material/Warning';
 interface AllModalProps {
   open: boolean;
   handleClose: () => void;
@@ -21,10 +21,11 @@ const iconMap = {
   success: CheckCircleIcon,
   error: ErrorOutlineIcon,
   cancel: CancelIcon,
+  warning: WarningIcon,
 };
 
 interface DynamicIconProps {
-  type: 'delete' | 'success' | 'error' | 'cancel';
+  type: 'delete' | 'success' | 'error' | 'cancel' | 'warning';
   // Optional
   sx?: object;
 }
@@ -45,6 +46,9 @@ const DynamicIcon: React.FC<DynamicIconProps> = ({ type, sx = {} }) => {
         setClr("#F44336");
         break;
       case 'cancel':
+        setClr("#FF9800");
+        break;
+      case 'warning':
         setClr("#FF9800");
         break;
       default:

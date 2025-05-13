@@ -29,6 +29,8 @@ import {
   Tooltip,
   Divider,
   Grid2 as Grid,
+  Alert,
+  Snackbar,
 
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
@@ -93,7 +95,7 @@ const TemplatesTable: React.FC = () => {
     // const [localTemplates, setLocalTemplates] = useState(allTemplates);
     const [menuAnchorEl, setMenuAnchorEl] = useState<Record<string, HTMLElement | null>>({});
     const [view, setView] = useState<'list' | 'grid'>('list');
-
+    const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
     useEffect(() => {
       dispatch(setFilters({ page: 1 }));
@@ -215,6 +217,7 @@ const TemplatesTable: React.FC = () => {
       setSelectedId(id);
       setIsDeleteModalopen(true);
       setMenuAnchorEl(({}));
+      
       // }
     };
     const handleConfirmDelete = async() => {
@@ -224,6 +227,9 @@ const TemplatesTable: React.FC = () => {
           setIsDeleteModalopen(false);
           refreshActiveTab();
           // setShowDeleteAlert(true);
+          
+          setSuccessMessage("Template Deleted Successfully");
+          setTimeout(() => setSuccessMessage(null), 3000);
         }
         setIsDeleteModalopen(false);
       };
@@ -266,89 +272,14 @@ const TemplatesTable: React.FC = () => {
     setHighlightedId(duplicated._id);
     setMenuAnchorEl(({}));
     setTimeout(() => setHighlightedId(null), 8000);
+    setSuccessMessage("Template Cloned Successfully");
+    setTimeout(() => setSuccessMessage(null), 3000);
   };
-  
-  //delete
-    // const handleDuplicateTemplate = async (id: string) => {
-    //   // dispatch the thunk and wait for the fulfilled action
-    //   const res: any = await dispatch(duplicateTemplate(id) as any);
     
-    //   // check that it actually succeeded
-    //   if (duplicateTemplate.fulfilled.match(res)) {
-    //     // extract the duplicated template from whatever your API returns
-    //     const duplicated: Template = res.payload.template;
-    
-    //     let newList: Template[];
-    
-    //     if (activeTab === "all") {
-    //       // find the original’s position
-    //       const idx = allTemplates.findIndex((t) => t._id === id);
-    //       newList = [...allTemplates];
-    //       // insert the duplicate right after it
-    //       newList.splice(idx + 1, 0, duplicated);
-    //       dispatch(setAllTemplates(newList));
-    
-    //     } else if (activeTab === "recent") {
-    //       const idx = recentTemplates.findIndex((t) => t._id === id);
-    //       newList = [...recentTemplates];
-    //       newList.splice(idx + 1, 0, duplicated);
-    //       dispatch(setRecentTemplates(newList));
-    
-    //     } else {
-    //       const idx = favoriteTemplates.findIndex((t) => t._id === id);
-    //       newList = [...favoriteTemplates];
-    //       newList.splice(idx + 1, 0, duplicated);
-    //       dispatch(setFavoriteTemplates(newList));
-    //     }
-    
-    //     // now highlight it
-    //     setHighlightedId(duplicated._id);
-    
-    //     // clear the highlight after a couple seconds
-    //     setTimeout(() => setHighlightedId(null), 3000);
-    //   }
-    // };
-    
-  // const handleDuplicateTemplate = async (id: string) => {
-  //   const res: any = await dispatch(duplicateTemplate(id) as any);
-  //   console.log("Duplicated response:", res.payload);
-  //   if (res.payload) {
-  //     const duplicated = res.payload.template;
-
-  //     if (activeTab === "all") {
-  //       // Add to the end of allTemplates
-  //       const newList = [...allTemplates, duplicated];
-  //       dispatch(setAllTemplates(newList));
-  //     } else if (activeTab === "recent") {
-  //       const newList = [...recentTemplates, duplicated];
-  //       dispatch(setRecentTemplates(newList));
-  //     } else if (activeTab === "favorite") {
-  //       const newList = [...favoriteTemplates, duplicated];
-  //       dispatch(setFavoriteTemplates(newList));
-  //     }
-  //   }
-  // };
-
-    // const handleDuplicateTemplate = async (id: string) => {
-    //   const newTemplate = await dispatch(duplicateTemplate(id) as any).unwrap(); // 👈 get the result directly
-    
-    //   setLocalTemplates((prev) => {
-    //     const index = prev.findIndex((tpl) => tpl._id === id);
-    //     if (index === -1) return prev;
-      
-    //     const updated = [...prev];
-    //     updated.splice(index + 1, 0, newTemplate); // insert right after
-    //     return updated;
-    //   });
-      
-    // };
-    
-    
-  
     const templatesToShow =
       activeTab === "all" ? allTemplates :
-        activeTab === "recent" ? recentTemplates :
-          favoriteTemplates;
+      activeTab === "recent" ? recentTemplates :
+      favoriteTemplates;
   
     // const isTemplateFavorite = (template: any) =>
     //   template.isFavorite === true || template.favorite === true;
@@ -364,6 +295,19 @@ const TemplatesTable: React.FC = () => {
       <Typography sx={{ fontSize: "26px", }} gutterBottom>
               Template Dashboard
             </Typography>
+              <Snackbar
+              open={successMessage? true : false}
+              autoHideDuration={3000}
+              onClose={() => setSuccessMessage(null)}
+              anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+              // sx={{mt:8}}
+            >
+               <Alert severity="success" onClose={() => setSuccessMessage(null)} sx={{ width: '100%' }}>
+                  {successMessage}
+                </Alert>
+            </Snackbar>
+              
+
       <Card sx={{p:2}}>
              
       {/* Top Tabs */}
@@ -372,8 +316,6 @@ const TemplatesTable: React.FC = () => {
         <Tab label="Recently Used" value={"recent"} />
         <Tab label="Favourites" value={"favorite"} />
       </Tabs>
-
-
 
       {/* Search and Filters */}
       <Stack direction="row" spacing={2} alignItems="center" mb={2} sx={{justifyContent:'space-between',}}>
@@ -571,8 +513,42 @@ const TemplatesTable: React.FC = () => {
                   label={template.category}
                   size="small"
                   sx={{
-                    color: template.category === 'Promotional' ? '#2B8A3E' : template.category === 'Transactional' ? '#FD7E14' : '#0057D9',
-                    backgroundColor: template.category === 'Promotional' ? '#DFFFE5' : template.category === 'Transactional' ? '#FFECDD' : '#E0ECFF',
+                  color:
+                  template.category === 'Promotional' 
+                  ? '#2B8A3E'
+                   : template.category === 'Transactional' 
+                   ? '#FD7E14' 
+                   : template.category === 'Event Based' 
+                   ? '#0057D9'
+                  : template.category === 'Announcement'
+                  ? '#F83738'
+                  : template.category === 'Action'
+                  ? '#0057D9'
+                  : template.category === 'Product'
+                  ? '#c0b000'
+                  : template.category === 'Update'
+                  ? '#04dcd1'
+                  : template.category === 'New'
+                  ? '#a7690b'
+                  : '#52B141',
+              bgcolor:
+                template.category === 'Promotional' 
+                ? '#DFFFE5'
+                 : template.category === 'Transactional' 
+                 ? '#FFECDD' 
+                 : template.category === 'Event Based' 
+                 ? '#E0ECFF'
+                : template.category === 'Announcement'
+                ? '#F8DDDD'
+                : template.category === 'Action'
+                ? '#E2ECFC'
+                : template.category === 'Product'
+                ? '#f9f7e2'
+                : template.category === 'Update'
+                ? '#e2f6f9'
+                : template.category === 'New'
+                ? '#f8e3c5'
+                : '#E6F5E3',
                     fontWeight: 500,
                   }}
                 />
@@ -655,8 +631,42 @@ const TemplatesTable: React.FC = () => {
                 label={template.category}
                 size="small"
                 sx={{
-                  backgroundColor: template.category === 'Promotional' ? '#DFFFE5' : template.category === 'Transactional' ? '#FFECDD' : '#E0ECFF',
-                  color: template.category === 'Promotional' ? '#2B8A3E' : template.category === 'Transactional' ? '#FD7E14' : '#0057D9',
+                  color:
+                    template.category === 'Promotional' 
+                    ? '#2B8A3E'
+                     : template.category === 'Transactional' 
+                     ? '#FD7E14' 
+                     : template.category === 'Event Based' 
+                     ? '#0057D9'
+                    : template.category === 'Announcement'
+                    ? '#F83738'
+                    : template.category === 'Action'
+                    ? '#0057D9'
+                    : template.category === 'Product'
+                    ? '#c0b000'
+                    : template.category === 'Update'
+                    ? '#04dcd1'
+                    : template.category === 'New'
+                    ? '#a7690b'
+                    : '#52B141',
+                bgcolor:
+                  template.category === 'Promotional' 
+                  ? '#DFFFE5'
+                   : template.category === 'Transactional' 
+                   ? '#FFECDD' 
+                   : template.category === 'Event Based' 
+                   ? '#E0ECFF'
+                  : template.category === 'Announcement'
+                  ? '#F8DDDD'
+                  : template.category === 'Action'
+                  ? '#E2ECFC'
+                  : template.category === 'Product'
+                  ? '#f9f7e2'
+                  : template.category === 'Update'
+                  ? '#e2f6f9'
+                  : template.category === 'New'
+                  ? '#f8e3c5'
+                  : '#E6F5E3',
                   fontWeight: 500
                 }}
               />

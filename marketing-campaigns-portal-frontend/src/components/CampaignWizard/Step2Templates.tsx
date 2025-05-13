@@ -1,8 +1,10 @@
 import React, {
   useState,
   useMemo, 
-  useEffect} from "react";
+  useEffect,
+  Suspense} from "react";
 import VisibilityIcon from '@mui/icons-material/Visibility';
+import SearchIcon from '@mui/icons-material/Search';
 import { Types } from "mongoose";
 import {
   IconButton,
@@ -19,15 +21,21 @@ import {
   // Paper,
   Container,
   Grid2 as Grid,
+  InputLabel,
+  InputBase,
 } from "@mui/material";
 import { CampaignData } from '../../types/campaign';
 import { Template } from '../../types/template';
 
-import { useSelector } from "react-redux";
-import { getTemplateById, getTemplates } from '../../redux/slices/templateSlice';
+import { useSelector, useDispatch } from "react-redux";
+import { getTemplateById, getTemplates, setFilters } from '../../redux/slices/templateSlice';
 import { RootState } from '../../redux/store';
 import { useAppDispatch } from '../../redux/hooks';
 import CustomPreview from "../../components/Templates/CustomPreview";
+import LoopIcon from '@mui/icons-material/Loop';
+import { useDebounce } from "use-debounce";
+
+
 interface Step2TemplatesProps {
   handleChange: (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => void;
   campaignData: CampaignData;
@@ -37,33 +45,71 @@ interface Step2TemplatesProps {
 
 const Step2Templates: React.FC<Step2TemplatesProps> = ({ handleChange, campaignData, templateData, setTemplateData }) => {
 
-    const [openIndex, setOpenIndex] = useState<string | null>(null);
-    
-    const dispatch = useAppDispatch();
+    const [openIndex, setOpenIndex] = useState<string | null>(null);    
+    const dispatch = useDispatch();
+    // const dispatch = useAppDispatch();
   
-    const templates  = useSelector(
-      (state: RootState) => state.template.allTemplates
-    );
-        
+    // const templates  = useSelector(
+    //   (state: RootState) => state.template.allTemplates
+    // );        
       // Define params for fetching templates
-      const params = useMemo(() => ({
-          // search: "",
-          // type: "",
-          // category: "",
-          // sortBy: "",
-          page: 1,
-          limit: 10,
-        }), []);
-  
-      useEffect(() => {
-          dispatch(getTemplates(params));
-        }, []);
-  
-        
-      useEffect(() => {
-          console.log(templates  );
-      }, [templates])
+      // const params = useMemo(() => ({
+      //     // search: "",
+      //     // type: "",
+      //     // category: "",
+      //     // sortBy: "",
+      //     page: 1,
+      //     limit: 10,
+      //   }), []);
+    //   useEffect(() => {
+    //     dispatch(getTemplates(params));
+    //   }, []); 
+      
+    //    useEffect(() => {
+    //      console.log(templates  );
+    //    }, [templates])
 
+    //new code for template fetch
+    
+    const {
+          allTemplates = [],
+          // recentTemplates = [],
+          // favoriteTemplates = [],
+          filters = { page: 1, limit: 10, type: "", category: "", sortBy: "" },
+          totalPages = 1,
+          activeTab = "all",
+          selectedTemplate = null,
+        } = useSelector((state: RootState) => state.template || {});
+    
+        console.log(allTemplates)
+        const [searchTerm, setSearchTerm] = useState("");
+        const [debouncedSearch] = useDebounce(searchTerm, 500);
+        const [view, setView] = useState<'list' | 'grid'>('list');
+      
+    const buildQuery = () => {
+      const query: any = { page: filters.page, limit: filters.limit };
+      if (debouncedSearch?.trim()) query.search = debouncedSearch.trim();
+      if (filters.type) query.type = filters.type;
+      if (filters.category) query.category = filters.category;
+      switch (filters.sortBy || "newest") {
+        case "newest": query.sortBy = "createdAt"; query.order = "desc"; break;
+        case "oldest": query.sortBy = "createdAt"; query.order = "asc"; break;
+        case "nameAsc": query.sortBy = "name"; query.order = "asc"; break;
+        case "nameDesc": query.sortBy = "name"; query.order = "desc"; break;
+      }
+      return query;
+    };
+  
+    useEffect(() => {
+      const query = buildQuery();
+      dispatch(getTemplates(query) as any);
+    }, [filters.page, debouncedSearch, filters.type, filters.category, filters.sortBy]);
+    
+
+    useEffect(() => {
+      dispatch(setFilters({ page: 1 }));
+    }, [debouncedSearch, filters.type, filters.category, filters.sortBy, dispatch]);
+    
       
     const handleClose = () => {
       setOpenIndex(null);
@@ -77,7 +123,7 @@ const Step2Templates: React.FC<Step2TemplatesProps> = ({ handleChange, campaignD
     };
 
   // Filter templates based on the selected type
-  const filteredTemplates = templates.filter((template) => template.type === templateData.type);
+  const filteredTemplates = allTemplates.filter((template) => template.type === templateData.type);
 
   const isSelected = (selectVal: string | Types.ObjectId) => {
     return campaignData.template === selectVal ? '2px solid #007BFF' : '1px solid #ddd';
@@ -85,7 +131,7 @@ const Step2Templates: React.FC<Step2TemplatesProps> = ({ handleChange, campaignD
 
   useEffect(() => {
     if (campaignData.template) {
-      const selectedAudience = templates.find(
+      const selectedAudience = allTemplates.find(
         (template) => template._id?.toString() === campaignData.template?.toString()
       );  
       if (selectedAudience) {
@@ -104,6 +150,18 @@ const Step2Templates: React.FC<Step2TemplatesProps> = ({ handleChange, campaignD
     }
   }, [campaignData.template]);
 
+  // const handlePageChange = (direction: "next" | "prev") => {
+  //       const newPage = direction === "next" ? filters.page + 1 : Math.max(filters.page - 1, 1);
+  //       dispatch(setFilters({ page: newPage }));
+  //     };
+  const handlePageChange = (direction: "next" | "prev") => {
+        const newPage = direction === "next" ? filters.page + 1 : Math.max(filters.page - 1, 1);
+        dispatch(setFilters({ page: newPage }));
+      };
+
+  const rootBlockId = 'root';
+
+    const LazyReader = React.lazy(() => import('@usewaypoint/email-builder').then((module) => ({ default: module.Reader })));
   
   return (
     <Box sx={{ boxSizing: 'border-box' }}>
@@ -124,7 +182,24 @@ const Step2Templates: React.FC<Step2TemplatesProps> = ({ handleChange, campaignD
             </Box>
       <Typography variant="h6">Choose Template</Typography>
 
-      <Container maxWidth="md" sx={{ p: 2 }}>
+      <FormControl variant="outlined" size="small" sx={{ minWidth: {xs: 225}, bgcolor: "#F8F9FA", borderRadius: "6px", marginRight:"auto", mt: 1}}>
+                      <InputLabel htmlFor="status-select" sx={{ fontSize: "14px", boxSizing:"border-box", display: "flex", alignItems: "center", }}>
+                        <SearchIcon />&nbsp;Search by templates or tags
+                      </InputLabel>        
+                      <InputBase
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      name="search"
+                      sx={{
+                        fontSize: "14px",
+                        width: "100%",
+                        pt:0.5, 
+                        pb:1,         
+                      }}
+                    />      
+                    </FormControl>
+
+      <Container maxWidth="lg" sx={{ p: 2 }}>
         {/* Notification Type Selector */}
         <Grid container spacing={2} border={2} borderColor="#ECEEF6" sx={{ border: '2px solid #ECEEF6', borderRadius: 1, p: 1, }}>
           <Grid size={{ xs: 12, md: 3 }} sx={{ borderRight: { xs: 'none', md: '2px solid #ECEEF6' }, borderColor: "#ECEEF6", pr: 2 }}>
@@ -157,18 +232,35 @@ const Step2Templates: React.FC<Step2TemplatesProps> = ({ handleChange, campaignD
                 sx={{
                   border: isSelected(template._id.toString()),
                   display: "flex", mb: 2, p: 1, bgcolor: '#FAF9F9', shadow: 0, borderRadius: 1,
-                  boxShadow: 'none'
+                  boxShadow: 'none', position:'relative',
                 }}>
                 <CardMedia
-                  component="img"
-                  sx={{ width: { xs: 80, sm: 120 }, height: { xs: 80, sm: 120 }, color: '#626262', objectFit: 'cover', flexShrink: '0' }}
-                  image={template.image}
-                  alt={template.name}
+                  // component="img"
+                  sx={{ width: { xs: 200, sm: 220 }, height: { xs: 80, sm: 120 }, color: '#626262', objectFit: 'cover', flexShrink: '0' }}
+                  // image={template.image}
+                  // alt={template.name}
                 />
+                <Suspense fallback={<LoopIcon />} >                
+                  <Box
+                    sx={{
+                      transform: 'scale(0.25)',
+                      transformOrigin: 'top left',
+                      width: '800px',
+                      // height: '2400px',
+                      pointerEvents: 'none',
+                      position: "absolute",
+                      left:0,
+                      top: 0,
+                    }}
+                  >
+                    <LazyReader document={template.content} rootBlockId={rootBlockId} />                          
+                  </Box>
+                  </Suspense>
+
                 <CardContent>
                   <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, justifyContent: { sx: 'none', md: 'center' }, alignItems: { sx: 'none', md: 'center' } }}>
-                    <Typography variant="h6" sx={{ fontSize: { xs: '14px', sm: '15px', md: '18px' } }} >{template.name}&nbsp; </Typography>
-                    <Typography component="span" sx={{ fontSize: { xs: '10px', sm: '12px', md: '12px', lg: '14px' }, color: '#ABABAB' }}>Created on {template.createdAt}</Typography>
+                    <Typography variant="h6" sx={{ fontSize: { xs: '14px', sm: '15px', md: '16px' } }} >{template.name}&nbsp; </Typography>
+                    <Typography component="span" sx={{ fontSize: { xs: '10px', sm: '12px', md: '12px', lg: '14px' }, color: '#ABABAB' }}>Created on {template.createdAt.split('T').join(' ').slice(0,19)}</Typography>
                   </Box>
                   <Typography variant="body2" sx={{ color: "#626262" }}>{template.category}</Typography>
 
@@ -181,8 +273,8 @@ const Step2Templates: React.FC<Step2TemplatesProps> = ({ handleChange, campaignD
                 </CardContent>
                   { template && template._id === openIndex &&(
                     <CustomPreview  key={template._id}  
-                      doc={template.content} 
-                      html={template.html} 
+                      doc={template?.content} 
+                      html={template?.html} 
                       // open={openIndex === template.id} 
                       open={true}
                       handleClose={handleClose}
@@ -192,8 +284,23 @@ const Step2Templates: React.FC<Step2TemplatesProps> = ({ handleChange, campaignD
             ))}
           </Grid>
         </Grid>
-        
+                
       </Container>
+      <Box mt={3}>
+        <Button onClick={() => handlePageChange("prev")} disabled={filters.page === 1}>
+          Previous
+        </Button>
+        <span style={{ margin: "0 10px" }}>
+          Page {filters.page} of { totalPages}
+        </span>
+        <Button
+          onClick={() => handlePageChange("next")}
+          disabled={
+            filters.page >= ( totalPages ?? 1)
+          } >
+          Next
+        </Button>
+      </Box>
     </Box>
   );
 };

@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
-import { DndProvider, useDrag, useDrop } from "react-dnd";
-import { HTML5Backend } from "react-dnd-html5-backend";
+import {
+  //  DndProvider, 
+  useDrag, useDrop } from "react-dnd";
+// import { HTML5Backend } from "react-dnd-html5-backend";
 import { useNavigate } from "react-router-dom";
 import SaveIcon from '@mui/icons-material/Save';
 import AllModal from "../Modals/DeleteModal";
@@ -13,7 +15,7 @@ import {
   Tab,
   Tabs,
   Typography,
-  Modal,
+  // Modal,
   Dialog,
   DialogActions,
   DialogContent,
@@ -188,9 +190,18 @@ const DropGroup: React.FC<DropGroupProps> = ({
                   onUpdate(item.label, groupId, "value", e.target.value)
                 }
               />
-            ) : (
+            ) : item.dataType === "date" ? (
               <TextField
                 type="date"
+                size="small"
+                value={item.value}
+                onChange={(e) =>
+                  onUpdate(item.label, groupId, "value", e.target.value)
+                }
+              />
+            ) : (
+              <TextField
+                type="number"
                 size="small"
                 value={item.value}
                 onChange={(e) =>
@@ -371,17 +382,32 @@ const App: React.FC<FilterBuilderProps> = ({
         });
       }
 
+      const handlewarning = () => {
+        setModalData({
+          open: true,
+          handleConfirm: handleClose, 
+          title: 'Warning',
+          message: `${warningMessage}`,
+          handleClose: handleClose,           
+          btntxt: "Ok",
+          icon: { type: "warning" } as DynamicIconProps,
+          color: "warning"
+        });
+      }
+
             
       /// Ends
 
   const showWarningModal = (message: string) => {
     setWarningMessage(message);
-    setIsWarningModalOpen(true);
+    // setIsWarningModalOpen(true);
+    handlewarning();
   };
 
 
   const handleCloseWarningModal = () => {
-    setIsWarningModalOpen(false);
+    // setIsWarningModalOpen(false);
+    handlewarning();
   };
 
   const showAlertModal = (message: string) => {
@@ -914,7 +940,6 @@ const App: React.FC<FilterBuilderProps> = ({
 
 
   return (
-    <DndProvider backend={HTML5Backend}>
 
       <Box sx={{ minWidth: "100%"}}>
         <Box sx={{ m: 2 }}>
@@ -1591,7 +1616,7 @@ const App: React.FC<FilterBuilderProps> = ({
               </Button>
             </DialogActions>
           </Dialog>
-          <Dialog open={isWarningModalOpen} onClose={handleCloseWarningModal}>
+          {/* <Dialog open={isWarningModalOpen} onClose={handleCloseWarningModal}>
             <DialogTitle sx={{display:'flex', alignItems:'center'}}><WarningIcon sx={{color:'orange'}} /> Warning</DialogTitle>
             <DialogContent>
               <Typography>{warningMessage}</Typography>
@@ -1605,7 +1630,7 @@ const App: React.FC<FilterBuilderProps> = ({
                 OK
               </Button>
             </DialogActions>
-          </Dialog>
+          </Dialog> */}
         {/* </DndProvider> */}
 
         <AllModal
@@ -1619,7 +1644,6 @@ const App: React.FC<FilterBuilderProps> = ({
         color = {modalData.color}
       />
       </Box>
-    </DndProvider >
 
   );
 };

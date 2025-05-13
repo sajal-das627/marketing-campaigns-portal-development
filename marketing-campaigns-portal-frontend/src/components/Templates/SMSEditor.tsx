@@ -14,6 +14,8 @@ import {
   Autocomplete,
   Typography,
   InputBase,
+  Dialog,
+  IconButton,
 } from '@mui/material';
 import SaveIcon from '@mui/icons-material/Save';
 import VisibilityIcon from '@mui/icons-material/Visibility';
@@ -23,6 +25,7 @@ import { RootState } from "../../redux/store";
 import {useAppDispatch} from '../../redux/hooks'
 import { createTemplateThunk } from "../../redux/slices/templateSlice";
 import { Template } from 'types/template';
+import CloseIcon from '@mui/icons-material/Close';
 
 type TemplateType = 'Email' | 'SMS' | 'Basic' | 'Designed' | 'Custom';
 type CategoryType =
@@ -77,6 +80,8 @@ const TemplateEditor: React.FC<TemplateEditorProps> = ({
     isDeleted: template?.isDeleted ?? false,
     version: template?.version ?? 1,
   });
+
+  const [open, setOpen] = useState<boolean>(false);
   // const [form, setForm] = useState<Template>({
   //   name: template?.name || '',
   //   subject: template?.subject || '',
@@ -120,13 +125,20 @@ const TemplateEditor: React.FC<TemplateEditorProps> = ({
 
   const handleSubmit = async(e: React.FormEvent) => {
     e.preventDefault();
-    
+    if(form.includeOptOut){
+      const newForm = {...form, content : form.content.message + '/n Include opt-out text ("Reply STOP to unsubscribe")'}
+      await dispatch(createTemplateThunk(newForm));
+    }
+    else{
+      await dispatch(createTemplateThunk(form));
+    }
     console.log('Submitting template:', form);
-    await dispatch(createTemplateThunk(form));
 
     console.log('Form Submitted')
     // TODO: send `form` to your API
   };
+
+  console.log("content: ", form.content.message);
 
   return (
     <Box sx={{
@@ -136,21 +148,23 @@ const TemplateEditor: React.FC<TemplateEditorProps> = ({
         <Box component="form" onSubmit={handleSubmit} >
 
       <Box
-              display="flex"
-              flexDirection={{ xs: 'column', md: 'row' }}
-              justifyContent="space-between"
-              alignItems="center"
-              mb={3}
-            > 
+        display="flex"
+        flexDirection={{ xs: 'column', md: 'row' }}
+        justifyContent="space-between"
+        alignItems="center"
+        mb={3}
+      > 
                     
       <Typography variant="h4" component="h1"sx={{mb:1, mr:1}} >
       SMS Template Creater
       </Typography>
         <Box>
-          <Button  variant="outlined" sx={{ minWidth: '160px',p: 1, m:1, ":hover": { bgcolor: '#fff' } }}>
+        
+          <Button  variant="outlined" sx={{ minWidth: '160px',p: 1, m:1,bgcolor: 'white', color: '#0057D9',  '&:hover': { bgcolor: '#e6e6e6',  }, }}>
             <SendIcon />&nbsp; Send&nbsp;Test
           </Button>
-          <Button  variant="contained" sx={{ minWidth: '160px',bgcolor: '#0057D9', color: '#fff  ', p: 1, m:1, ":hover": { bgcolor: '#2068d5' } }}>
+          <Button  variant="contained" sx={{ minWidth: '160px',bgcolor: '#0057D9', color: '#fff  ', p: 1, m:1, ":hover": { bgcolor: '#2068d5' } }}
+          onClick={() => setOpen(true)}>
           <VisibilityIcon /> &nbsp; Preview
           </Button>
           
@@ -366,6 +380,44 @@ const TemplateEditor: React.FC<TemplateEditorProps> = ({
         </Grid>
       </Box>
       </Box>
+      
+       <Dialog
+            open={open}
+            onClose={()=>setOpen(false)}
+            fullWidth
+            // maxWidth="sm"
+            sx={{
+              '& .MuiDialog-paper': {
+                width: '80vw',
+                maxWidth: '500px',
+                maxHeight: '100vh',
+                borderRadius: '10px',
+              },
+            }}
+          >
+            <Box
+              sx={{
+                bgcolor: '#0057D9',
+                // width: '100%',
+                // height: 35,
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                px: 2,
+              }}
+            >
+              <Typography sx={{ color: 'white' }}>{form.name}</Typography>
+              <IconButton onClick={()=>setOpen(false)}>
+                <CloseIcon sx={{ color: 'white' }} />
+              </IconButton>
+            </Box>
+
+            <Box sx={{minHeight:'350px', p:2}}>
+              {form.content.message}<br/>
+              {form.includeOptOut ? '"Reply STOP to unsubscribe"' : ''}
+            </Box>
+
+          </Dialog>
     </Box>
   );
 };

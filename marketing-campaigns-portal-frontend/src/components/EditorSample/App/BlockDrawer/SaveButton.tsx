@@ -7,34 +7,12 @@ import { Template } from 'types/template';
 import { useAppDispatch } from "../../../../redux/hooks";
 import { createTemplateThunk } from "../../../../redux/slices/templateSlice";
 interface TemplateEditorProps {
-  // template?: Template;
-  // campaigns?: string[];
+  TemplateDetails : Template;
 }
 
-export default function SaveButton (props: TemplateEditorProps){
+export default function SaveButton ({TemplateDetails}: TemplateEditorProps){
 
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-    const [template, setTemplate] = useState<Template>();
-    const [campaign, setCampaign] = useState<string[]>();
-    const [form, setForm] = useState<Template>({
-      _id: template?._id || '',
-      name: template?.name || '',
-      subject: template?.subject || '',
-      type: template?.type || 'Email',
-      category: template?.category || 'Promotional',
-      tags: template?.tags || [],
-      senderId: template?.senderId || '',
-      campaign: template?.campaign || '',
-      includeOptOut: template?.includeOptOut ?? false,
-      content: { message: template?.content.message || '' },
-      layout: template?.layout || 'Custom',
-      createdAt: template?.createdAt || '',
-      lastModified: template?.lastModified || '',
-      favorite: template?.favorite ?? false,
-      isDeleted: template?.isDeleted ?? false,
-      version: template?.version ?? 1,
-    });
-
     const dispatch = useAppDispatch();
 
   const handleMenuClick = (event: React.MouseEvent<HTMLElement>) => {
@@ -92,13 +70,11 @@ export default function SaveButton (props: TemplateEditorProps){
 
   const saveTemplate = async (payload: { name: string; html: string; design: object }) => {
     
-    setForm((prev) => ({...prev, content: payload.design}));
-    setForm((prev) => ({...prev, name: 'Blue Email Template'}));
       try {
         // setForm((prev) => ({...prev, name: 'New Template2'}));
-        await dispatch(createTemplateThunk(form));
+        await dispatch(createTemplateThunk(TemplateDetails));
         alert('Saved successfully!');
-        console.log('form Submitted', form);
+        console.log('form Submitted', TemplateDetails);
     } catch (err) {
       console.error('Save failed:', err);
     }

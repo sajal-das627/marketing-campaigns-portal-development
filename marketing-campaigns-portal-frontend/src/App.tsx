@@ -54,8 +54,10 @@ import SMSEditor from './components/Templates/SMSEditor';
 import EmailTemplates from './components/Templates/EmailTemplates';
 // import Header from "layout/Header";
 
+import { DndProvider,} from "react-dnd";
+import { HTML5Backend } from "react-dnd-html5-backend";
 import ResponsiveLayout from "layout/ResponsiveLayout";
-
+import EditTemplates from "./components/Templates/EditTemplates";
 // const drawerWidth = 240;
 
 const AppContent = () => {
@@ -97,6 +99,8 @@ const AppContent = () => {
               <Route path="/build-sms" element={<SMSEditor />} />
               <Route path="/filters" element={<ManageFilter />} />
               <Route path="/edit-filter/:id" element={<EditFilter />} />
+              <Route path="/templates1" element={<EditTemplates />} />
+              
               {/* <Route path="/templates-old" element={<TemplateManagementOld />} /> */}
             </Routes>
           </Box>
@@ -108,9 +112,11 @@ const AppContent = () => {
 
 const App = () => {
   return (
+    <DndProvider backend={HTML5Backend}>
     <Router>
       <AppContent />
     </Router>
+    </DndProvider>
   );
 };
 

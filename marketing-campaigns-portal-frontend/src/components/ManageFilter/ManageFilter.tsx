@@ -53,6 +53,19 @@ const ManageFilters = () => {
     message: ''
   });
 
+  const params = new URLSearchParams(window.location.search);
+  const draft = params.get('isDraft'); // returns string "false" or "true"
+  const isDraftBool = draft === 'true'; // convert to boolean if needed
+
+  useEffect(() => {
+    if (isDraftBool) {
+      setActiveSubTab("drafts");
+    } else {
+      setActiveSubTab("saved");
+    }
+  }
+  , [isDraftBool]);
+
   const openDeleteSelectedModal = () => {
     setModalData({
       open: true,

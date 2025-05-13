@@ -25,10 +25,15 @@ import ShareButton from './ShareButton';
 import SaveButton from '../BlockDrawer/SaveButton';
 // import EmailLayoutEditor from '../../documents/blocks/EmailLayout/EmailLayoutEditor';
 import { TEditorBlock } from '../../documents/editor/core';
+import { Template } from 'types/template';
 
 type HtmlBlock = Extract<TEditorBlock, { type: 'Html' }>;
+type TemplatePanelProps = {
+  templateDetails:Template;
+}
 
-export default function TemplatePanel() {
+
+export default function TemplatePanel({templateDetails}:TemplatePanelProps) {
   const document = useDocument();
   const selectedMainTab = useSelectedMainTab();
   const selectedScreenSize = useSelectedScreenSize();
@@ -158,7 +163,7 @@ export default function TemplatePanel() {
                 </ToggleButtonGroup>
             </Card>
             <ShareButton />
-            <SaveButton />
+            <SaveButton TemplateDetails = {templateDetails} />
           </Stack>
         </Stack>
         <ToggleInspectorPanelButton /> 
