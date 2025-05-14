@@ -10,17 +10,15 @@ import {
   Hidden,
   TextField,
   InputAdornment,
-  Menu,
-  MenuItem,
   Avatar,
   Badge,
   
 } from "@mui/material";
-import { Outlet } from 'react-router-dom';
+// import { Outlet } from 'react-router-dom';
 
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import SearchIcon from '@mui/icons-material/Search';
-import ExpandMoreIcon from '@mui/icons-material/ArrowDropDown';
+// import ExpandMoreIcon from '@mui/icons-material/ArrowDropDown';
 import MenuIcon from "@mui/icons-material/Menu";
 import Sidebar from "./Sidebar";
 

@@ -1,6 +1,7 @@
 import axios from "axios";
 import useNotification from "../hooks/useNotification";
 import { CampaignData } from "types/campaign";
+import { Template } from "types/template";
 const apiClient = axios.create({
   baseURL: process.env.REACT_APP_API_BASE_URL,
   headers: { "Content-Type": "application/json" },
@@ -220,7 +221,12 @@ export const getCampaigns = () => apiClient.get("/campaigns");
 export const apiFetchCampaignById = (campaignId: string) => apiClient.get(`/campaigns/${campaignId}`);
 
 // Update API Client for Templates
-export const createTemplate = (templateData: any) => apiClient.post("/templates", templateData);
+// export const createTemplate = (templateData: any) => apiClient.post("/templates", templateData);
+export const createTemplate = (data: any) => {
+  return axios.post(`${process.env.REACT_APP_API_BASE_URL}/templates/`, data);
+};
+
+
 export const getTemplates = () => apiClient.get("/templates");
 export const getTemplateById = (id: string) => apiClient.get(`/templates/${id}`);
 export const updateTemplate = (id: string, templateData: any) => apiClient.put(`/templates/${id}`, templateData);

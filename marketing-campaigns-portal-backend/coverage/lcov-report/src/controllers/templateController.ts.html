@@ -23,16 +23,16 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">30.47% </span>
+                <span class="strong">29.04% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>64/210</span>
+                <span class='fraction'>61/210</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">14.63% </span>
+                <span class="strong">7.31% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>12/82</span>
+                <span class='fraction'>6/82</span>
             </div>
         
             
@@ -44,9 +44,9 @@
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">25.42% </span>
+                <span class="strong">23.72% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>45/177</span>
+                <span class='fraction'>42/177</span>
             </div>
         
             
@@ -543,14 +543,43 @@
 <span class="cline-any cline-yes">6x</span>
 <span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-yes">2x</span>
+<<<<<<< HEAD
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+=======
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">2x</span>
+>>>>>>> 7784a48deab96f1e825acd25a07e79d617d1a43e
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<<<<<<< HEAD
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+=======
 <span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -571,6 +600,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-yes">2x</span>
+>>>>>>> 7784a48deab96f1e825acd25a07e79d617d1a43e
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -820,20 +850,20 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">6x</span>
-<span class="cline-any cline-yes">2x</span>
-<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">2x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -1018,16 +1048,16 @@ export const createTemplate = async (req: Request, res: Response) =&gt; {
 &nbsp;
     // Check if template name already exists
     const existingTemplate = await Template.findOne({ name });
-    <span class="missing-if-branch" title="if path not taken" >I</span>if (existingTemplate) {
-<span class="cstat-no" title="statement not covered" >      return res.status(400).json({ message: "Template name already exists" });</span>
+    if (existingTemplate) {
+      return res.status(400).json({ message: "Template name already exists" });
     }
 &nbsp;
     // Validate required fields
-    <span class="missing-if-branch" title="if path not taken" >I</span>if (!name || !type || !category || !layout || !content) {
+<span class="cstat-no" title="statement not covered" >    <span class="missing-if-branch" title="if path not taken" >I</span>if (!name || !type || !category || !layout || !content) {</span>
 <span class="cstat-no" title="statement not covered" >      return res.status(400).json({ message: "All required fields must be provided" });</span>
     }
 &nbsp;
-    const template = new Template({
+    const template = <span class="cstat-no" title="statement not covered" >new Template({</span>
       name,
       type,
       category,
@@ -1041,8 +1071,8 @@ export const createTemplate = async (req: Request, res: Response) =&gt; {
       lastModified: new Date(),
     });
 &nbsp;
-    await template.save();
-    res.status(201).json({ message: "Template created successfully", template });
+<span class="cstat-no" title="statement not covered" >    await template.save();</span>
+<span class="cstat-no" title="statement not covered" >    res.status(201).json({ message: "Template created successfully", template });</span>
   } catch (error) {
 <span class="cstat-no" title="statement not covered" >    console.error("Error creating template:", error);</span>
 <span class="cstat-no" title="statement not covered" >    res.status(500).json({ message: "Internal Server Error", error });</span>
@@ -1486,7 +1516,11 @@ export const toggleFavoriteTemplate = async (req: Request, res: Response) =&gt; 
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
+<<<<<<< HEAD
+                at 2025-04-23T13:49:55.076Z
+=======
                 at 2025-04-23T18:16:19.913Z
+>>>>>>> 7784a48deab96f1e825acd25a07e79d617d1a43e
             </div>
         <script src="../../prettify.js"></script>
         <script>

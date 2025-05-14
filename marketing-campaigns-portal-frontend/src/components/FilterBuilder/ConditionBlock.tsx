@@ -1,6 +1,8 @@
 import { Paper, Typography } from "@mui/material";
 import { useDrag } from "react-dnd";
-import React, { forwardRef } from "react";
+import
+//  React,
+ { forwardRef } from "react";
 
 const ConditionBlock = forwardRef<HTMLDivElement, { condition: any }>(({ condition }, ref) => {
   const [{ isDragging }, drag] = useDrag(() => ({

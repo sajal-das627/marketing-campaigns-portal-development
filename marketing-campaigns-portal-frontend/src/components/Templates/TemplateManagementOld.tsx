@@ -4,12 +4,12 @@ import React, { useEffect, useState } from "react";
 import {
   Table, TableBody, TableCell, TableHead, TableRow,
   Button, Typography, TextField, MenuItem, Grid, Box, Modal, Paper, TextareaAutosize,
-  Chip,
-  Stack,
-  IconButton,
-  Tabs,
-  Tab,
-  Select
+  // Chip,
+  // Stack,
+  // IconButton,
+  // Tabs,
+  // Tab,
+  // Select
 } from "@mui/material";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -27,7 +27,7 @@ import { useDebounce } from "use-debounce";
 
 const Templates = () => {
 
-  const [tab, setTab] = React.useState(0);
+  // const [tab, setTab] = React.useState(0);
 
   const dispatch = useDispatch();
   const {

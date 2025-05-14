@@ -214,6 +214,9 @@ export default function CampaignCreator() {
       if (!campaignData.name || !/^[a-zA-Z0-9\s]{3,50}$/.test(campaignData.name)) {
         errors.push("Campaign name should be 3-50 characters and contain only letters, numbers, and spaces. ");
       }
+      if (!campaignData.name || /^copy/i.test(campaignData.name.trim())) {
+        errors.push("Campaign name should not start with 'Copy' ");
+      }
       if (!campaignData.type) {
         errors.push("Please select a campaign type.");
       }
@@ -233,12 +236,38 @@ export default function CampaignCreator() {
 
     case 3:
       if(campaignData.type !== "Real Time"){
-        if (!campaignData.schedule?.frequency) {
+        if (campaignData.type === "Criteria Based" && !campaignData.schedule?.frequency) {
           errors.push("Schedule frequency is required.");
         }
+        if (campaignData.type === "Criteria Based" && !campaignData.schedule?.endDate) {
+          errors.push("Valid End Date is required.");
+        }
+        if (!campaignData.schedule?.time) {
+          errors.push("Time is required.");
+        }
+        
         if (!campaignData.schedule?.startDate) {
           errors.push("Start date is required.");
+        } else {
+          const startDate = new Date(campaignData.schedule?.startDate);
+          const today = new Date();
+          startDate.setHours(0, 0, 0, 0);
+          today.setHours(0, 0, 0, 0);
+        
+          if (startDate < today) {
+            errors.push("Start date must be today or a future date.");
+          } else if (startDate.getTime() === today.getTime() && campaignData.schedule?.time) {
+            // Check time if it's today
+            const [hours, minutes] = campaignData.schedule.time.split(":").map(Number);
+            const selectedTime = new Date();
+            selectedTime.setHours(hours, minutes, 0, 0);
+        
+            if (selectedTime < new Date()) {
+              errors.push("Time must be in the future.");
+            }
+          }
         }
+        
         if ( campaignData.schedule?.startDate && campaignData.schedule?.endDate && new Date(campaignData.schedule?.startDate) > new Date(campaignData.schedule?.endDate)) {
           errors.push("End date must be after start date.");
         }
@@ -319,7 +348,9 @@ export default function CampaignCreator() {
 ) => {  if (value) {
   setCampaignData((prev) => {
     if (type === "endDate" && prev?.schedule?.startDate && value.isBefore(dayjs(prev?.schedule?.startDate))) {
-      alert("End date cannot be before start date!");
+      // errors.push("End Date should be after Start Date");
+
+      // alert("End date cannot be before start date!");
       return prev; // Do not update state
     }
 
@@ -345,7 +376,7 @@ export default function CampaignCreator() {
       case 0:
         return <Step0CampaignType handleChange={handleChange} campaignData={campaignData} />;
       case 1:
-        return <Step1Audience handleChange={handleChange}  campaignData={campaignData} setAudienceName={setAudienceName}  />
+        return <Step1Audience handleChange={handleChange}  campaignData={campaignData} audienceName={audienceName} setAudienceName={setAudienceName}  />
       case 2:
         return <Step2Templates handleChange={handleChange} campaignData={campaignData} templateData={templateData} setTemplateData={setTemplateData} />;
       case 3:
@@ -467,7 +498,7 @@ export default function CampaignCreator() {
                   </Button>
                   <SuccessModal open={open} onClose={() => setOpen(false)}
                   title={id? "Campaign Updated Successfully" : "Campaign Created Successfully"}
-                  message={`"${audienceName}" Filter Saved Successfully`} />                    
+                  message={`"${campaignData.name}" Campaign Saved Successfully`} />                    
                 </Grid>
               </Grid>
               

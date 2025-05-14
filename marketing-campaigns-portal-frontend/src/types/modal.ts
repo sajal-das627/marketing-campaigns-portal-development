@@ -10,7 +10,7 @@ export interface DeleteModalProps {
   }
   
   export interface DynamicIconProps {
-    type: 'delete' | 'success' | 'error' | 'cancel';
+    type: 'delete' | 'success' | 'error' | 'cancel' | 'warning';
     // Optional
     sx?: object;
   }
