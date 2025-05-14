@@ -98,8 +98,8 @@ const AppContent = () => {
               <Route path="/templates" element={<Templates />} />
               <Route path="/create-templates" element={<CreateTemplates />} />
               <Route path="/email-templates" element={<EmailTemplates />} />
-              <Route path="/build-template/:id" element={<EditorSample />} />
-              <Route path="/build-sms" element={<SMSEditor />} />
+              {/* <Route path="/build-template/:id" element={<EditorSample />} /> */}
+              <Route path="/build-sms/:id?" element={<SMSEditor />} />
               <Route path="/filters" element={<ManageFilter />} />
               <Route path="/edit-filter/:id" element={<EditFilter />} />
               

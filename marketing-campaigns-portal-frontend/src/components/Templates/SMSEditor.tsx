@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   Box,
   Grid2 as Grid,
@@ -20,12 +20,16 @@ import {
 import SaveIcon from '@mui/icons-material/Save';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import SendIcon from '@mui/icons-material/Send';
+import { useParams } from 'react-router-dom';
 
 import { RootState } from "../../redux/store";
 import {useAppDispatch} from '../../redux/hooks'
-import { createTemplateThunk } from "../../redux/slices/templateSlice";
+import { createTemplateThunk, getTemplateById, updateTemplate } from "../../redux/slices/templateSlice";
 import { Template } from 'types/template';
 import CloseIcon from '@mui/icons-material/Close';
+import AllModal from '../Modals/DeleteModal';
+import { useSelector } from "react-redux" ;
+import { useNavigate } from 'react-router-dom';
 
 type TemplateType = 'Email' | 'SMS' | 'Basic' | 'Designed' | 'Custom';
 type CategoryType =
@@ -59,6 +63,7 @@ const TemplateEditor: React.FC<TemplateEditorProps> = ({
   template,
   campaigns = [],
 }) => {
+  const [isEditMode, setIsEditMode] = useState<boolean>(false);
   const [form, setForm] = useState<Template>({
     _id: template?._id || '',
     name: template?.name || '',
@@ -80,7 +85,7 @@ const TemplateEditor: React.FC<TemplateEditorProps> = ({
     isDeleted: template?.isDeleted ?? false,
     version: template?.version ?? 1,
   });
-
+  const [isOpenSuccess, setIsOpenSuccess] = useState(false);
   const [open, setOpen] = useState<boolean>(false);
   // const [form, setForm] = useState<Template>({
   //   name: template?.name || '',
@@ -125,20 +130,93 @@ const TemplateEditor: React.FC<TemplateEditorProps> = ({
 
   const handleSubmit = async(e: React.FormEvent) => {
     e.preventDefault();
+    try{
+      if(isEditMode){
+        await dispatch(updateTemplate({ id: form._id, data: form }) as any);
+      }
+      else{
+        if(form.includeOptOut){
+          const newForm = {...form, content : form.content.message + '/n "Reply STOP to unsubscribe")'}
+          await dispatch(createTemplateThunk(newForm));
+        }
+        else{
+          await dispatch(createTemplateThunk(form));
+        }
+      }
+    } catch(error){
+      console.error(error);
+    }
+
     if(form.includeOptOut){
-      const newForm = {...form, content : form.content.message + '/n Include opt-out text ("Reply STOP to unsubscribe")'}
+      const newForm = {...form, content : form.content.message + '/n "Reply STOP to unsubscribe")'}
       await dispatch(createTemplateThunk(newForm));
     }
     else{
       await dispatch(createTemplateThunk(form));
     }
+    setIsOpenSuccess(true);
     console.log('Submitting template:', form);
-
     console.log('Form Submitted')
     // TODO: send `form` to your API
   };
 
   console.log("content: ", form.content.message);
+
+  //edit
+  
+  const resetState = () => {
+    setForm({
+      _id: '',
+      name: '',
+      subject: '',
+      type: 'Email',
+      category: 'Promotional',
+      tags: [],
+      senderId: '',
+      campaign: '',
+      includeOptOut: false,
+      content: { message: template?.content.message || '' },
+      layout: 'Custom',
+      createdAt: '',
+      lastModified: '',
+      favorite: false,
+      isDeleted: false,
+      version: 1,
+    });
+  }
+  const { id } = useParams<{id: string}>();
+
+  const templateFromApi = useSelector((state: RootState) => state.template.selectedTemplate as Template || null);
+
+  // const id = '68220f25c305eea6017e4104';
+  console.log('id', id);
+  useEffect(() => {
+      if (!id) resetState();
+    }, [id]);
+
+  useEffect(() => {
+      const CheckData = async() =>{       
+        if (id) {
+          await dispatch(getTemplateById(id) as any);
+          
+          setIsEditMode(true);
+        } 
+      }
+      CheckData();
+    }, [id, dispatch]);
+
+       
+    useEffect(() => {
+      if (templateFromApi) {
+        setForm((prev) => ({
+          ...prev,
+          ...templateFromApi,
+          tags: templateFromApi.tags ?? [],
+        }));
+    
+      }
+    }, [templateFromApi]);
+    
 
   return (
     <Box sx={{
@@ -169,7 +247,7 @@ const TemplateEditor: React.FC<TemplateEditorProps> = ({
           </Button>
           
           <Button type="submit" variant="contained"  color="success" sx={{ minWidth: '180px',  p: 1, m:1, ":hover": { bgcolor: 'green' } }}>
-           <SaveIcon /> &nbsp; Save Template
+           <SaveIcon /> &nbsp; {isEditMode? 'Update Template' : 'Save Template'}
           </Button>
         </Box>   
       </Box>   
@@ -212,14 +290,31 @@ const TemplateEditor: React.FC<TemplateEditorProps> = ({
           </Grid>
 
           {/* Subject (only for Email types) */}
-          {form.type === 'Email' && (
+          {form.type === 'SMS' && (
             <Grid size={{xs:12, sm:6}} >
-              <TextField
+              {/* <TextField
                 label="Subject"
                 value={form.subject}
                 onChange={(e) => handleChange('subject', e.target.value)}
                 fullWidth
-              />
+              /> */}
+              <FormControl variant="outlined" size="medium" sx={{ minWidth: {xs:'100%'}, bgcolor: "#F8F9FA", borderRadius: "6px", p:1 }}>
+                <InputLabel htmlFor="status-select" sx={{ }}>
+                Subject
+                </InputLabel>        
+                <InputBase
+                value={form.subject}
+                onChange={(e) => handleChange('subject', e.target.value)}
+                name="subject"
+                sx={{
+                  
+                  width: "100%",
+                  pt:0.5,          
+                }}
+                required
+                fullWidth
+              />      
+            </FormControl>
             </Grid>
           )}
 
@@ -240,7 +335,7 @@ const TemplateEditor: React.FC<TemplateEditorProps> = ({
               Message Content
               </InputLabel>        
               <InputBase
-              value={form.content.message}
+              value={form.content.message || form.content}
               onChange={(e) => handleContentChange(e.target.value)}
               name="message"
               sx={{
@@ -380,7 +475,17 @@ const TemplateEditor: React.FC<TemplateEditorProps> = ({
         </Grid>
       </Box>
       </Box>
-      
+      <AllModal
+              open={isOpenSuccess}
+              handleClose={()=>{setIsOpenSuccess(false)}}
+              handleConfirm= {()=>{setIsOpenSuccess(false)}}
+              title= "Success"
+              message= {isEditMode ? "This SMS Template Has Been Updated Successfully" : "This SMS Template Has Been Saved Successfully"}
+              btntxt = "Ok"
+              icon={{ type: "success" }}
+              color = "primary"
+            />
+      {/* Preview */}
        <Dialog
             open={open}
             onClose={()=>setOpen(false)}
