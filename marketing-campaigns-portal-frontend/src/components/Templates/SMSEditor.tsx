@@ -335,7 +335,8 @@ const TemplateEditor: React.FC<TemplateEditorProps> = ({
               Message Content
               </InputLabel>        
               <InputBase
-              value={form.content.message || form.content}
+              value={form.content.message}
+              // value={isEditMode ? form.content.message : form.content}
               onChange={(e) => handleContentChange(e.target.value)}
               name="message"
               sx={{
