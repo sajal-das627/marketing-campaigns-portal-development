@@ -14,7 +14,7 @@ export const createTemplate = async (req: Request, res: Response) => {
     }
 
     // Validate required fields
-    if (!name || !type || !category || !layout || !content) {
+    if (!name || !type || !category || !content) {
       return res.status(400).json({ message: "All required fields must be provided" });
     }
 
