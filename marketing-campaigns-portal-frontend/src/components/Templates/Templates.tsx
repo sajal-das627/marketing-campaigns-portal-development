@@ -584,7 +584,8 @@ const TemplatesTable: React.FC = () => {
                   >
                     {!template.isDeleted && (
                       <>
-                      <MenuItem onClick={() => handleEditClick(template._id)}>Edit</MenuItem>
+                      <MenuItem onClick={() => template.type === 'Email' ? navigation(`/build-template/${template._id}`) : navigation(`/build-sms/${template._id}`)}>Edit</MenuItem>
+                      {/* <MenuItem onClick={() => handleEditClick(template._id)}>Edit</MenuItem> */}
                       <MenuItem onClick={() => handleDuplicateTemplate(template._id)}>Duplicate</MenuItem>
                       </>
                     )}                   
