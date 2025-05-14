@@ -63,7 +63,7 @@ import ResponsiveLayout from "layout/ResponsiveLayout";
 
 const AppContent = () => {
   const location = useLocation();
-  const match = matchPath('/build-template/:id', location.pathname);
+  const match = matchPath('/build-template/:id?', location.pathname);
 
   return (
     <>
@@ -72,7 +72,7 @@ const AppContent = () => {
 
       {match ? (
         <Routes>
-          <Route path="/build-template/:id" element={<EditorSample />} />
+          <Route path="/build-template/:id?" element={<EditorSample />} />
         </Routes>
        
       ):(

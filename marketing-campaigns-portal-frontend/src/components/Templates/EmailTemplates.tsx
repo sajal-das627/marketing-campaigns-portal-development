@@ -16,7 +16,7 @@ import {
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { useSelector } from "react-redux";
-import { getTemplates, getFavoriteTemplates, setFilters } from '../../redux/slices/templateSlice';
+import { getTemplates, getFavoriteTemplates, setFilters, duplicateTemplate } from '../../redux/slices/templateSlice';
 import { RootState } from '../../redux/store';
 import { useAppDispatch } from '../../redux/hooks';
 import type { Template } from "../../redux/slices/templateSlice";
@@ -185,6 +185,16 @@ export default function EmailTemplateGallery(props: EmailTemplateProps) {
     }, 200);
   }, [page, topBarIndex]);
   
+  //select
+  
+    const handleSelect = async(id: string) =>{
+      if(id){
+        const res: any = await dispatch(duplicateTemplate(id) as any);
+        console.log(res); 
+      }// if (!duplicateTemplate.fulfilled.match(res)) return;
+      // const duplicated: Template = res.payload.template;
+      
+  }
   
   
   
@@ -391,6 +401,7 @@ export default function EmailTemplateGallery(props: EmailTemplateProps) {
                           size="medium"
                           variant="contained"
                           color="primary"
+                          onClick={() => handleSelect(template._id) as any}
                           sx={{
                             bgcolor: '#0057D9',
                             '&:hover': {
@@ -419,7 +430,7 @@ export default function EmailTemplateGallery(props: EmailTemplateProps) {
 
                   </Card>
                   <Typography sx={{
-                    color: '#6D6976', textAlign: 'center', margineRight: 'auto', maxWidth: '210px', mt:0.5, // position: 'absolute',bottom:-24, left:14, overflow: 'hidden',
+                    color: '#6D6976', textAlign: 'center', margineRight: 'auto', maxWidth: '210px', mt:0.5, overflowX:'hidden', // position: 'absolute',bottom:-24, left:14, overflow: 'hidden',
                   }}>{template.name}</Typography>
                     { template && template._id === openIndex &&(           
                       <CustomPreview  key={template._id}  

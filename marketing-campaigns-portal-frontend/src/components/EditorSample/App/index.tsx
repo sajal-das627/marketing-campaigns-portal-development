@@ -43,7 +43,7 @@ export default function App({template}: TemplateEditorProps) {
   const [open, setOpen] = useState<Boolean>(true);
   const inspectorDrawerOpen = useInspectorDrawerOpen();
   const samplesDrawerOpen = useSamplesDrawerOpen();
-  const [isEditMode, setIsEditMode] = useState<boolean>();
+  const [isEditMode, setIsEditMode] = useState<boolean>(false);
 
   // const [template, setTemplate] = useState<Template>();
   const [templateDetails, setTemplateDetails] = useState<Template>({
@@ -56,7 +56,26 @@ export default function App({template}: TemplateEditorProps) {
       senderId: template?.senderId || '',
       campaign: template?.campaign || '',
       includeOptOut: template?.includeOptOut ?? false,
-      content: { message: template?.content.message || '' },
+      // content: { message: template?.content.message || '' },
+      content: {
+        root: {
+          id: 'root',
+          type: 'EmailLayout',
+          data: { childrenIds: ['TextBlock'] },
+        },
+        blocks: {
+          root: {
+            type: 'EmailLayout',
+            data: { childrenIds: ['TextBlock'] },
+          },
+          TextBlock: {
+            type: 'TextBlock',
+            data: {
+              text: 'Welcome to our newsletter!',
+            },
+          },
+        },
+      },
       layout: template?.layout || 'Custom',
       createdAt: template?.createdAt || '',
       lastModified: template?.lastModified || '',
@@ -75,27 +94,53 @@ export default function App({template}: TemplateEditorProps) {
   // Replace 'templateData' with the actual property name from your TemplateState that holds the template object
     const templateFromApi = useSelector((state: RootState) => state.template.selectedTemplate as Template || null);
 
-  const resetState = () => {
-    setTemplateDetails({
-      _id: '',
-      name:  '',
-      subject: '',
-      type:  'Email',
-      category: 'Promotional',
-      tags:  [],
-      senderId: '',
-      campaign: '',
-      includeOptOut: false,
-      content: { message: '' },
-      layout:  'Custom',
-      createdAt: '',
-      lastModified: '',
-      favorite: false,
-      isDeleted: false,
-      version: 1,
-    });
-    resetDocument({});
-  }
+    const resetState = () => {
+      setTemplateDetails({
+        _id: '',
+        name: '',
+        subject: '',
+        type: 'Email',
+        category: 'Promotional',
+        tags: [],
+        senderId: '',
+        campaign: '',
+        includeOptOut: false,
+        content: {
+          root: {
+            id: 'root',
+            type: 'EmailLayout',
+            data: { childrenIds: ['TextBlock'] },
+          },
+          blocks: {
+            root: {
+              type: 'EmailLayout',
+              data: { childrenIds: ['TextBlock'] },
+            },
+            TextBlock: {
+              type: 'TextBlock',
+              data: {
+                text: 'Welcome to our newsletter!',
+              },
+            },
+          },
+        },
+        layout: 'Custom',
+        createdAt: '',
+        lastModified: '',
+        favorite: false,
+        isDeleted: false,
+        version: 1,
+      });
+      resetDocument({
+        root: {
+          type: 'EmailLayout',
+          data: {
+            childrenIds: [],
+          },
+        },        
+      });
+    };
+    
 
   const { id } = useParams<{id: string}>();
   // const id = '68220f25c305eea6017e4104';
@@ -139,11 +184,11 @@ export default function App({template}: TemplateEditorProps) {
           // fallback empty template
           resetDocument({
             root: {
-              type: "EmailLayout",
+              type: 'EmailLayout',
               data: {
                 childrenIds: [],
               },
-            },
+            },        
           });
         }
       }
@@ -186,7 +231,7 @@ export default function App({template}: TemplateEditorProps) {
           transition: [marginLeftTransition, marginRightTransition].join(', '),
         }}
       >
-        <TemplatePanel templateDetails={templateDetails}/>        
+        <TemplatePanel templateDetails={templateDetails} isEdit={isEditMode} />        
         {/* <BlocksDrawer/> */}
       </Stack>
     </>

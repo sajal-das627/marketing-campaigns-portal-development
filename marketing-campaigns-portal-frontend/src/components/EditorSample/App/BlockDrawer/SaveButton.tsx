@@ -5,12 +5,13 @@ import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import { useDocument } from '../../documents/editor/EditorContext';
 import { Template } from 'types/template';
 import { useAppDispatch } from "../../../../redux/hooks";
-import { createTemplateThunk } from "../../../../redux/slices/templateSlice";
+import { createTemplateThunk, updateTemplate } from "../../../../redux/slices/templateSlice";
 interface TemplateEditorProps {
   TemplateDetails : Template;
+  isEdit: boolean;
 }
 
-export default function SaveButton ({TemplateDetails}: TemplateEditorProps){
+export default function SaveButton ({TemplateDetails, isEdit}: TemplateEditorProps){
 
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
     const dispatch = useAppDispatch();
@@ -72,8 +73,12 @@ export default function SaveButton ({TemplateDetails}: TemplateEditorProps){
     
       try {
         // setForm((prev) => ({...prev, name: 'New Template2'}));
-        await dispatch(createTemplateThunk(TemplateDetails));
-        alert('Saved successfully!');
+        if(isEdit){
+          await dispatch(updateTemplate({ id: TemplateDetails._id, data: TemplateDetails }) as any);
+        }
+        else{
+          await dispatch(createTemplateThunk(TemplateDetails));
+        }alert('Saved successfully!');
         console.log('form Submitted', TemplateDetails);
     } catch (err) {
       console.error('Save failed:', err);

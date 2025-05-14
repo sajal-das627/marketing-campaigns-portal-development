@@ -30,10 +30,11 @@ import { Template } from 'types/template';
 type HtmlBlock = Extract<TEditorBlock, { type: 'Html' }>;
 type TemplatePanelProps = {
   templateDetails:Template;
+  isEdit: boolean;
 }
 
 
-export default function TemplatePanel({templateDetails}:TemplatePanelProps) {
+export default function TemplatePanel({templateDetails, isEdit}:TemplatePanelProps) {
   const document = useDocument();
   const selectedMainTab = useSelectedMainTab();
   const selectedScreenSize = useSelectedScreenSize();
@@ -163,7 +164,7 @@ export default function TemplatePanel({templateDetails}:TemplatePanelProps) {
                 </ToggleButtonGroup>
             </Card>
             <ShareButton />
-            <SaveButton TemplateDetails = {templateDetails} />
+            <SaveButton TemplateDetails = {templateDetails} isEdit={isEdit} />
           </Stack>
         </Stack>
         <ToggleInspectorPanelButton /> 
