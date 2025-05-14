@@ -117,6 +117,68 @@ export const getAllTemplates = async (req: Request, res: Response) => {
 };
 
 
+// ✅ Get Templates by Category with Pagination
+export const getTemplatesByCategory = async (req: Request, res: Response) => {
+  try {
+    const {
+      type,
+      favorite,
+      sortBy = "lastModified",
+      order = "desc",
+      page = "1",
+      limit = "10",
+      search,
+    } = req.query;
+
+    const { category } = req.params;
+
+    let query: any = {
+      category, // ✅ From route param
+      isDeleted: false,
+    };
+
+    // ✅ Search by name or tag
+    if (search) {
+      query.$or = [
+        { name: { $regex: search as string, $options: "i" } },
+        { tags: { $in: [search as string] } },
+      ];
+    }
+
+    if (type) query.type = type;
+    if (favorite) query.favorite = favorite === "true";
+
+    const pageNumber = parseInt(page as string, 10) || 1;
+    const pageSize = parseInt(limit as string, 10) || 10;
+    const skip = (pageNumber - 1) * pageSize;
+
+    const sortField = sortBy as string;
+    const sortOrder = order === "desc" ? -1 : 1;
+
+    const templates = await Template.find(query)
+      .sort({ [sortField]: sortOrder })
+      .skip(skip)
+      .limit(pageSize);
+
+    const totalCount = await Template.countDocuments(query);
+
+    res.status(200).json({
+      success: true,
+      data: templates,
+      pagination: {
+        total: totalCount,
+        page: pageNumber,
+        limit: pageSize,
+        totalPages: Math.ceil(totalCount / pageSize),
+      },
+    });
+  } catch (error) {
+    console.error("Error fetching templates by category:", error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+};
+
+
 //   Get a Single Template
 export const getTemplateById = async (req: Request, res: Response) => {
   try {

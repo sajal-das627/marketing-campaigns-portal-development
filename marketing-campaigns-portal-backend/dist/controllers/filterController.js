@@ -402,7 +402,10 @@ const duplicateFilter = (req, res) => __awaiter(void 0, void 0, void 0, function
         }
         const duplicatedFilter = new Filter_1.default(filterData);
         yield duplicatedFilter.save();
-        res.status(201).json({ message: "Filter Duplicated Successfully", filter: duplicatedFilter });
+        res.status(201).json({
+            message: "Filter Duplicated Successfully",
+            filter: Object.assign(Object.assign({}, duplicatedFilter.toObject()), { originalId: filterId }),
+        });
     }
     catch (error) {
         console.error("Error duplicating filter:", error);
