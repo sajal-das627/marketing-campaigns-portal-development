@@ -34,7 +34,7 @@ import { useAppDispatch } from '../../redux/hooks';
 import CustomPreview from "../../components/Templates/CustomPreview";
 import LoopIcon from '@mui/icons-material/Loop';
 import { useDebounce } from "use-debounce";
-
+import { useNavigate } from "react-router-dom";
 
 interface Step2TemplatesProps {
   handleChange: (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => void;
@@ -47,6 +47,7 @@ const Step2Templates: React.FC<Step2TemplatesProps> = ({ handleChange, campaignD
 
     const [openIndex, setOpenIndex] = useState<string | null>(null);    
     const dispatch = useDispatch();
+    const navigate = useNavigate();
     // const dispatch = useAppDispatch();
   
     // const templates  = useSelector(
@@ -177,6 +178,7 @@ const Step2Templates: React.FC<Step2TemplatesProps> = ({ handleChange, campaignD
           <Typography sx={{ color: "#626262" }}>Choose from saved templates or create new template.</Typography>
         </Box>
         <Button variant="contained"
+                  onClick={()=> navigate('/build-template')}
                   sx={{ bgcolor: '#0057D9', color: '#fff', fontSize: { xs: '12px', sm: '14px' }, p: 1, mt:{xs:1, md:0}, ":hover": { bgcolor: '#2068d5' } }}> 
                   +&nbsp;Create&nbsp;New&nbsp;Template</Button>
             </Box>
@@ -240,22 +242,32 @@ const Step2Templates: React.FC<Step2TemplatesProps> = ({ handleChange, campaignD
                   // image={template.image}
                   // alt={template.name}
                 />
-                <Suspense fallback={<LoopIcon />} >                
-                  <Box
-                    sx={{
-                      transform: 'scale(0.25)',
-                      transformOrigin: 'top left',
-                      width: '800px',
-                      // height: '2400px',
-                      pointerEvents: 'none',
-                      position: "absolute",
-                      left:0,
-                      top: 0,
-                    }}
-                  >
-                    <LazyReader document={template.content} rootBlockId={rootBlockId} />                          
-                  </Box>
-                  </Suspense>
+                { template.type === 'Email' ? (
+                    <Suspense fallback={<LoopIcon />} >                
+                    <Box
+                      sx={{
+                        transform: 'scale(0.25)',
+                        transformOrigin: 'top left',
+                        width: '800px',
+                        // height: '2400px',
+                        pointerEvents: 'none',
+                        position: "absolute",
+                        left:0,
+                        top: 0,
+                      }}
+                    >
+                      <LazyReader document={template.content} rootBlockId={rootBlockId} />                          
+                    </Box>
+                    </Suspense>
+                  ) : (
+                    <Box sx={{position: 'absolute', maxWidth: { xs: 160, sm: 180 }, overflow: 'hidden',
+                    maxHeight: { xs: 80, sm: 120 }, color: 'grey', fontSize:'12px', border: 'blue 1px 1px 1px'                
+                    }}>
+                      {template.content}
+                    </Box>
+                  )
+                }
+                
 
                 <CardContent>
                   <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, justifyContent: { sx: 'none', md: 'center' }, alignItems: { sx: 'none', md: 'center' } }}>

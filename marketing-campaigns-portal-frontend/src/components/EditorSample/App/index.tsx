@@ -140,7 +140,6 @@ export default function App({template}: TemplateEditorProps) {
         },        
       });
     };
-    
 
   const { id } = useParams<{id: string}>();
   // const id = '68220f25c305eea6017e4104';
