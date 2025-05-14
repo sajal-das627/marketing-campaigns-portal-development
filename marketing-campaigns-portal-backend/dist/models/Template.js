@@ -10,7 +10,7 @@ const TemplateSchema = new mongoose_1.default.Schema({
     type: { type: String, enum: ["Email", "SMS", "Basic", "Designed", "Custom"], required: true },
     category: { type: String, enum: ["Promotional", "Transactional", "Event Based", "Update", "Announcement", "Action", "Product", "Holiday"], required: true },
     tags: [{ type: String }],
-    layout: { type: String, enum: ["Single Column", "Two Column", "Custom"], required: true },
+    layout: { type: String, enum: ["Single Column", "Two Column", "Custom"], required: false },
     createdAt: { type: Date, default: Date.now },
     lastModified: { type: Date, default: Date.now },
     lastUsed: { type: Date, default: null },

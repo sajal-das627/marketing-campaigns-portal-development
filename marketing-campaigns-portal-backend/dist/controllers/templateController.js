@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.toggleFavoriteTemplate = exports.getPastCampaignTemplates = exports.getFavoriteTemplates = exports.getRecentlyUsedTemplates = exports.permanentlyDeleteTemplate = exports.restoreTemplateById = exports.deleteTemplate = exports.duplicateTemplate = exports.updateTemplate = exports.previewShowTemplate = exports.previewTemplate = exports.getTemplateById = exports.getAllTemplates = exports.createTemplate = void 0;
+exports.toggleFavoriteTemplate = exports.getPastCampaignTemplates = exports.getFavoriteTemplates = exports.getRecentlyUsedTemplates = exports.permanentlyDeleteTemplate = exports.restoreTemplateById = exports.deleteTemplate = exports.duplicateTemplate = exports.updateTemplate = exports.previewShowTemplate = exports.previewTemplate = exports.getTemplateById = exports.getTemplatesByCategory = exports.getAllTemplates = exports.createTemplate = void 0;
 const Template_1 = __importDefault(require("../models/Template"));
 // Create a new template
 const createTemplate = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
@@ -24,7 +24,7 @@ const createTemplate = (req, res) => __awaiter(void 0, void 0, void 0, function*
             return res.status(400).json({ message: "Template name already exists" });
         }
         // Validate required fields
-        if (!name || !type || !category || !layout || !content) {
+        if (!name || !type || !category || !content) {
             return res.status(400).json({ message: "All required fields must be provided" });
         }
         const template = new Template_1.default({
@@ -107,6 +107,53 @@ const getAllTemplates = (req, res) => __awaiter(void 0, void 0, void 0, function
     }
 });
 exports.getAllTemplates = getAllTemplates;
+// ✅ Get Templates by Category with Pagination
+const getTemplatesByCategory = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { type, favorite, sortBy = "lastModified", order = "desc", page = "1", limit = "10", search, } = req.query;
+        const { category } = req.params;
+        let query = {
+            category, // ✅ From route param
+            isDeleted: false,
+        };
+        // ✅ Search by name or tag
+        if (search) {
+            query.$or = [
+                { name: { $regex: search, $options: "i" } },
+                { tags: { $in: [search] } },
+            ];
+        }
+        if (type)
+            query.type = type;
+        if (favorite)
+            query.favorite = favorite === "true";
+        const pageNumber = parseInt(page, 10) || 1;
+        const pageSize = parseInt(limit, 10) || 10;
+        const skip = (pageNumber - 1) * pageSize;
+        const sortField = sortBy;
+        const sortOrder = order === "desc" ? -1 : 1;
+        const templates = yield Template_1.default.find(query)
+            .sort({ [sortField]: sortOrder })
+            .skip(skip)
+            .limit(pageSize);
+        const totalCount = yield Template_1.default.countDocuments(query);
+        res.status(200).json({
+            success: true,
+            data: templates,
+            pagination: {
+                total: totalCount,
+                page: pageNumber,
+                limit: pageSize,
+                totalPages: Math.ceil(totalCount / pageSize),
+            },
+        });
+    }
+    catch (error) {
+        console.error("Error fetching templates by category:", error);
+        res.status(500).json({ message: "Internal Server Error" });
+    }
+});
+exports.getTemplatesByCategory = getTemplatesByCategory;
 //   Get a Single Template
 const getTemplateById = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {

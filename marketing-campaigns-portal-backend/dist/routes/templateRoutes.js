@@ -27,6 +27,7 @@ const templateController_1 = require("../controllers/templateController");
 const router = express_1.default.Router();
 router.post("/", /*authenticateToken,*/ templateController_1.createTemplate);
 router.get("/", /*authenticateToken,*/ templateController_1.getAllTemplates); // ✅ Fetch All Templates
+router.get("/category/:category", templateController_1.getTemplatesByCategory); // ✅ New route
 router.put("/:id", /*authenticateToken,*/ templateController_1.updateTemplate);
 router.get("/recent", /*authenticateToken,*/ templateController_1.getRecentlyUsedTemplates); // ✅ Fetch Recently Used Templates
 router.get("/past", /*authenticateToken,*/ templateController_1.getPastCampaignTemplates); // ✅ Fetch Past Campaign Templates
