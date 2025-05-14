@@ -4,7 +4,7 @@ export interface Template {
     name: string
     subject?: string
     type: 'Email' | 'SMS' | 'Basic' | 'Designed' | 'Custom'
-    category: 'Promotional' | 'Transactional' | 'Event Based' | 'Update' | 'Announcement' | 'Action' | 'Product' | 'Holiday'
+    category: 'Promotional' | 'Transactional' | 'Event Based' | 'Update' | 'Announcement' | 'Action' | 'Product' | 'Holiday' | ''
     tags?: string[]
     layout: 'Single Column' | 'Two Column' | 'Custom'
     createdAt: string

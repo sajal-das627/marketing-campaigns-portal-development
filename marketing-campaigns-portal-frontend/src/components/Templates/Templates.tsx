@@ -198,10 +198,16 @@ const TemplatesTable: React.FC = () => {
       dispatch(setFilters({ page: newPage }));
     };
   
-    const handleEditClick = async (id: string) => {
+    const handleEditClick = async (id: string, type: string) => {
       await dispatch(getTemplateById(id) as any);
       // setOpenEditModal(true);
-       navigation(`/build-template/${id}`);
+      if(type === "Email") {
+        navigation(`/build-template/${id}`);
+      }
+      else
+      {
+         navigation(`/build-sms/${id}`);
+      }
     };
   
     const handleCloseEditModal = () => {
@@ -595,8 +601,8 @@ const TemplatesTable: React.FC = () => {
                   >
                     {!template.isDeleted && (
                       <>
-                      <MenuItem onClick={() => template.type === 'Email' ? navigation(`/build-template/${template._id}`) : navigation(`/build-sms/${template._id}`)}>Edit</MenuItem>
-                      {/* <MenuItem onClick={() => handleEditClick(template._id)}>Edit</MenuItem> */}
+                      {/* <MenuItem onClick={() => template.type === 'Email' ? navigation(`/build-template/${template._id}`) : navigation(`/build-sms/${template._id}`)}>Edit</MenuItem> */}
+                      <MenuItem onClick={() => handleEditClick(template._id, template.type)}>Edit</MenuItem>
                       <MenuItem onClick={() => handleDuplicateTemplate(template._id)}>Duplicate</MenuItem>
                       </>
                     )}                   
@@ -742,7 +748,7 @@ const TemplatesTable: React.FC = () => {
               >
                 {!template.isDeleted && (
                   <>
-                    <MenuItem onClick={() => handleEditClick(template._id)}>Edit</MenuItem>
+                    <MenuItem onClick={() => handleEditClick(template._id, template.type)}>Edit</MenuItem>
                     <MenuItem onClick={() => handleDuplicateTemplate(template._id)}>Duplicate</MenuItem>
                   </>
                 )}

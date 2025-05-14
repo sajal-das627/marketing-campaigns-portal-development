@@ -20,7 +20,7 @@ import {
 import SaveIcon from '@mui/icons-material/Save';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import SendIcon from '@mui/icons-material/Send';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 
 import { RootState } from "../../redux/store";
 import {useAppDispatch} from '../../redux/hooks'
@@ -29,7 +29,6 @@ import { Template } from 'types/template';
 import CloseIcon from '@mui/icons-material/Close';
 import AllModal from '../Modals/DeleteModal';
 import { useSelector } from "react-redux" ;
-import { useNavigate } from 'react-router-dom';
 
 type TemplateType = 'Email' | 'SMS' | 'Basic' | 'Designed' | 'Custom';
 type CategoryType =
@@ -63,6 +62,7 @@ const TemplateEditor: React.FC<TemplateEditorProps> = ({
   template,
   campaigns = [],
 }) => {
+  const navigate = useNavigate();
   const [isEditMode, setIsEditMode] = useState<boolean>(false);
   const [form, setForm] = useState<Template>({
     _id: template?._id || '',
@@ -169,7 +169,7 @@ const TemplateEditor: React.FC<TemplateEditorProps> = ({
       _id: '',
       name: '',
       subject: '',
-      type: 'Email',
+      type: 'SMS',
       category: 'Promotional',
       tags: [],
       senderId: '',
@@ -479,7 +479,7 @@ const TemplateEditor: React.FC<TemplateEditorProps> = ({
       <AllModal
               open={isOpenSuccess}
               handleClose={()=>{setIsOpenSuccess(false)}}
-              handleConfirm= {()=>{setIsOpenSuccess(false)}}
+              handleConfirm= {()=>{navigate('/templates')}}
               title= "Success"
               message= {isEditMode ? "This SMS Template Has Been Updated Successfully" : "This SMS Template Has Been Saved Successfully"}
               btntxt = "Ok"

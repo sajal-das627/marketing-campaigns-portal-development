@@ -11,6 +11,7 @@ import {
   restoreTemplateById,  // ✅ newly imported
   duplicateTemplateById,
   createTemplate,
+  fetchTemplatesByCategory,
 } from "../../api/apiClient";
 import { Template as TemplateType} from "../../types/template"; // Adjust the import path as necessary
 export interface Template {
@@ -171,17 +172,34 @@ export const duplicateTemplate = createAsyncThunk(
       const res = await duplicateTemplateById(templateId);
       return res.data;
 
-      ///add here
-      // return {
-      //   ...res.data,            // from backend
-      //   originalId: templateId  // manually attach it here
-      // };
     } catch (err: any) {
       return thunkAPI.rejectWithValue(err.response?.data?.message || "Failed to duplicate template");
     }
   }
 );
 
+// fetchTemplatesByCategory
+export const getTemplatesByCategory = createAsyncThunk(
+  "templates/getTemplatesByCategory",
+  async (
+    {
+      category,
+      type,
+      page = 1,
+      limit = 10,
+    }: { category: string; type: string; page?: number; limit?: number },
+    thunkAPI
+  ) => {
+    try {
+      const res = await fetchTemplatesByCategory(category, type, page, limit);
+      return res.templates; // Or adjust based on actual response shape
+    } catch (err: any) {
+      return thunkAPI.rejectWithValue(
+        err?.message || "Failed to fetch templates by category"
+      );
+    }
+  }
+);
 
 interface TemplateState {
   allTemplates: Template[];
@@ -449,7 +467,7 @@ const templateSlice = createSlice({
       .addCase(duplicateTemplate.fulfilled, (state, action) => {
       const duplicated = action.payload;
       state.allTemplates.unshift(duplicated);
-    });
+    })
     ////add here
     // .addCase(duplicateTemplate.fulfilled, (state, action) => {
     //   const duplicated = action.payload;
@@ -460,7 +478,18 @@ const templateSlice = createSlice({
     //   }
     //   state.allTemplates.splice(originalIndex + 1, 0, duplicated); // insert right after
     // });
-        
+    .addCase(getTemplatesByCategory.pending, (state) => {
+      state.loading = true;
+      state.error = null;
+    })
+    .addCase(getTemplatesByCategory.fulfilled, (state, action) => {
+      state.loading = false;
+      state.allTemplates = action.payload;
+    })
+    .addCase(getTemplatesByCategory.rejected, (state, action) => {
+      state.loading = false;
+      state.error = action.payload as string;
+    });
 
   },
 });
