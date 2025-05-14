@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
-import { Stack, useTheme } from '@mui/material';
+import { Alert, Stack, useTheme } from '@mui/material';
 // import { Box } from '@mui/material';
 import { useInspectorDrawerOpen, useSamplesDrawerOpen } from '../documents/editor/EditorContext';
 
@@ -11,7 +11,6 @@ import
  from './SamplesDrawer';
 import TemplatePanel from './TemplatePanel';
 // import BlocksDrawer from './BlockDrawer/BlockDrawer';
-import EditTemplateMain from './BlockDrawer/EditTemplateMain'
 import { Template } from '../../../types/template';
 import { useParams } from 'react-router-dom';
 import { getTemplateById, } from "../../../redux/slices/templateSlice";
@@ -44,7 +43,7 @@ export default function App({template}: TemplateEditorProps) {
   const inspectorDrawerOpen = useInspectorDrawerOpen();
   const samplesDrawerOpen = useSamplesDrawerOpen();
   const [isEditMode, setIsEditMode] = useState<boolean>(false);
-
+  const [error, setError] = useState<string | null>(null);
   // const [template, setTemplate] = useState<Template>();
   const [templateDetails, setTemplateDetails] = useState<Template>({
       _id: template?._id || '',
@@ -148,6 +147,10 @@ export default function App({template}: TemplateEditorProps) {
       if (!id) resetState();
     }, [id]);
   useEffect(() => {
+      if (!id) resetState();
+    }, []);
+    
+  useEffect(() => {
       const CheckData = async() =>{       
         if (id) {
           await dispatch(getTemplateById(id) as any);
@@ -216,12 +219,11 @@ export default function App({template}: TemplateEditorProps) {
     {/* // Box  
     // sx={{ '& *': { fontSize:'18px', fontFamily:'Manrope', fontWeight:'bold'} }} */}
     {/* <Box sx={{height: '88px', width:'100%'}}>
-
     </Box> */}
+
       <InspectorDrawer />
       
-       <SamplesDrawer templateDetails={templateDetails} setTemplateDetails={setTemplateDetails} />
-       {/* {open && <EditTemplateMain onClose={handleClose}/>} */}
+      <SamplesDrawer templateDetails={templateDetails} setTemplateDetails={setTemplateDetails} error={error}/>
       
       <Stack
         sx={{
@@ -230,7 +232,7 @@ export default function App({template}: TemplateEditorProps) {
           transition: [marginLeftTransition, marginRightTransition].join(', '),
         }}
       >
-        <TemplatePanel templateDetails={templateDetails} isEdit={isEditMode} />        
+        <TemplatePanel templateDetails={templateDetails} isEdit={isEditMode} setError={setError}/>        
         {/* <BlocksDrawer/> */}
       </Stack>
     </>
