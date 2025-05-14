@@ -16,6 +16,7 @@ import {
   InputBase,
   Dialog,
   IconButton,
+  Alert,
 } from '@mui/material';
 import SaveIcon from '@mui/icons-material/Save';
 import VisibilityIcon from '@mui/icons-material/Visibility';
@@ -87,6 +88,7 @@ const TemplateEditor: React.FC<TemplateEditorProps> = ({
   });
   const [isOpenSuccess, setIsOpenSuccess] = useState(false);
   const [open, setOpen] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
   // const [form, setForm] = useState<Template>({
   //   name: template?.name || '',
   //   subject: template?.subject || '',
@@ -130,6 +132,26 @@ const TemplateEditor: React.FC<TemplateEditorProps> = ({
 
   const handleSubmit = async(e: React.FormEvent) => {
     e.preventDefault();
+    setTimeout(()=>{
+      setError(null);
+    }, 7000)
+    if (!form.name || !/^[a-zA-Z0-9\s]{3,50}$/.test(form.name)) {
+      setError("Template name should be 3-50 characters and contain only letters, numbers, and spaces.");
+      return;
+    }  
+    if (!form.category) {
+      setError("Category is Required");      
+      return;
+    }  
+    if (!form.subject) {
+      setError("Subject is Required");      
+      return;
+    }  
+    if (!form.content.message || !/^[\s\S]{3,1500}$/.test(form.content.message)) {
+      setError("Message should be 3-1500 characters");
+      return;
+    }  
+    
     try{
       if(isEditMode){
         await dispatch(updateTemplate({ id: form._id, data: form }) as any);
@@ -262,6 +284,11 @@ const TemplateEditor: React.FC<TemplateEditorProps> = ({
       >
         <Grid container spacing={2}>
           {/* Template Name */}
+          <Grid size={12}>
+          {error && 
+            <Alert severity="error" sx={{ mb: 2, width:'100%' }}>{error}</Alert>
+            }
+          </Grid>
           <Grid size={{xs:12, sm:6}} >
             {/* <TextField
               label="Template Name"
@@ -270,6 +297,7 @@ const TemplateEditor: React.FC<TemplateEditorProps> = ({
               required
               fullWidth
             /> */}
+            
             <FormControl variant="outlined" size="medium" sx={{ minWidth: {xs:'100%'}, bgcolor: "#F8F9FA", borderRadius: "6px", p:1 }}>
               <InputLabel htmlFor="status-select" sx={{ }}>
               Template Name
