@@ -192,6 +192,7 @@ export const getTemplatesByCategory = createAsyncThunk(
   ) => {
     try {
       const res = await fetchTemplatesByCategory(category, type, page, limit);
+      console.log('res.templates:', res)
       return res.templates; // Or adjust based on actual response shape
     } catch (err: any) {
       return thunkAPI.rejectWithValue(

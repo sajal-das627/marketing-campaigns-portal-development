@@ -67,30 +67,25 @@ export default function SaveButton ({TemplateDetails, isEdit, setError}: Templat
 
   // const saveTemplate = async (payload: { name: string; html: string; design: object }) => {
   const saveTemplate = async () => {
-
+    setTimeout(()=>{
+      setError(null);
+    }, 7000)
     if (!TemplateDetails.name || !/^[a-zA-Z0-9\s]{3,50}$/.test(TemplateDetails.name)) {
       setError("Template name should be 3-50 characters and contain only letters, numbers, and spaces.");
-      setTimeout(()=>{
-        setError(null);
-      }, 7000)
       return;
     }  
     if (!TemplateDetails.category) {
       setError("Category is Required");
-      setTimeout(()=>{
-        setError(null);
-      }, 7000)
       return;
     }  
     if (!TemplateDetails?.content?.data?.childrenIds || TemplateDetails.content.data.childrenIds.length === 0) {
       setError("Template Design is Required");
-      setTimeout(()=>{
-        setError(null);
-      }, 7000)
       return;
     }  
-    setError(null);
-    console.log('=======================================')
+    if (/^copy/i.test(TemplateDetails?.name.trim())) {
+      setError("Name Cannot Start from 'Copy'");
+      return;
+    } 
 
     try {
       if(isEdit){

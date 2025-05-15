@@ -29,13 +29,29 @@ const EmailSent: React.FC<EmailSentProps> = ({ data }) => {
         datasets: []
       };
     }
-
+      //old code
     // Labels are the month names
-    const labels = data.map((d) => d.month);
-
+    // const labels = data.map((d) => d.month);
     // Pick the right slice of EmailRate
-    const clickRates = data.map((d) => d[timeFrame].clickRate);
-    const openRates = data.map((d) => d[timeFrame].openRate);
+    // const clickRates = data.map((d) => d[timeFrame].clickRate);
+    // const openRates = data.map((d) => d[timeFrame].openRate);
+
+
+  const labels = data.map((stat) => stat.month);
+
+  const clickRates = data.map((stat) => {
+    const campaigns = stat[timeFrame]?.campaigns || [];
+    if (campaigns.length === 0) return 0;
+    const totalClick = campaigns.reduce((sum, c) => sum + c.clickRate, 0);
+    return Math.round(totalClick / campaigns.length); // average
+  });
+
+  const openRates = data.map((stat) => {
+    const campaigns = stat[timeFrame]?.campaigns || [];
+    if (campaigns.length === 0) return 0;
+    const totalOpen = campaigns.reduce((sum, c) => sum + c.openRate, 0);
+    return Math.round(totalOpen / campaigns.length); // average
+  });
 
     return {
       labels,

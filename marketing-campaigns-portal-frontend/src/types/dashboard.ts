@@ -1,9 +1,20 @@
+//older
+// export interface EmailRate {
+//     emailsSent: number;
+//     openRate: number;
+//     clickRate: number;
+//   }
+
+export interface Campaigns {
+  campaignId: string;
+  clickRate: number;
+  openRate: number;
+}
 export interface EmailRate {
+    campaigns: Campaigns[];
     emailsSent: number;
-    openRate: number;
-    clickRate: number;
   }
-  
+//
   export interface MonthlyStat {
     month: string;
     daily: EmailRate;

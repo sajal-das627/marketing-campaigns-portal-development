@@ -102,15 +102,6 @@ export default function EmailTemplateGallery(props: EmailTemplateProps) {
     // setLocalFav(favoriteTemplates);
   }, [allTemplates, favoriteTemplates])
   
-  const rootBlockId = 'root';
-
-  const topBarTabs = ['All','Favorite', ...new Set(
-    allTemplates
-    // .filter((temp)=>temp.type === 'Email')
-    .map((temp) => temp.category)
-    .filter(Boolean)
-  )];
-
   // const topBarTabs = ['All', 'Favorite', 'Promotional', 'Transactional', 'Event Based', 'Update', 'Announcement', 'Action', 'Product', 'Holiday']
 
   const templatesToShow =
@@ -141,7 +132,17 @@ export default function EmailTemplateGallery(props: EmailTemplateProps) {
   }, [page, topBarIndex]);
 
 
-  ///        
+  ///    
+  
+  const rootBlockId = 'root';
+
+  const topBarTabs = ['All','Favorite', ...new Set(
+    allTemplates
+    // .filter((temp)=>temp.type === 'Email')
+    .map((temp) => temp.category)
+    .filter(Boolean)
+  )];
+
   const LazyReader = React.lazy(() => import('@usewaypoint/email-builder').then((module) => ({ default: module.Reader })));
 
   const loaderRef = useRef(null);

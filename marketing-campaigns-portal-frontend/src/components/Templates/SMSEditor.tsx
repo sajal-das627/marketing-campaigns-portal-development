@@ -139,6 +139,11 @@ const TemplateEditor: React.FC<TemplateEditorProps> = ({
       setError("Template name should be 3-50 characters and contain only letters, numbers, and spaces.");
       return;
     }  
+    if (/^copy/i.test(form.name.trim())) {
+      setError("Name Cannot Start from 'Copy'");
+      return;
+    }  
+
     if (!form.category) {
       setError("Category is Required");      
       return;
