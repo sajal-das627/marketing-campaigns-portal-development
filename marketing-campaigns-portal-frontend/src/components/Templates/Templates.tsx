@@ -61,6 +61,7 @@ import type { Template } from "../../redux/slices/templateSlice";
 import CustomPreview from "./CustomPreview";
 import { useNavigate, useNavigation } from "react-router-dom";
 import SMSPreview from '../Modals/SMSPreview'
+import EmptyTemplates from "./EmptyTemplates";
 const TemplatesTable: React.FC = () => {
   
     // const [tab, setTab] = React.useState(0);
@@ -308,8 +309,9 @@ const TemplatesTable: React.FC = () => {
       (activeTab === "all" && allTemplates.length === 0) ||
       (activeTab === "recent" && recentTemplates.length === 0) ||
       (activeTab === "favorite" && favoriteTemplates.length === 0);
-  
-
+    
+      if(filters.search==="" && filters.category==='' && filters.sortBy==='' && allTemplates.length === 0) return <EmptyTemplates />;
+      
   return (    
     <Container sx={{py: 4, bgcolor: '#F8F9FE',  maxWidth:  {xs: '100%',}, }}>
       <Typography sx={{ fontSize: "26px", }} gutterBottom>

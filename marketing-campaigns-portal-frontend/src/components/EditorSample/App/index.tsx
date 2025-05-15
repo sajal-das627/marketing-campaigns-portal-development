@@ -232,7 +232,7 @@ export default function App({template}: TemplateEditorProps) {
           transition: [marginLeftTransition, marginRightTransition].join(', '),
         }}
       >
-        <TemplatePanel templateDetails={templateDetails} isEdit={isEditMode} setError={setError}/>        
+        <TemplatePanel templateDetails={templateDetails} isEdit={isEditMode} setError={setError} setIsEditMode={setIsEditMode}/>        
         {/* <BlocksDrawer/> */}
       </Stack>
     </>
