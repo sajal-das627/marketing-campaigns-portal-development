@@ -45,9 +45,19 @@ interface Step2TemplatesProps {
 
 const Step2Templates: React.FC<Step2TemplatesProps> = ({ handleChange, campaignData, templateData, setTemplateData }) => {
 
-    const [openIndex, setOpenIndex] = useState<string | null>(null);    
+    const [openIndex, setOpenIndex] = useState<string | null>(null);  
+    const [currentTab, setCurrentTab] = useState<"Email" | "SMS" | "Push Notifications">('Email');
+
     const dispatch = useDispatch();
     const navigate = useNavigate();
+
+    useEffect(() => {
+      if (templateData.type) {
+        setCurrentTab(templateData.type as "Email" | "SMS" | "Push Notifications"); // or directly if values match
+      }
+    }, [templateData.type]);
+    
+    
     // const dispatch = useAppDispatch();
   
     // const templates  = useSelector(
@@ -85,10 +95,9 @@ const Step2Templates: React.FC<Step2TemplatesProps> = ({ handleChange, campaignD
         console.log(allTemplates)
         const [searchTerm, setSearchTerm] = useState("");
         const [debouncedSearch] = useDebounce(searchTerm, 500);
-        const [view, setView] = useState<'list' | 'grid'>('list');
       
     const buildQuery = () => {
-      const query: any = { page: filters.page, limit: filters.limit };
+      const query: any = { page: filters.page, limit: filters.limit, type: currentTab };
       if (debouncedSearch?.trim()) query.search = debouncedSearch.trim();
       if (filters.type) query.type = filters.type;
       if (filters.category) query.category = filters.category;
@@ -104,7 +113,7 @@ const Step2Templates: React.FC<Step2TemplatesProps> = ({ handleChange, campaignD
     useEffect(() => {
       const query = buildQuery();
       dispatch(getTemplates(query) as any);
-    }, [filters.page, debouncedSearch, filters.type, filters.category, filters.sortBy]);
+    }, [filters.page, debouncedSearch, filters.type, filters.category, filters.sortBy, currentTab]);
     
 
     useEffect(() => {
