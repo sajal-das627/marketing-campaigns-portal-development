@@ -143,7 +143,7 @@ export default function EmailTemplateGallery() {
           {(templates ?? [])
             .filter((template) => template?.type === 'Email')
             .map((template: any) => (
-              <Grid size={{ xs: 6, sm: 4, md: 3, lg: 2.4 }} key={template._id}>
+              <Grid size={{ xs: 6, sm: 4, md: 4, lg: 3, xl:2.4 }} key={template._id}>
                 <Card sx={{ width: '200px', height: '200px', borderRadius: '10px' }}>
                   <Box
                     sx={{

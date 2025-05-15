@@ -146,19 +146,21 @@ export default function App({template}: TemplateEditorProps) {
   useEffect(() => {
       if (!id) resetState();
     }, [id]);
-  useEffect(() => {
-      if (!id) resetState();
-    }, []);
     
-  useEffect(() => {
-      const CheckData = async() =>{       
-        if (id) {
-          await dispatch(getTemplateById(id) as any);
-          
-          setIsEditMode(true);
-        } 
+    useEffect(() => {
+      if (id) {
+        dispatch(getTemplateById(id) as any).then((action: any) => {
+          const tpl = action.payload as Template;
+          if (tpl) {
+            setIsEditMode(true);
+            setTemplateDetails({
+              ...tpl,
+              tags: tpl.tags ?? [],
+            });
+            resetDocument(tpl.content);
+          }
+        });
       }
-      CheckData();
     }, [id, dispatch]);
 
     function isValidEmailBuilderJson(content: any) {
