@@ -23,9 +23,6 @@ import {
   Container,
   Menu,
   Button,
-  // Dialog,
-  // DialogActions,
-  // DialogContent,
   Tooltip,
   Divider,
   Grid2 as Grid,
@@ -56,7 +53,6 @@ import {
 import { RootState } from "../../redux/store";
 import { useDebounce } from "use-debounce";
 import DeleteModal from "../Modals/DeleteModal";
-import CloseIcon from '@mui/icons-material/Close';
 import type { Template } from "../../redux/slices/templateSlice";
 import CustomPreview from "./CustomPreview";
 import { useNavigate, useNavigation } from "react-router-dom";
@@ -302,9 +298,6 @@ const TemplatesTable: React.FC = () => {
       activeTab === "recent" ? recentTemplates :
       favoriteTemplates;
   
-    // const isTemplateFavorite = (template: any) =>
-    //   template.isFavorite === true || template.favorite === true;
-  
     const isLoading = () =>
       (activeTab === "all" && allTemplates.length === 0) ||
       (activeTab === "recent" && recentTemplates.length === 0) ||
@@ -363,22 +356,6 @@ const TemplatesTable: React.FC = () => {
          
         <Box sx={{display:'flex', flexWrap:'nowrap'}}>
    
-        {/* <FormControl >
-          <RadioGroup
-            row
-            aria-labelledby="demo-radio-buttons-group-label"
-            defaultValue="list"
-            name="view-mode"
-            value={view}
-            onClick={(e)=>setView((e.target as HTMLInputElement).value as 'list' | 'grid')}
-            sx={{display:'flex', flexDirection:'row'}}
-          >
-            <FormControlLabel value="list" control={<Radio />} label={<ChecklistIcon />} />
-            <FormControlLabel value="grid" control={<Radio />} label={<GridViewIcon />} />
-          </RadioGroup>
-        </FormControl> */}
-
-        
         <Box sx={{ display: 'flex', gap: 0.5, mr:1, bgcolor:'#F8F9FA', borderRadius:'6px', height:'37px' }}>
           <Tooltip title="List View">
             <IconButton

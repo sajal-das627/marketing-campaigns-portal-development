@@ -172,7 +172,7 @@ export default function App({template}: TemplateEditorProps) {
     }
     
     useEffect(() => {
-      if (templateFromApi) {
+      if (templateFromApi && isEditMode) {
         setTemplateDetails((prev) => ({
           ...prev,
           ...templateFromApi,
