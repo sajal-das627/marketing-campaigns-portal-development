@@ -58,6 +58,8 @@ import CustomPreview from "./CustomPreview";
 import { useNavigate, useNavigation } from "react-router-dom";
 import SMSPreview from '../Modals/SMSPreview'
 import EmptyTemplates from "./EmptyTemplates";
+import CryptoJS from "crypto-js";
+
 const TemplatesTable: React.FC = () => {
   
     // const [tab, setTab] = React.useState(0);
@@ -198,12 +200,15 @@ const TemplatesTable: React.FC = () => {
     const handleEditClick = async (id: string, type: string) => {
       await dispatch(getTemplateById(id) as any);
       // setOpenEditModal(true);
+      const secretKey = process.env.REACT_APP_ENCRYPT_SECRET_KEY as string;
+      const encryptedId = CryptoJS.AES.encrypt(id, secretKey).toString();
+      
       if(type === "Email") {
-        navigation(`/build-template/${id}`);
+        navigation(`/build-template/${encodeURIComponent(encryptedId)}`);
       }
       else
       {
-         navigation(`/build-sms/${id}`);
+        navigation(`/build-sms/${encodeURIComponent(encryptedId)}`);
       }
     };
   

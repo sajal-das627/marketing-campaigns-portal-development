@@ -24,7 +24,7 @@ import DeleteConfirmationModal from "./Modals/DeleteModal";
 import 
 // dayjs, 
 { Dayjs } from 'dayjs';
-
+import CryptoJS from "crypto-js";
 // import { Types } from "mongoose";
 import EmptyCampaign from "./CampaignWizard/EmptyCampaign";
 import { updateCampaignList } from '../redux/slices/campaignSlice'; 
@@ -33,6 +33,7 @@ interface CampaignProp {
 }
 
 const Campaigns: React.FC<CampaignProp> = () => {
+  
   const [selectedCampaign, setSelectedCampaign] = useState<CampaignData | null>(null);
   const [isEmptyCampaign, setIsEmptyCampaign] = useState(false);
   const [isDeleteModalopen, setIsDeleteModalopen] = useState(false);
@@ -124,6 +125,12 @@ const Campaigns: React.FC<CampaignProp> = () => {
   //   setSelectedCampaign({ ...campaign }); // ✅ Ensures the type remains consistent
   //   setEditModalOpen(true);
   // };
+   const handleEditClick = (id: string) => {
+    const secretKey = process.env.REACT_APP_ENCRYPT_SECRET_KEY as string;
+    const encryptedId = CryptoJS.AES.encrypt(id, secretKey).toString();
+
+navigation(`/create-campaign/${encodeURIComponent(encryptedId)}`);
+  };
   const handleDeleteClick = (id: string) => {
     setSelectedId(id);
     setIsDeleteModalopen(true);
@@ -490,8 +497,8 @@ const Campaigns: React.FC<CampaignProp> = () => {
             >
     
             <IconButton sx={{ borderRadius: '25px' }}
-            // onClick={() => handleEditClick(campaign)}
-            onClick={()=> navigation(`/create-campaign/${campaign._id}`)}
+            onClick={() => handleEditClick(campaign._id)}
+            // onClick={()=> navigation(`/create-campaign/${campaign._id}`)}
             >
               <EditIcon sx={{ fontSize: '30px', color: '#6A7075', bgcolor: '#EFEFEF', p: 0.7, borderRadius: '4.5px' }} />
             </IconButton>

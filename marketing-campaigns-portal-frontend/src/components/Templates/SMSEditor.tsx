@@ -22,7 +22,7 @@ import SaveIcon from '@mui/icons-material/Save';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import SendIcon from '@mui/icons-material/Send';
 import { useParams, useNavigate } from 'react-router-dom';
-
+import CryptoJS from 'crypto-js';
 import { RootState } from "../../redux/store";
 import {useAppDispatch} from '../../redux/hooks'
 import { createTemplateThunk, getTemplateById, updateTemplate } from "../../redux/slices/templateSlice";
@@ -199,19 +199,37 @@ const TemplateEditor: React.FC<TemplateEditorProps> = ({
       type: 'SMS',
       category: 'Promotional',
       tags: [],
-      senderId: '',
-      campaign: '',
+      senderId: '',// Remove these fields
+      campaign: '',// Remove these fields
       includeOptOut: false,
       content: { message: '' },
       layout: 'Custom',
-      createdAt: '',
+      createdAt: '',//
       lastModified: '',
-      favorite: false,
-      isDeleted: false,
-      version: 1,
+      favorite: false,//
+      isDeleted: false,//
+      version: 1,//
     });
   }
-  const { id } = useParams<{id: string}>();
+  // const { id } = useParams<{id: string}>();
+    const { id : encryptedId } = useParams();
+    const [id, setId] = useState<string | null>(null);
+    // const { id } = useParams<{id: string}>();
+    const secretKey =  (process.env.REACT_APP_ENCRYPT_SECRET_KEY as string);
+    
+    useEffect(() => {
+      if (encryptedId) {
+        try {
+          const bytes = CryptoJS.AES.decrypt(decodeURIComponent(encryptedId), secretKey);
+          const decryptedId = bytes.toString(CryptoJS.enc.Utf8);
+          setId(decryptedId);
+          console.log("Decrypted ID:", decryptedId);
+        } catch (error) {
+          console.error("Failed to decrypt ID:", error);
+          setId(null);
+        }
+      }
+    }, [encryptedId, secretKey]);
 
   const templateFromApi = useSelector((state: RootState) => state.template.selectedTemplate as Template || null);
 

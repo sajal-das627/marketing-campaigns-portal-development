@@ -22,10 +22,7 @@ export default function EmailTemplateGallery() {
   const dispatch = useAppDispatch();
   const rootBlockId = 'root';
 
-  const {
-    allTemplates = [],
-    favoriteTemplates = [],
-  } = useSelector((state: RootState) => state.template || {});
+  useSelector((state: RootState) => state.template || {});
 
   const [tabIndex, setTabIndex] = useState(0);
   const [topBarIndex, setTopBarIndex] = useState("All");
@@ -34,7 +31,7 @@ export default function EmailTemplateGallery() {
   const [templates, setTemplates] = useState<any[]>([]);
   const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(false);
-  const [isOpenSuccess, setIsOpenSuccess] = useState<boolean>(false);
+  const [successIndex, setSuccessIndex] = useState<string | null>(null);
   const [categories, setCategories] = useState<string[]>([]);
 
   const topBarTabs = ['All', 'Favorite', ...categories];
@@ -200,8 +197,8 @@ export default function EmailTemplateGallery() {
                         size="medium"
                         variant="contained"
                         color="primary"
-                        // onClick={() => {setIsOpenSuccess(true); setEditID(template._id)}}
-                        onClick={() => handleSelect(template._id) as any}
+                        onClick={() => {setSuccessIndex(template._id) as any}}
+                        // onClick={() => handleSelect(template._id) as any}
                         sx={{
                           bgcolor: '#0057D9',
                           '&:hover': {
@@ -242,16 +239,19 @@ export default function EmailTemplateGallery() {
                     handleClose={() => setOpenIndex(null)}
                   />
                 )}
+                
+                 {template && template._id === successIndex && (
                 <AllModal
-                  open={isOpenSuccess}
-                  handleClose={() => { setIsOpenSuccess(false) }}
+                  open={true}
+                  handleClose={() => {setSuccessIndex(null) }}
                   handleConfirm={() => handleSelect(template._id) as any}
-                  title="Do you want to select this template?"
-                  message="Copy This Template as New One"
+                  
+                  title="Do you want Select this template?"
+                  message={`Copy and Update "${template.name}" as a New Template`}
                   btntxt="Yes"
                   icon={{ type: "success" }}
                   color="primary"
-                />
+                />)}
               </Grid>
             ))}
         </Grid>
