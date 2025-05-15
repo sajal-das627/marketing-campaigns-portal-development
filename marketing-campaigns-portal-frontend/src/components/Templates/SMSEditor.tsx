@@ -21,8 +21,8 @@ import {
 import SaveIcon from '@mui/icons-material/Save';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import SendIcon from '@mui/icons-material/Send';
-import { useParams, useNavigate, useLocation } from 'react-router-dom';
-
+import { useParams, useNavigate } from 'react-router-dom';
+import CryptoJS from 'crypto-js';
 import { RootState } from "../../redux/store";
 import {useAppDispatch} from '../../redux/hooks'
 import { createTemplateThunk, getTemplateById, updateTemplate } from "../../redux/slices/templateSlice";
@@ -100,26 +100,6 @@ const TemplateEditor: React.FC<TemplateEditorProps> = ({
   //   includeOptOut: template?.includeOptOut ?? false,
   //   content: { message: template?.content.message || '' },
   // });
-  const location = useLocation();
-
-  useEffect(() => {
-    if (location.pathname === '/build-sms') {
-      // Reload the page, but only if it's not from a hard refresh
-      const fromNavigation = !performance.getEntriesByType("navigation")[0].type.includes("reload");
-
-      if (fromNavigation) {
-        window.location.reload();
-      }
-    }
-  }, [location.pathname]);
-  // useEffect(() => {
-  //   const hasReloaded = sessionStorage.getItem('hasReloaded');
-    
-  //   if (!hasReloaded) {
-  //     sessionStorage.setItem('hasReloaded', 'true');
-  //     window.location.reload(); 
-  //   }
-  // }, []);
 
   const dispatch = useAppDispatch();
 
@@ -177,21 +157,20 @@ const TemplateEditor: React.FC<TemplateEditorProps> = ({
       return;
     }  
     
-    try{
-      if(isEditMode){
+    try {
+      if (isEditMode) {
         await dispatch(updateTemplate({ id: form._id, data: form }) as any);
+      } else {
+        const newForm = form.includeOptOut
+          ? { ...form, content: { message: form.content.message + '\n"Reply STOP to unsubscribe"' } }
+          : form;
+  
+        await dispatch(createTemplateThunk(newForm));
       }
-      else{
-        if(form.includeOptOut){
-          const newForm = {...form, content : form.content.message + '/n "Reply STOP to unsubscribe")'}
-          await dispatch(createTemplateThunk(newForm));
-        }
-        else{
-          await dispatch(createTemplateThunk(form));
-        }
-      }
-      setIsEditMode(false);
-    } catch(error){
+  
+      setIsOpenSuccess(true);
+      console.log('Submitting template:', form);
+    } catch (error) {
       console.error(error);
     }
 
@@ -220,19 +199,37 @@ const TemplateEditor: React.FC<TemplateEditorProps> = ({
       type: 'SMS',
       category: 'Promotional',
       tags: [],
-      senderId: '',
-      campaign: '',
+      senderId: '',// Remove these fields
+      campaign: '',// Remove these fields
       includeOptOut: false,
-      content: { message: template?.content.message || '' },
+      content: { message: '' },
       layout: 'Custom',
-      createdAt: '',
+      createdAt: '',//
       lastModified: '',
-      favorite: false,
-      isDeleted: false,
-      version: 1,
+      favorite: false,//
+      isDeleted: false,//
+      version: 1,//
     });
   }
-  const { id } = useParams<{id: string}>();
+  // const { id } = useParams<{id: string}>();
+    const { id : encryptedId } = useParams();
+    const [id, setId] = useState<string | null>(null);
+    // const { id } = useParams<{id: string}>();
+    const secretKey =  (process.env.REACT_APP_ENCRYPT_SECRET_KEY as string);
+    
+    useEffect(() => {
+      if (encryptedId) {
+        try {
+          const bytes = CryptoJS.AES.decrypt(decodeURIComponent(encryptedId), secretKey);
+          const decryptedId = bytes.toString(CryptoJS.enc.Utf8);
+          setId(decryptedId);
+          console.log("Decrypted ID:", decryptedId);
+        } catch (error) {
+          console.error("Failed to decrypt ID:", error);
+          setId(null);
+        }
+      }
+    }, [encryptedId, secretKey]);
 
   const templateFromApi = useSelector((state: RootState) => state.template.selectedTemplate as Template || null);
 
@@ -242,20 +239,34 @@ const TemplateEditor: React.FC<TemplateEditorProps> = ({
       if (!id) resetState();
     }, [id]);
 
-  useEffect(() => {
-      const CheckData = async() =>{       
-        if (id) {
-          await dispatch(getTemplateById(id) as any);
-          
+  // Remove the standalone resetState effect and the standalone populate effect.
+// Replace with one effect:
+
+useEffect(() => {
+  if (id) {
+    // we're editing: fetch & then populate
+    dispatch(getTemplateById(id) as any)
+      .then((action : any) => {
+        const tpl = (action.payload as Template) || null;
+        if (tpl) {
           setIsEditMode(true);
-        } 
-      }
-      CheckData();
-    }, [id, dispatch]);
+          setForm({
+            ...tpl,
+            tags: tpl.tags ?? [],
+          });
+        }
+      });
+  } else {
+    // we're creating: clear out any stale API data AND form
+    // (optionally dispatch an action to clear selectedTemplate)
+    resetState();
+  }
+}, [id, dispatch]);
+
 
        
     useEffect(() => {
-      if (templateFromApi) {
+      if (templateFromApi && isEditMode) {
         setForm((prev) => ({
           ...prev,
           ...templateFromApi,

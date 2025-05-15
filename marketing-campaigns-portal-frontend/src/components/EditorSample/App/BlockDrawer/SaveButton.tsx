@@ -6,6 +6,8 @@ import { useDocument } from '../../documents/editor/EditorContext';
 import { Template } from 'types/template';
 import { useAppDispatch } from "../../../../redux/hooks";
 import { createTemplateThunk, updateTemplate } from "../../../../redux/slices/templateSlice";
+import AllModal from "../../../../components/Modals/DeleteModal";
+import { useNavigate } from "react-router-dom";
 interface TemplateEditorProps {
   TemplateDetails : Template;
   isEdit: boolean;
@@ -18,7 +20,7 @@ export default function SaveButton ({TemplateDetails, isEdit, setError, setIsEdi
   const [open, setOpen] = useState(false);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const dispatch = useAppDispatch();
-
+  const navigate = useNavigate();
   const handleMenuClick = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
   };
@@ -32,12 +34,13 @@ export default function SaveButton ({TemplateDetails, isEdit, setError, setIsEdi
       label: 'Save Template & Exit',
       onClick: () => {
         // handleSave();
+        //redirect 
         console.log('🔥 Saving & Exiting');
         // Your logic here
       },
     },
     {
-      label: 'Save as New Template',
+      label: 'Save as New Template',//
       onClick: () => {
         console.log('💾 Saving as New');
         // Your logic here
@@ -53,7 +56,7 @@ export default function SaveButton ({TemplateDetails, isEdit, setError, setIsEdi
   ];
   
 
-  const document = useDocument();
+  // const document = useDocument();
     
   // const handleSave = () => { 
   //   const html = renderToStaticMarkup(document, { rootBlockId: 'root' });
@@ -78,7 +81,7 @@ export default function SaveButton ({TemplateDetails, isEdit, setError, setIsEdi
       setError("Category is Required");
       return;
     }  
-    if (!TemplateDetails?.content?.data?.childrenIds || TemplateDetails.content.data.childrenIds.length === 0) {
+    if (!TemplateDetails?.content?.root?.data?.childrenIds || TemplateDetails.content?.root?.data.childrenIds.length === 0) {
       setError("Template Design is Required");
       return;
     }  
@@ -107,7 +110,20 @@ export default function SaveButton ({TemplateDetails, isEdit, setError, setIsEdi
       <>
         <Button variant="contained" color='primary'
         onClick={saveTemplate}
+        sx={{bgcolor:'#0057D9', borderRadius:'6px', minWidth:'80px'}}
         > {isEdit ? 'Update' : 'Save'}</Button>
+
+        <AllModal
+          open={open}
+          handleClose={() => {setOpen(false)}}
+          handleConfirm={() => {navigate('/email-templates')}}
+          
+          title="Success"
+          message="Template is Saved Successfully"
+          btntxt="Yes"
+          icon={{ type: "success" }}
+          color="primary"
+      />
 
         {/* <ButtonGroup variant="contained" >
         <Button onClick={() => (options[0].onClick())} sx={{bgcolor:'#0057D9', borderRadius:'6px'}}>Save As</Button>

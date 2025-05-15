@@ -4,9 +4,10 @@ import { getFilterById, updateFilter } from "../../api/apiClient"; // ✅ ensure
 import FilterBuilder from "./FilterBuilder";
 import DeleteModal from '../Modals/DeleteModal';
 import {DynamicIconProps} from '../../types/modal';
+import CryptoJS from 'crypto-js'
 
 const EditFilter: React.FC = () => {
-  const { id } = useParams<{ id: string }>();
+  // const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [filterData, setFilterData] = useState<any>(null);
@@ -28,6 +29,26 @@ const EditFilter: React.FC = () => {
     color: '',
     handleClose: () => {},
   });
+
+  
+    const { id : encryptedId } = useParams();
+    const [id, setId] = useState<string | null>(null);
+    // const { id } = useParams<{id: string}>();
+    const secretKey =  (process.env.REACT_APP_ENCRYPT_SECRET_KEY as string);
+    
+    useEffect(() => {
+      if (encryptedId) {
+        try {
+          const bytes = CryptoJS.AES.decrypt(decodeURIComponent(encryptedId), secretKey);
+          const decryptedId = bytes.toString(CryptoJS.enc.Utf8);
+          setId(decryptedId);
+          console.log("Decrypted ID:", decryptedId);
+        } catch (error) {
+          console.error("Failed to decrypt ID:", error);
+          setId(null);
+        }
+      }
+    }, [encryptedId, secretKey]);
   
   useEffect(() => {
     const fetchFilter = async () => {
@@ -66,15 +87,15 @@ const EditFilter: React.FC = () => {
 
   const handleDiscard = () => {
     setModalData({
-          open: true,
-          handleConfirm: handleExit, 
-          title: 'Exit Filters',
-          message: 'You have unsaved changes. Do you really want to leave?',
-          handleClose: handleClose,        
-          btntxt: "Discard",
-          icon: { type: "cancel" } as DynamicIconProps,
-          color: "warning"
-        });
+      open: true,
+      handleConfirm: handleExit, 
+      title: 'Exit Filters',
+      message: 'You have unsaved changes. Do you really want to leave?',
+      handleClose: handleClose,        
+      btntxt: "Discard",
+      icon: { type: "cancel" } as DynamicIconProps,
+      color: "warning"
+    });
   };
   const handleExit = () => {
     navigate("/filters");

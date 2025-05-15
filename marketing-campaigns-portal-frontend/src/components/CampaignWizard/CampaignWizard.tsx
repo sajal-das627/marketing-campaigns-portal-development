@@ -38,6 +38,8 @@ import { RootState } from "../../redux/store";
 import { updateCampaign } from "../../redux/slices/campaignSlice";
 import DeleteModal from '../Modals/DeleteModal';
 import {DynamicIconProps} from '../../types/modal';
+import CryptoJS from 'crypto-js';
+
 const SpacedBox = styled(Box)(({ theme }) => ({
   marginTop: theme.spacing(2),
   marginBottom: theme.spacing(2),
@@ -130,9 +132,26 @@ export default function CampaignCreator() {
        steps = ['Campaign Type', 'Audience', 'Template', 'Schedule', 'Review & Launch'];
        stepIcons = [TvIcon, PeopleIcon, DescriptionIcon, CalendarTodayIcon, RateReviewIcon];
   }
+  
+  const { id : encryptedId } = useParams();
+  const [id, setId] = useState<string | null>(null);
+  // const { id } = useParams<{id: string}>();
+  const secretKey =  (process.env.REACT_APP_ENCRYPT_SECRET_KEY as string);
+  
+  useEffect(() => {
+    if (encryptedId) {
+      try {
+        const bytes = CryptoJS.AES.decrypt(decodeURIComponent(encryptedId), secretKey);
+        const decryptedId = bytes.toString(CryptoJS.enc.Utf8);
+        setId(decryptedId);
+        console.log("Decrypted ID:", decryptedId);
+      } catch (error) {
+        console.error("Failed to decrypt ID:", error);
+        setId(null);
+      }
+    }
+  }, [encryptedId, secretKey]);
 
-  const { id } = useParams<{id: string}>();
-  console.log("id: ", id);
   const campaignFromStore = useSelector((state: RootState) => state.campaign.selectedCampaign); 
   //Edited Mode Data Updates: 
   useEffect(() => {

@@ -18,6 +18,9 @@ import { useAppDispatch } from "../../../hooks/useAppDispatch";
 import { useSelector } from "react-redux" ;
 import { RootState } from "../../../redux/store";
 import { resetDocument } from '../documents/editor/EditorContext';
+import CryptoJS from 'crypto-js';
+
+// import AllModal from '@components/Modals/DeleteModal';
 
 const SAMPLES_DRAWER_WIDTH = 240;
 
@@ -140,25 +143,46 @@ export default function App({template}: TemplateEditorProps) {
       });
     };
 
-  const { id } = useParams<{id: string}>();
+  // const { id } = useParams<{id: string}>();
   // const id = '68220f25c305eea6017e4104';
+  
+  const { id : encryptedId } = useParams();
+  const [id, setId] = useState<string | null>(null);
+  // const { id } = useParams<{id: string}>();
+  const secretKey =  (process.env.REACT_APP_ENCRYPT_SECRET_KEY as string);
+  
+  useEffect(() => {
+    if (encryptedId) {
+      try {
+        const bytes = CryptoJS.AES.decrypt(decodeURIComponent(encryptedId), secretKey);
+        const decryptedId = bytes.toString(CryptoJS.enc.Utf8);
+        setId(decryptedId);
+        console.log("Decrypted ID:", decryptedId);
+      } catch (error) {
+        console.error("Failed to decrypt ID:", error);
+        setId(null);
+      }
+    }
+  }, [encryptedId, secretKey]);
   console.log('id', id);
   useEffect(() => {
       if (!id) resetState();
     }, [id]);
-  useEffect(() => {
-      if (!id) resetState();
-    }, []);
     
-  useEffect(() => {
-      const CheckData = async() =>{       
-        if (id) {
-          await dispatch(getTemplateById(id) as any);
-          
-          setIsEditMode(true);
-        } 
+    useEffect(() => {
+      if (id) {
+        dispatch(getTemplateById(id) as any).then((action: any) => {
+          const tpl = action.payload as Template;
+          if (tpl) {
+            setIsEditMode(true);
+            setTemplateDetails({
+              ...tpl,
+              tags: tpl.tags ?? [],
+            });
+            resetDocument(tpl.content);
+          }
+        });
       }
-      CheckData();
     }, [id, dispatch]);
 
     function isValidEmailBuilderJson(content: any) {
@@ -172,7 +196,7 @@ export default function App({template}: TemplateEditorProps) {
     }
     
     useEffect(() => {
-      if (templateFromApi) {
+      if (templateFromApi && isEditMode) {
         setTemplateDetails((prev) => ({
           ...prev,
           ...templateFromApi,
@@ -235,6 +259,9 @@ export default function App({template}: TemplateEditorProps) {
         <TemplatePanel templateDetails={templateDetails} isEdit={isEditMode} setError={setError} setIsEditMode={setIsEditMode}/>        
         {/* <BlocksDrawer/> */}
       </Stack>
+
+     
+    
     </>
   );
 }

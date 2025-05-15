@@ -263,7 +263,7 @@ const Step2Templates: React.FC<Step2TemplatesProps> = ({ handleChange, campaignD
                     <Box sx={{position: 'absolute', maxWidth: { xs: 160, sm: 180 }, overflow: 'hidden',
                     maxHeight: { xs: 80, sm: 120 }, color: 'grey', fontSize:'12px', border: 'blue 1px 1px 1px'                
                     }}>
-                      {template.content}
+                      {template?.content?.message || template?.content }
                     </Box>
                   )
                 }
