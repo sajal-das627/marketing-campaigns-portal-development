@@ -172,7 +172,7 @@
 import React, {useState, useEffect} from 'react';
 import EditIcon from '@mui/icons-material/Edit';
 
-import { Box, Button, Drawer, FormControl, IconButton, InputAdornment, InputBase, InputLabel, Stack, TextField, Typography, MenuItem, Select, SelectChangeEvent, Autocomplete, Chip } from '@mui/material';
+import { Box, Button, Drawer, FormControl, IconButton, InputAdornment, InputBase, InputLabel, Stack, TextField, Typography, MenuItem, Select, SelectChangeEvent, Autocomplete, Chip, Alert } from '@mui/material';
 
 import { useSamplesDrawerOpen } from '../../documents/editor/EditorContext';
 
@@ -232,10 +232,10 @@ const BLOCK_TYPES = [
 type SamplesDrawerProps = {
   setTemplateDetails: React.Dispatch<React.SetStateAction<Template>>;
   templateDetails: Template;
+  error: string | null;  
 }
 
-// }
-export default function SamplesDrawer({ templateDetails, setTemplateDetails }: SamplesDrawerProps) {
+export default function SamplesDrawer({ templateDetails, setTemplateDetails, error }: SamplesDrawerProps) {
   const handleFormChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement> | SelectChangeEvent | string,
     value?: any
@@ -328,7 +328,8 @@ export default function SamplesDrawer({ templateDetails, setTemplateDetails }: S
       }}
     >
       <Stack spacing={3} py={1} px={2} width={SAMPLES_DRAWER_WIDTH - 17} justifyContent="space-between" height="100%" mt={2} >
-       
+      {error && <Alert severity="error">{error}</Alert>}
+    
           <FormControl variant="outlined" size="medium" sx={{ minWidth: {xs:'92%'}, bgcolor: "#F8F9FA", borderRadius: "6px", p:1,  }}>
             <InputLabel sx={{display:'flex', alignItems:'center', gap:1,}}>
               Template Name <EditIcon sx={{fontSize:'17px'}} />
@@ -339,8 +340,8 @@ export default function SamplesDrawer({ templateDetails, setTemplateDetails }: S
             value={templateDetails.name}
             // onChange={(e) => {
             //   const val = e.target.value;
-              // setNewCriteria({ ...newCriteria, label: val });
-              // validateBlockName(val); // You should manage `error` in state
+              // (e)=>handleFormChange(e);
+              // validateBlockName(e); // You should manage `error` in state
             // }}
             // error={!!criteriaError}
             // {...criteriaError && <FormHelperText style={{color:'red'}}>{criteriaError}</FormHelperText>}

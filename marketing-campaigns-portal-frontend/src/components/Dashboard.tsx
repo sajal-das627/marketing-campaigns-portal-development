@@ -311,7 +311,7 @@ const campaignResponses: Array<{
           </Grid>
           <Grid  size={{ xs: 12}}>
 
-            <CampaignPerformanceChart />
+            <CampaignPerformanceChart stats={data?.emailsSent?.monthlyStats} />
 
           </Grid>
         </Grid>

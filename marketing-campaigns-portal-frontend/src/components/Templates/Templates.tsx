@@ -60,7 +60,7 @@ import CloseIcon from '@mui/icons-material/Close';
 import type { Template } from "../../redux/slices/templateSlice";
 import CustomPreview from "./CustomPreview";
 import { useNavigate, useNavigation } from "react-router-dom";
-
+import SMSPreview from '../Modals/SMSPreview'
 const TemplatesTable: React.FC = () => {
   
     // const [tab, setTab] = React.useState(0);
@@ -89,6 +89,7 @@ const TemplatesTable: React.FC = () => {
     const [editName, setEditName] = useState("");
     const [editContent, setEditContent] = useState("");
     const [openIndex, setOpenIndex] = useState<string | null>(null);
+    const [openSMSModal, setOpenSMSModal] = useState<boolean>(false);
     const [searchTerm, setSearchTerm] = useState("");
     const [debouncedSearch] = useDebounce(searchTerm, 500);
     const [totalLocalFavorites, setTotalLocalFavorites] = useState(1);
@@ -164,11 +165,21 @@ const TemplatesTable: React.FC = () => {
       refreshActiveTab();
     };
   
-    const handleViewTemplate = (templateId: string) => {
+    const handleViewTemplate = (templateId: string, type:string) => {
       dispatch(getTemplateById(templateId) as any);
       // setOpen(true);
+      if(type === 'Email'){
+        setOpenIndex(templateId);
+      }
+      else if (type === 'SMS'){
+        setOpenSMSModal(true);
+        setOpenIndex(templateId);
+      }
+      else{
+        console.log("Type Doesn't exists");
+      }
       console.log("view template", templateId);
-      setOpenIndex(templateId);
+      
     };
   
     const handleClose = () => {
@@ -187,10 +198,16 @@ const TemplatesTable: React.FC = () => {
       dispatch(setFilters({ page: newPage }));
     };
   
-    const handleEditClick = async (id: string) => {
+    const handleEditClick = async (id: string, type: string) => {
       await dispatch(getTemplateById(id) as any);
       // setOpenEditModal(true);
-       navigation(`/build-template/${id}`);
+      if(type === "Email") {
+        navigation(`/build-template/${id}`);
+      }
+      else
+      {
+         navigation(`/build-sms/${id}`);
+      }
     };
   
     const handleCloseEditModal = () => {
@@ -561,10 +578,10 @@ const TemplatesTable: React.FC = () => {
               </TableCell>
               <TableCell>
                 <Stack direction="row" spacing={1} sx={{alignItems:'center',}}>
-                  <IconButton onClick={() => handleViewTemplate(template._id)}>
+                  <IconButton onClick={() => handleViewTemplate(template._id, template.type)}>
                     <VisibilityIcon color="primary" fontSize="small" />
                   </IconButton>
-                  <Typography sx={{color:"#0057D9", cursor:'pointer'}}  onClick={() => handleViewTemplate(template._id)}>View</Typography>
+                  <Typography sx={{color:"#0057D9", cursor:'pointer'}}  onClick={() => handleViewTemplate(template._id, template.type)}>View</Typography>
 
                   <IconButton onClick={(e) => handleAnchorClick(e, template._id)}>
                     <MoreVertIcon fontSize="small"  />
@@ -584,8 +601,8 @@ const TemplatesTable: React.FC = () => {
                   >
                     {!template.isDeleted && (
                       <>
-                      <MenuItem onClick={() => template.type === 'Email' ? navigation(`/build-template/${template._id}`) : navigation(`/build-sms/${template._id}`)}>Edit</MenuItem>
-                      {/* <MenuItem onClick={() => handleEditClick(template._id)}>Edit</MenuItem> */}
+                      {/* <MenuItem onClick={() => template.type === 'Email' ? navigation(`/build-template/${template._id}`) : navigation(`/build-sms/${template._id}`)}>Edit</MenuItem> */}
+                      <MenuItem onClick={() => handleEditClick(template._id, template.type)}>Edit</MenuItem>
                       <MenuItem onClick={() => handleDuplicateTemplate(template._id)}>Duplicate</MenuItem>
                       </>
                     )}                   
@@ -701,8 +718,8 @@ const TemplatesTable: React.FC = () => {
             <Stack direction="row" justifyContent="space-between" alignItems="center">
               <Tooltip title="View">
                 <Box
-                  sx={{ display: 'flex', alignItems: 'center', gap: 0.5, cursor: 'pointer' }}
-                  onClick={() => handleViewTemplate(template._id)}
+                  sx={{ display: 'flex', alignItems: 'center', gap: 0.1, cursor: 'pointer' }}
+                  onClick={() => handleViewTemplate(template._id, template.type)}
                 >
                   <VisibilityIcon fontSize="small" sx={{ color: '#007BFF' }} />
                   <Typography variant="body2" color="#007BFF" fontWeight={500}>
@@ -731,7 +748,7 @@ const TemplatesTable: React.FC = () => {
               >
                 {!template.isDeleted && (
                   <>
-                    <MenuItem onClick={() => handleEditClick(template._id)}>Edit</MenuItem>
+                    <MenuItem onClick={() => handleEditClick(template._id, template.type)}>Edit</MenuItem>
                     <MenuItem onClick={() => handleDuplicateTemplate(template._id)}>Duplicate</MenuItem>
                   </>
                 )}
@@ -747,6 +764,15 @@ const TemplatesTable: React.FC = () => {
           ( 
           <CustomPreview  key={selectedTemplate.id}  doc={selectedTemplate.design} html={selectedTemplate.html} open={openIndex === selectedTemplate.id} handleClose={handleClose}/>
           )} */}
+
+          {/* <SMSPreview   
+            open={openSMSModal}
+            name={template.name} 
+            handleClose={() => setOpenSMSModal(false)}
+            handleConfirm={() => setOpenSMSModal(false)}
+            subject={template.subject} 
+            message={template.content.message} 
+            /> */}
 
           </Grid>
         ))}
@@ -782,7 +808,16 @@ const TemplatesTable: React.FC = () => {
                   handleClose={handleClose}
                   />
       )}
-
+      {selectedTemplate && selectedTemplate._id === openIndex && (
+       <SMSPreview   
+            open={openSMSModal}
+            name={selectedTemplate.name} 
+            handleClose={() => setOpenSMSModal(false)}
+            handleConfirm={() => setOpenSMSModal(false)}
+            subject={selectedTemplate.subject} 
+            message={selectedTemplate.content.message} 
+            />)
+        }
       {/* <Modal open={open} onClose={handleClose}>
         <Dialog
               open={open}

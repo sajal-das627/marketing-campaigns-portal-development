@@ -16,7 +16,7 @@ import {
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { useSelector } from "react-redux";
-import { getTemplates, getFavoriteTemplates, setFilters, duplicateTemplate } from '../../redux/slices/templateSlice';
+import { getTemplates, getFavoriteTemplates, setFilters, duplicateTemplate, getTemplatesByCategory } from '../../redux/slices/templateSlice';
 import { RootState } from '../../redux/store';
 import { useAppDispatch } from '../../redux/hooks';
 import type { Template } from "../../redux/slices/templateSlice";
@@ -27,7 +27,7 @@ import { renderToStaticMarkup } from '@usewaypoint/email-builder';
 import { useDocument } from '../EditorSample/documents/editor/EditorContext';
 import { Template as TemplateType } from '../../types/template';
 import { useDebounce } from "use-debounce";
-
+import AllModal from '../../components/Modals/DeleteModal';
 // const topBarTabs = [
 //   'All Basic Templates',
 //   'Give an Update',
@@ -46,22 +46,15 @@ export default function EmailTemplateGallery(props: EmailTemplateProps) {
   const [loading, setLoading] = useState(false);
   const [hasMore, setHasMore] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
+  const [isOpenSuccess, setIsOpenSuccess] = useState<boolean>(false);
+  const [editId, setEditID] = useState<string>('');
   const dispatch = useAppDispatch();
+  const navigate = useNavigate();
+  //oldest
   // const templates = useSelector(
   //   (state: RootState) => state.template.allTemplates
   // );
 
-  const {
-        allTemplates = [],
-        recentTemplates = [],
-        favoriteTemplates = [],
-        filters = { page: 1, limit: 4, type: "", category: "", sortBy: "" },
-        totalPages = 1,
-        activeTab = "all",
-        selectedTemplate = null,
-      } = useSelector((state: RootState) => state.template || {});
-  
-      
   // Define params for fetching templates
   // const params = useMemo(() => ({
   //   search: "",
@@ -83,7 +76,19 @@ export default function EmailTemplateGallery(props: EmailTemplateProps) {
   //     console.log('favoriteTemplates: ', favoriteTemplates);
       
   // },[dispatch, params])
-  
+
+
+  //mid code
+  const {
+    allTemplates = [],
+    recentTemplates = [],
+    favoriteTemplates = [],
+    filters = { page: 1, limit: 4, type: "", category: "", sortBy: "" },
+    totalPages = 1,
+    activeTab = "all",
+    selectedTemplate = null,
+  } = useSelector((state: RootState) => state.template || {});
+      
     const [debouncedSearch] = useDebounce(searchTerm, 500);
   
   useEffect(() => {
@@ -96,7 +101,39 @@ export default function EmailTemplateGallery(props: EmailTemplateProps) {
     console.log('templates:', allTemplates, ' favoriteTemplates:', favoriteTemplates);
     // setLocalFav(favoriteTemplates);
   }, [allTemplates, favoriteTemplates])
-  const navigate = useNavigate();
+  
+  // const topBarTabs = ['All', 'Favorite', 'Promotional', 'Transactional', 'Event Based', 'Update', 'Announcement', 'Action', 'Product', 'Holiday']
+
+  const templatesToShow =
+  topBarIndex === "All" ? allTemplates :
+  topBarIndex === "Favorite" ? favoriteTemplates :
+  allTemplates.filter(template => template.category === topBarIndex);
+  
+  useEffect(() => {
+    if (!hasMore) return;
+  
+    setLoading(true);
+    setTimeout(() => {
+      const fetchAction = topBarIndex === "Favorite"
+        ? getFavoriteTemplates({ page, type: "Email", limit: 4, append: true })
+        : getTemplates({ page, type: "Email", limit: 4, append: true });
+  
+      dispatch(fetchAction as any).then((res: any) => {
+        const isShort = document.documentElement.scrollHeight <= window.innerHeight;
+        const noMoreData = res?.payload?.length < 4;
+  
+        if (isShort || noMoreData) {
+          setHasMore(false);
+        }
+  
+        setLoading(false);
+      });
+    }, 200);
+  }, [page, topBarIndex]);
+
+
+  ///    
+  
   const rootBlockId = 'root';
 
   const topBarTabs = ['All','Favorite', ...new Set(
@@ -106,15 +143,7 @@ export default function EmailTemplateGallery(props: EmailTemplateProps) {
     .filter(Boolean)
   )];
 
-  // const topBarTabs = ['All', 'Favorite', 'Promotional', 'Transactional', 'Event Based', 'Update', 'Announcement', 'Action', 'Product', 'Holiday']
-
-  const templatesToShow =
-  topBarIndex === "All" ? allTemplates :
-  topBarIndex === "Favorite" ? favoriteTemplates :
-  allTemplates.filter(template => template.category === topBarIndex);
-        
   const LazyReader = React.lazy(() => import('@usewaypoint/email-builder').then((module) => ({ default: module.Reader })));
-///
 
   const loaderRef = useRef(null);
   useEffect(() => {
@@ -151,65 +180,26 @@ export default function EmailTemplateGallery(props: EmailTemplateProps) {
   //   });
   // }, [page]);
 
-  // useEffect(() => {
-  //   if (!hasMore) return;
-  
-  //   setLoading(true);
-  //   dispatch(getFavoriteTemplates({ page, type: "Email", limit: 4 }) as any).then((res: any) => {
-  //     if (res?.payload?.length < 4) {
-  //       setHasMore(false);
-  //     }
-  //     setLoading(false);
-  //   });
-  // }, [page]);
-
-  useEffect(() => {
-    if (!hasMore) return;
-  
-    setLoading(true);
-    setTimeout(() => {
-      const fetchAction = topBarIndex === "Favorite"
-        ? getFavoriteTemplates({ page, type: "Email", limit: 4, append: true })
-        : getTemplates({ page, type: "Email", limit: 4, append: true });
-  
-      dispatch(fetchAction as any).then((res: any) => {
-        const isShort = document.documentElement.scrollHeight <= window.innerHeight;
-        const noMoreData = res?.payload?.length < 4;
-  
-        if (isShort || noMoreData) {
-          setHasMore(false);
-        }
-  
-        setLoading(false);
-      });
-    }, 200);
-  }, [page, topBarIndex]);
   
   //select
   
     const handleSelect = async(id: string) =>{
       if(id){
         const res: any = await dispatch(duplicateTemplate(id) as any);
-        console.log(res); 
-      }// if (!duplicateTemplate.fulfilled.match(res)) return;
-      // const duplicated: Template = res.payload.template;
+        console.log('res', res); 
       
+      if (!duplicateTemplate.fulfilled.match(res)) return;
+      const duplicated: Template = res.payload.template._id;
+      navigate(`/build-template/${duplicated}`);
+      console.log('duplicateID:' , duplicated);
+      }
+      else console.log("ID doesn't exist");
   }
-  
-  
-  
-  // useEffect(() => {
-  //   setLoading(true);
-  //   dispatch(getTemplates(params) as any).then((res: any) => {
-  //     if (res?.payload?.length < 20) {
-  //       setHasMore(false);
-  //     }
-  //     setLoading(false);
-  //   });
-  // }, [dispatch, params]);
-  
 
+  ///
   
+  
+    
   //imp!
   // const decodeHTML = (html: string) => {
   //     const txt = document.createElement("textarea");
@@ -217,43 +207,6 @@ export default function EmailTemplateGallery(props: EmailTemplateProps) {
   //     return txt.value;
   // };
 
-  // Infinte Scroll
-  
-  // const templatesToShow = useMemo(() => {
-  //         const source =
-  //           topBarIndex === 'Favorite' ? localFav :
-  //           topBarIndex === 'All' ? allTemplates :
-  //           allTemplates.filter(template => template.category === topBarIndex);
-        
-  //         return source
-  //         // .filter(template => template.type === 'Email');
-  //       }, [topBarIndex, allTemplates, favoriteTemplates]);
-  // useEffect(() => {
-  //   const handleScroll = () => {
-  //     const bottom = window.innerHeight + window.scrollY >= document.body.offsetHeight - 100;
-  //     if (bottom && !loading && hasMore) {
-  //       setLoading(true);
-  //       setPage((prev) => prev + 1);
-  //     }
-  //   };
-  
-  //   window.addEventListener("scroll", handleScroll);
-  //   return () => window.removeEventListener("scroll", handleScroll);
-  // }, [loading, hasMore]);
-  
-  // useEffect(() => {
-  //   const fetchTemplates = async () => {
-  //     try {
-  //       setLoading(true);
-  //       const result = await dispatch(getTemplates(params) as any).unwrap();
-  //       if (result.length < 15) setHasMore(false);
-  //     } finally {
-  //       setLoading(false);
-  //     }
-  //   };
-  
-  //   fetchTemplates();
-  // }, [page, dispatch]);
 
   return (
     <Box sx={{ display: 'flex', flexDirection: { xs: 'column', lg: 'row' }, p: 3 }} >
@@ -401,6 +354,7 @@ export default function EmailTemplateGallery(props: EmailTemplateProps) {
                           size="medium"
                           variant="contained"
                           color="primary"
+                          // onClick={() => {setIsOpenSuccess(true); setEditID(template._id)}}
                           onClick={() => handleSelect(template._id) as any}
                           sx={{
                             bgcolor: '#0057D9',
@@ -441,6 +395,16 @@ export default function EmailTemplateGallery(props: EmailTemplateProps) {
                       handleClose={()=>setOpenIndex(null)}
                       />)
                     }
+                      <AllModal
+                      open={isOpenSuccess}
+                      handleClose={()=>{setIsOpenSuccess(false)}}
+                      handleConfirm={()=>handleSelect(template._id) as any}
+                      title= "Do you want to select this template?" 
+                      message= "Copy This Template as New One" 
+                      btntxt = "Yes"
+                      icon={{ type: "success" }}
+                      color = "primary"
+                    />
                 </>
               </Grid>
               

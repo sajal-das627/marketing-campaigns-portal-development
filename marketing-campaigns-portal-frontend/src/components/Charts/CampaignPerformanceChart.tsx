@@ -11,6 +11,8 @@ import {
   Tooltip,
   Legend,
 } from 'chart.js';
+import { MonthlyStat } from 'types/dashboard';
+
 
 ChartJS.register(
   CategoryScale,
@@ -22,15 +24,44 @@ ChartJS.register(
   Legend
 );
 
-const CampaignPerformanceChart: React.FC = () => {
-  const [timeFrame, setTimeFrame] = useState('Monthly');
+interface CampaignPerformanceChartProps {
+  stats?: MonthlyStat[];
+}
+
+const CampaignPerformanceChart: React.FC<CampaignPerformanceChartProps> = ({stats}) => {
+  const [timeFrame, setTimeFrame] = useState<'daily' | 'weekly' | 'monthly'>('daily');
+  const timeFrames = ['daily', 'weekly', 'monthly'] as const;
+  if (!stats || stats.length === 0) {
+    return (
+      <Card sx={{ borderRadius: 2, boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)' }}>
+        <CardContent>
+          <Typography variant="h6">No campaign performance data available.</Typography>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  const labels = stats.map((stat) => stat.month);
+  const clickRates = stats.map((stat) => {
+    const campaigns = stat[timeFrame]?.campaigns || [];
+    if (campaigns.length === 0) return 0;
+    const totalClick = campaigns.reduce((sum, c) => sum + c.clickRate, 0);
+    return Math.round(totalClick / campaigns.length); // average
+  });
+
+  const openRates = stats.map((stat) => {
+    const campaigns = stat[timeFrame]?.campaigns || [];
+    if (campaigns.length === 0) return 0;
+    const totalOpen = campaigns.reduce((sum, c) => sum + c.openRate, 0);
+    return Math.round(totalOpen / campaigns.length); // average
+  });
 
   const data = {
-    labels: ['1 Jan', '3 Jan', '7 Jan', '10 Jan', '14 Jan', '20 Jan', '23 Jan', '27 Jan', '31 Jan'],
+    labels,
     datasets: [
       {
         label: 'Open Rate %',
-        data: [40, 30, 45, 35, 75, 60, 50, 65, 55],
+        data: clickRates,
         borderColor: '#3f51b5',
         backgroundColor: '#3f51b5',
         fill: false,
@@ -38,7 +69,7 @@ const CampaignPerformanceChart: React.FC = () => {
       },
       {
         label: 'Click Rate %',
-        data: [20, 35, 25, 15, 50, 45, 55, 40, 60],
+        data: openRates,
         borderColor: '#ff9800',
         backgroundColor: '#ff9800',
         fill: false,
@@ -72,7 +103,6 @@ const CampaignPerformanceChart: React.FC = () => {
       },
       y: {
         beginAtZero: true,
-        max: 80,
         ticks: {
           stepSize: 20,
         },
@@ -80,11 +110,10 @@ const CampaignPerformanceChart: React.FC = () => {
     },
   };
 
-  const handleTimeFrameChange = (frame: string) => {
+  const handleTimeFrameChange = (frame: "daily" | "weekly" | "monthly") => {
     setTimeFrame(frame);
   };
 
-  const timeFrames = ['Daily', 'Weekly', 'Monthly'];
 
   return (
     <Card sx={{ borderRadius: 2, boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)' }}>
