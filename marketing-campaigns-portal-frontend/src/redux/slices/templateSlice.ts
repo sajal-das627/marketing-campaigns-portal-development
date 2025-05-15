@@ -192,8 +192,10 @@ export const getTemplatesByCategory = createAsyncThunk(
   ) => {
     try {
       const res = await fetchTemplatesByCategory(category, type, page, limit);
-      console.log('res.templates:', res)
-      return res.templates; // Or adjust based on actual response shape
+      return {
+        data: res.data,
+        totalPages: res.pagination?.totalPages || 1,
+      };
     } catch (err: any) {
       return thunkAPI.rejectWithValue(
         err?.message || "Failed to fetch templates by category"
@@ -479,17 +481,10 @@ const templateSlice = createSlice({
     //   }
     //   state.allTemplates.splice(originalIndex + 1, 0, duplicated); // insert right after
     // });
-    .addCase(getTemplatesByCategory.pending, (state) => {
-      state.loading = true;
-      state.error = null;
-    })
     .addCase(getTemplatesByCategory.fulfilled, (state, action) => {
       state.loading = false;
-      state.allTemplates = action.payload;
-    })
-    .addCase(getTemplatesByCategory.rejected, (state, action) => {
-      state.loading = false;
-      state.error = action.payload as string;
+      state.totalPages = action.payload.totalPages;
+      state.allTemplates = action.payload.data || [];
     });
 
   },

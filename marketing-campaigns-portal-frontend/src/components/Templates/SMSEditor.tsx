@@ -21,7 +21,7 @@ import {
 import SaveIcon from '@mui/icons-material/Save';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import SendIcon from '@mui/icons-material/Send';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 
 import { RootState } from "../../redux/store";
 import {useAppDispatch} from '../../redux/hooks'
@@ -100,6 +100,26 @@ const TemplateEditor: React.FC<TemplateEditorProps> = ({
   //   includeOptOut: template?.includeOptOut ?? false,
   //   content: { message: template?.content.message || '' },
   // });
+  const location = useLocation();
+
+  useEffect(() => {
+    if (location.pathname === '/build-sms') {
+      // Reload the page, but only if it's not from a hard refresh
+      const fromNavigation = !performance.getEntriesByType("navigation")[0].type.includes("reload");
+
+      if (fromNavigation) {
+        window.location.reload();
+      }
+    }
+  }, [location.pathname]);
+  // useEffect(() => {
+  //   const hasReloaded = sessionStorage.getItem('hasReloaded');
+    
+  //   if (!hasReloaded) {
+  //     sessionStorage.setItem('hasReloaded', 'true');
+  //     window.location.reload(); 
+  //   }
+  // }, []);
 
   const dispatch = useAppDispatch();
 
@@ -170,6 +190,7 @@ const TemplateEditor: React.FC<TemplateEditorProps> = ({
           await dispatch(createTemplateThunk(form));
         }
       }
+      setIsEditMode(false);
     } catch(error){
       console.error(error);
     }

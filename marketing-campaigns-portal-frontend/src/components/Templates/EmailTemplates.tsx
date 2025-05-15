@@ -1,296 +1,153 @@
-import React, { useState, useMemo, useEffect, Suspense, useRef } from 'react';
+import React, { useState, useEffect, Suspense,  } from 'react';
 import {
-  Box,
-  Typography,
-  Grid2 as Grid,
-  Card,
-  // CardMedia,
-  // CardContent,
-  Button,
-  Tabs,
-  Tab,
-  List,
-  ListItemButton,
-  ListItemText,
-  //   Divider,
+  Box, Typography, Grid, Card, Button, Tabs, Tab
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { useSelector } from "react-redux";
-import { getTemplates, getFavoriteTemplates, setFilters, duplicateTemplate, getTemplatesByCategory } from '../../redux/slices/templateSlice';
+import {
+  getTemplates,
+  getFavoriteTemplates,
+  getTemplatesByCategory,
+  duplicateTemplate
+} from '../../redux/slices/templateSlice';
 import { RootState } from '../../redux/store';
 import { useAppDispatch } from '../../redux/hooks';
-import type { Template } from "../../redux/slices/templateSlice";
-// import { Reader } from '@usewaypoint/email-builder';
 import CustomPreview from "../../components/Templates/CustomPreview";
-import LoopIcon from '@mui/icons-material/Loop';
-import { renderToStaticMarkup } from '@usewaypoint/email-builder';
-import { useDocument } from '../EditorSample/documents/editor/EditorContext';
-import { Template as TemplateType } from '../../types/template';
-import { useDebounce } from "use-debounce";
+import type { Template } from "../../redux/slices/templateSlice";
 import AllModal from '../../components/Modals/DeleteModal';
-// const topBarTabs = [
-//   'All Basic Templates',
-//   'Give an Update',
-//   'Make an Announcement',
-// ];
+import LoopIcon from '@mui/icons-material/Loop';
 
-type EmailTemplateProps = {
-  rootBlockId?: string;
-}
-
-export default function EmailTemplateGallery(props: EmailTemplateProps) {
-  const [tabIndex, setTabIndex] = React.useState(0);
-  const [topBarIndex, settopBarIndex] = React.useState<string>('All');
-  const [openIndex, setOpenIndex] = useState<string | null>(null);
-  const [page, setPage] = useState(1);
-  const [loading, setLoading] = useState(false);
-  const [hasMore, setHasMore] = useState(true);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [isOpenSuccess, setIsOpenSuccess] = useState<boolean>(false);
-  const [editId, setEditID] = useState<string>('');
-  const dispatch = useAppDispatch();
+export default function EmailTemplateGallery() {
   const navigate = useNavigate();
-  //oldest
-  // const templates = useSelector(
-  //   (state: RootState) => state.template.allTemplates
-  // );
-
-  // Define params for fetching templates
-  // const params = useMemo(() => ({
-  //   search: "",
-  //   type: "Email",
-  //   page,
-  //   limit: 20,
-  // }), [page]);
-
-  // useEffect(() => {
-  //   // dispatch(getTemplates(params));
-  //   dispatch(getTemplates(params) as any);
-  //   console.log('templates', allTemplates)
-
-  // }, [dispatch, params]);
-
-  // useEffect(()=>{
-  //   // const query = buildQuery();
-  //     dispatch(getFavoriteTemplates(params) as any);
-  //     console.log('favoriteTemplates: ', favoriteTemplates);
-      
-  // },[dispatch, params])
-
-
-  //mid code
-  const {
-    allTemplates = [],
-    recentTemplates = [],
-    favoriteTemplates = [],
-    filters = { page: 1, limit: 4, type: "", category: "", sortBy: "" },
-    totalPages = 1,
-    activeTab = "all",
-    selectedTemplate = null,
-  } = useSelector((state: RootState) => state.template || {});
-      
-    const [debouncedSearch] = useDebounce(searchTerm, 500);
-  
-  useEffect(() => {
-    if (filters.page !== 1) {
-      dispatch(setFilters({ ...filters, page: 1 }));
-    }
-  }, [debouncedSearch, filters.type, filters.category, filters.sortBy]);
-      
-  useEffect(() => {
-    console.log('templates:', allTemplates, ' favoriteTemplates:', favoriteTemplates);
-    // setLocalFav(favoriteTemplates);
-  }, [allTemplates, favoriteTemplates])
-  
-  // const topBarTabs = ['All', 'Favorite', 'Promotional', 'Transactional', 'Event Based', 'Update', 'Announcement', 'Action', 'Product', 'Holiday']
-
-  const templatesToShow =
-  topBarIndex === "All" ? allTemplates :
-  topBarIndex === "Favorite" ? favoriteTemplates :
-  allTemplates.filter(template => template.category === topBarIndex);
-  
-  useEffect(() => {
-    if (!hasMore) return;
-  
-    setLoading(true);
-    setTimeout(() => {
-      const fetchAction = topBarIndex === "Favorite"
-        ? getFavoriteTemplates({ page, type: "Email", limit: 4, append: true })
-        : getTemplates({ page, type: "Email", limit: 4, append: true });
-  
-      dispatch(fetchAction as any).then((res: any) => {
-        const isShort = document.documentElement.scrollHeight <= window.innerHeight;
-        const noMoreData = res?.payload?.length < 4;
-  
-        if (isShort || noMoreData) {
-          setHasMore(false);
-        }
-  
-        setLoading(false);
-      });
-    }, 200);
-  }, [page, topBarIndex]);
-
-
-  ///    
-  
+  const dispatch = useAppDispatch();
   const rootBlockId = 'root';
 
-  const topBarTabs = ['All','Favorite', ...new Set(
-    allTemplates
-    // .filter((temp)=>temp.type === 'Email')
-    .map((temp) => temp.category)
-    .filter(Boolean)
-  )];
+  const {
+    allTemplates = [],
+    favoriteTemplates = [],
+  } = useSelector((state: RootState) => state.template || {});
 
-  const LazyReader = React.lazy(() => import('@usewaypoint/email-builder').then((module) => ({ default: module.Reader })));
+  const [tabIndex, setTabIndex] = useState(0);
+  const [topBarIndex, setTopBarIndex] = useState("All");
+  const [openIndex, setOpenIndex] = useState<string | null>(null);
+  const [page, setPage] = useState(1);
+  const [templates, setTemplates] = useState<any[]>([]);
+  const [totalPages, setTotalPages] = useState(1);
+  const [loading, setLoading] = useState(false);
+  const [isOpenSuccess, setIsOpenSuccess] = useState<boolean>(false);
+  const [categories, setCategories] = useState<string[]>([]);
 
-  const loaderRef = useRef(null);
+  const topBarTabs = ['All', 'Favorite', ...categories];
+
+  const fetchTemplates = async () => {
+  setLoading(true);
+  try {
+    let res;
+  if (topBarIndex === "All") {
+    res = await dispatch(getTemplates({ page, limit: 12, type: "Email" }) as any);
+    if (res?.payload?.data) {
+      setTemplates(res.payload.data);
+      setTotalPages(res.payload.totalPages);
+
+      const extractedCategories = Array.from(
+        new Set(res.payload.data.map((t: any) => t.category).filter(Boolean))
+      ) as string[];
+
+      setCategories(extractedCategories);
+    }
+  } else if (topBarIndex === "Favorite") {
+        res = await dispatch(getFavoriteTemplates({ page, limit: 12, type: "Email" }) as any);
+        if (res?.payload?.data) {
+          setTemplates(res.payload.data);
+          setTotalPages(res.payload.totalPages);
+        }
+      } else {
+        res = await dispatch(getTemplatesByCategory({
+          category: topBarIndex,
+          type: "Email",
+          page,
+          limit: 12
+        }) as any);
+        if (res?.payload?.data) {
+          setTemplates(res.payload.data);
+          setTotalPages(res.payload.totalPages);
+        }
+      }
+    } catch (err) {
+      console.error("Template fetch failed:", err);
+      setTemplates([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    if (loading || !hasMore) return;
-  
-    const observer = new IntersectionObserver(entries => {
-      if (entries[0].isIntersecting) {
-        setPage(prev => prev + 1);
-      }
-    }, {
-      root: null,
-      rootMargin: '0px',
-      threshold: 1.0,
-    });
-  
-    const currentLoader = loaderRef.current;
-    if (currentLoader) observer.observe(currentLoader);
-  
-    return () => {
-      if (currentLoader) observer.unobserve(currentLoader);
-    };
-  }, [loading, hasMore]);
+    setPage(1);
+  }, [topBarIndex]);
+
+  useEffect(() => {
+    fetchTemplates();
+  }, [topBarIndex, page]);
 
 
-  // useEffect(() => {
-  //   if (!hasMore) return;
-  
-  //   setLoading(true);
-  //   dispatch(getTemplates({ page, type: "Email", limit: 4 }) as any).then((res: any) => {
-  //     if (res?.payload?.length < 4) {
-  //       setHasMore(false);
-  //     }
-  //     setLoading(false);
-  //   });
-  // }, [page]);
-
-  
-  //select
-  
-    const handleSelect = async(id: string) =>{
-      if(id){
-        const res: any = await dispatch(duplicateTemplate(id) as any);
-        console.log('res', res); 
-      
-      if (!duplicateTemplate.fulfilled.match(res)) return;
-      const duplicated: Template = res.payload.template._id;
-      navigate(`/build-template/${duplicated}`);
-      console.log('duplicateID:' , duplicated);
-      }
-      else console.log("ID doesn't exist");
-  }
-
-  ///
-  
-  
+  const handleSelect = async(id: string) =>{
+    if(id){
+      const res: any = await dispatch(duplicateTemplate(id) as any);
+      console.log('res', res); 
     
-  //imp!
-  // const decodeHTML = (html: string) => {
-  //     const txt = document.createElement("textarea");
-  //     txt.innerHTML = html;
-  //     return txt.value;
-  // };
+    if (!duplicateTemplate.fulfilled.match(res)) return;
+    const duplicated: Template = res.payload.template._id;
+    navigate(`/build-template/${duplicated}`);
+    console.log('duplicateID:' , duplicated);
+    }
+    else console.log("ID doesn't exist");
+}
+
+const LazyReader = React.lazy(() => import('@usewaypoint/email-builder').then((module) => ({ default: module.Reader })));
 
 
   return (
-    <Box sx={{ display: 'flex', flexDirection: { xs: 'column', lg: 'row' }, p: 3 }} >
-      {/* Left Sidebar 
-      <Card
-        sx={{
-          width: { xs: '100%', md: 250, },
-          p: 2,
-          mr: 3,
-          mb: 2,
-          borderRight: "1px solid #ddd",
-          display: "flex",
-          flexDirection: "column"
-        }}
-      >
-        <Typography variant="h6" mb={2}>
-          Search Templates
-        </Typography>
-
-        <List>
-          {topBarTabs.map((label, idx) => (
-            <ListItemButton
-              key={label}
-              selected={topBarIndex === label}
-              onClick={() => settopBarIndex(label)}
-            >
-              <ListItemText primary={label} />
-            </ListItemButton>
-          ))}
-        </List>
-      </Card> */}
-
-      {/* Main Content */}
+    <Box sx={{ display: 'flex', flexDirection: { xs: 'column', lg: 'row' }, p: 3 }}>
       <Box flex={1}>
         <Typography variant="h4" mb={2}>
           Design Your Template
         </Typography>
+
         <Card>
           <Tabs
             value={tabIndex}
-            onChange={(_, val) => setTabIndex(val)}
-            aria-label="top tabs"
-          >{topBarTabs.map((label, index) => (
-            <Tab
-              key={label}
-              label={label}
-              value={index}
-              onClick={() => settopBarIndex(label)}
-            />
-          ))}
-          {/* <Tab label="Basic Templates" /> */}
+            onChange={(_, val) => {
+              setTabIndex(val);
+              setTopBarIndex(topBarTabs[val]);
+            }}
+            aria-label="template tabs"
+          >
+            {topBarTabs.map((label, index) => (
+              <Tab key={label} label={label} value={index} />
+            ))}
           </Tabs>
         </Card>
+
         <Card sx={{ mt: 2, p: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <Typography sx={{ mr: 2, color: '#6D6976' }} >
+          <Typography sx={{ mr: 2, color: '#6D6976' }}>
             Start from scratch and design from a blank canvas
           </Typography>
-          <Button variant="contained" sx={{ backgroundColor: '#0057D9' }} onClick={() => navigate('/build-template')}>
+          <Button
+            variant="contained"
+            sx={{ backgroundColor: '#0057D9' }}
+            onClick={() => navigate('/build-template')}
+          >
             Start From Scratch
           </Button>
         </Card>
 
         <Grid container spacing={3} mt={2}>
-          {(templatesToShow ?? [])
-            //   .filter((template)=>template.type === 'Email')
-            // .filter((template) => (topBarIndex === 'All' ? true : template.category === topBarIndex)
-            //   && (template.type === 'Email')
-            // )
-            .filter((template) => {
-              if (topBarIndex === 'All') return template.type === 'Email';
-              if (topBarIndex === 'Favorite') return favoriteTemplates.some(fav => fav._id === template._id);
-              return template.category === topBarIndex && template.type === 'Email';
-            })
-            
+          {(templates ?? [])
+            .filter((template) => template?.type === 'Email')
             .map((template: any) => (
-              <Grid size={{ xs: 6, sm: 4, md: 4, lg: 3, xl: 2.4 }} key={template._id} sx={{ textAlign: 'left', position: 'relative', }}>
-                <>
-                  <Card sx={{
-                    width: '200px',
-                    height: '200px',
-                    //  justifyContent:'center', alignItems:'center',
-                    borderRadius: '10px',
-                  }}>
-                    <Box
+              <Grid item xs={6} sm={4} md={3} lg={2.4} key={template._id}>
+                <Card sx={{ width: '200px', height: '200px', borderRadius: '10px' }}>
+                <Box
                       sx={{
                         position: 'relative',
                         width: 800,
@@ -380,22 +237,23 @@ export default function EmailTemplateGallery(props: EmailTemplateProps) {
                           preview
                         </Button>
                       </Box>
-                    </Box>                  
+                    </Box> 
+                </Card>
 
-                  </Card>
-                  <Typography sx={{
-                    color: '#6D6976', textAlign: 'center', margineRight: 'auto', maxWidth: '210px', mt:0.5, overflowX:'hidden', // position: 'absolute',bottom:-24, left:14, overflow: 'hidden',
-                  }}>{template.name}</Typography>
-                    { template && template._id === openIndex &&(           
-                      <CustomPreview  key={template._id}  
-                      doc={template.content} 
-                      html={template.html} 
-                      // open={openIndex === template.id} 
-                      open={true}
-                      handleClose={()=>setOpenIndex(null)}
-                      />)
-                    }
-                      <AllModal
+                <Typography sx={{ color: '#6D6976', textAlign: 'center', maxWidth: '210px', mt: 0.5 }}>
+                  {template.name}
+                </Typography>
+
+                {template && template._id === openIndex && (
+                  <CustomPreview
+                    key={template._id}
+                    doc={template.content}
+                    html={template.html}
+                    open={true}
+                    handleClose={() => setOpenIndex(null)}
+                  />
+                )}
+                 <AllModal
                       open={isOpenSuccess}
                       handleClose={()=>{setIsOpenSuccess(false)}}
                       handleConfirm={()=>handleSelect(template._id) as any}
@@ -405,17 +263,32 @@ export default function EmailTemplateGallery(props: EmailTemplateProps) {
                       icon={{ type: "success" }}
                       color = "primary"
                     />
-                </>
               </Grid>
-              
-              
             ))}
         </Grid>
-        <Grid size={12}>
-          {loading && <Typography>Loading more templates...</Typography>}
-          <div ref={loaderRef} />
-        </Grid>
 
+        {/* Pagination Controls */}
+        <Box mt={4} display="flex" justifyContent="center" alignItems="center" gap={2}>
+          <Button
+            variant="outlined"
+            onClick={() => setPage((prev) => Math.max(prev - 1, 1))}
+            disabled={page === 1}
+          >
+            Previous
+          </Button>
+          <Typography>
+            Page <strong>{page}</strong> of <strong>{totalPages}</strong>
+          </Typography>
+          <Button
+            variant="outlined"
+            onClick={() => setPage((prev) => Math.min(prev + 1, totalPages))}
+            disabled={page >= totalPages}
+          >
+            Next
+          </Button>
+        </Box>
+
+        {loading && <Typography mt={2}>Loading templates...</Typography>}
       </Box>
     </Box>
   );

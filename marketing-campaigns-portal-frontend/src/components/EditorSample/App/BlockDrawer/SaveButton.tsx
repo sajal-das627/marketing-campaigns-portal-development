@@ -10,10 +10,10 @@ interface TemplateEditorProps {
   TemplateDetails : Template;
   isEdit: boolean;
   setError: React.Dispatch<React.SetStateAction<string | null>>;
-  
+  setIsEditMode: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-export default function SaveButton ({TemplateDetails, isEdit, setError}: TemplateEditorProps){
+export default function SaveButton ({TemplateDetails, isEdit, setError, setIsEditMode}: TemplateEditorProps){
 
   const [open, setOpen] = useState(false);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
@@ -95,6 +95,7 @@ export default function SaveButton ({TemplateDetails, isEdit, setError}: Templat
         await dispatch(createTemplateThunk(TemplateDetails));
       }
       setOpen(true);
+      setIsEditMode(false);
       console.log('form Submitted', TemplateDetails);
     } catch (err) {
       console.error('Save failed:', err);
