@@ -17,15 +17,16 @@ const Template_1 = __importDefault(require("../models/Template"));
 // Create a new template
 const createTemplate = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const { name, type, category, tags, layout, content, favorite } = req.body;
-        // Check if template name already exists
+        const { name, type, category, tags, layout, content, favorite, includeOptOutText, // ✅ receive optional field
+         } = req.body;
         const existingTemplate = yield Template_1.default.findOne({ name });
         if (existingTemplate) {
             return res.status(400).json({ message: "Template name already exists" });
         }
-        // Validate required fields
         if (!name || !type || !category || !content) {
-            return res.status(400).json({ message: "All required fields must be provided" });
+            return res
+                .status(400)
+                .json({ message: "All required fields must be provided" });
         }
         const template = new Template_1.default({
             name,
@@ -33,15 +34,17 @@ const createTemplate = (req, res) => __awaiter(void 0, void 0, void 0, function*
             category,
             tags,
             layout,
-            content, // Includes global settings, images, buttons, etc.
-            /*userId: (req as any).user.id,*/
-            userId: "67daedeaff85ef645f71206f",
+            content,
             favorite: favorite || false,
+            includeOptOutText: includeOptOutText || false, // ✅ default false
+            userId: "67daedeaff85ef645f71206f",
             createdAt: new Date(),
             lastModified: new Date(),
         });
         yield template.save();
-        res.status(201).json({ message: "Template created successfully", template });
+        res
+            .status(201)
+            .json({ message: "Template created successfully", template });
     }
     catch (error) {
         console.error("Error creating template:", error);
@@ -207,7 +210,7 @@ exports.previewShowTemplate = previewShowTemplate;
 // ✅ Update Template with Versioning & Modification Tracking
 const updateTemplate = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const { name, subject, content, type, category, tags, layout, favorite } = req.body;
+        const { name, subject, content, type, category, tags, layout, favorite, includeOptOutText } = req.body;
         // ✅ Find Existing Template
         const template = yield Template_1.default.findById(req.params.id);
         if (!template)
@@ -233,6 +236,10 @@ const updateTemplate = (req, res) => __awaiter(void 0, void 0, void 0, function*
         template.tags = tags || template.tags;
         template.layout = layout || template.layout;
         template.favorite = favorite !== undefined ? favorite : template.favorite;
+        // ✅ Optional Field: includeOptOutText
+        if (includeOptOutText !== undefined) {
+            template.includeOptOutText = includeOptOutText;
+        }
         // ✅ Versioning: Increment If Any Changes
         if (JSON.stringify(previousVersion) !== JSON.stringify(template.toObject())) {
             template.version = (template.version || 1) + 1;
@@ -243,7 +250,7 @@ const updateTemplate = (req, res) => __awaiter(void 0, void 0, void 0, function*
         res.status(200).json({
             message: "Template updated successfully",
             template,
-            previousVersion, // Include previous version details
+            previousVersion,
         });
     }
     catch (error) {
