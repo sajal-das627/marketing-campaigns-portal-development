@@ -2,7 +2,6 @@
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import {
   fetchTemplates,
-  fetchTemplatesByCategory,
   fetchRecentlyUsedTemplates,
   toggleFavoriteTemplate,
   fetchFavoriteTemplates,
@@ -14,7 +13,7 @@ import {
   createTemplate,
   fetchTemplatesByCategory,
 } from "../../api/apiClient";
-import { Template as TemplateType } from "../../types/template"; // Adjust the import path as necessary
+import { Template as TemplateType} from "../../types/template"; // Adjust the import path as necessary
 export interface Template {
   _id: string;
   name: string;
@@ -102,36 +101,6 @@ export const getFavoriteTemplates = createAsyncThunk(
     }
   }
 );
-// fetchTemplatesByCategory
-export const getTemplatesByCategory = createAsyncThunk(
-  "templates/getTemplatesByCategory",
-  async (
-    {
-      category,
-      type,
-      page = 1,
-      limit = 10,
-    }: { category: string; type: string; page?: number; limit?: number },
-    thunkAPI
-  ) => {
-    try {
-      const res = await fetchTemplatesByCategory(category, type, page, limit);
-      return {
-        data: res.data,
-        totalPages: res.pagination?.totalPages || 1,
-      };
-    } catch (err: any) {
-      return thunkAPI.rejectWithValue(
-        err?.message || "Failed to fetch templates by category"
-      );
-    }
-  }
-);
-
-
-
-
-
 // toggleFavorite
 export const toggleFavorite = createAsyncThunk(
   "templates/toggleFavorite",
@@ -293,234 +262,212 @@ const templateSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      .addCase(createTemplateThunk.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-      })
-      .addCase(createTemplateThunk.fulfilled, (state, action) => {
-        state.loading = false;
-        state.allTemplates.unshift(action.payload);
-      })
-      .addCase(createTemplateThunk.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload as string;
-      })
+    .addCase(createTemplateThunk.pending, (state) => {
+      state.loading = true;
+      state.error = null;
+    })
+    .addCase(createTemplateThunk.fulfilled, (state, action) => {
+      state.loading = false;
+      state.allTemplates.unshift(action.payload);
+    })
+    .addCase(createTemplateThunk.rejected, (state, action) => {
+      state.loading = false;
+      state.error = action.payload as string;
+    })
+    
+    .addCase(getTemplates.pending, (state) => {
+      state.loading = true;
+    })
+    // .addCase(getTemplates.fulfilled, (state, action) => {
+    //   state.loading = false;
+    //   state.allTemplates = action.payload.data;
+    //   state.totalPages = action.payload.totalPages;
+    // })
+    // .addCase(getTemplates.fulfilled, (state, action) => {
+    //   const newTemplates = action.payload.data;
+    //   const currentPage = action.meta.arg.page; // <-- the page number you passed in
+    
+    //   state.loading = false;
+    //   state.totalPages = action.payload.totalPages;
+    
+    //   if (currentPage === 1) {
+    //     // Fresh load or filter reset
+    //     state.allTemplates = newTemplates;
+    //   } else {
+    //     // Infinite scroll - append
+    //     const existing = state.allTemplates || [];
+    //     const merged = [...existing, ...newTemplates];
+    
+    //     // Optional deduplication based on _id
+    //     const deduped = Array.from(new Map(merged.map(t => [t._id, t])).values());
+    
+    //     state.allTemplates = deduped;
+    //   }
+    // })    
+    .addCase(getTemplates.fulfilled, (state, action) => {
+      const newTemplates = action.payload.data;
+      const currentPage = action.meta.arg.page;
+      const shouldAppend = action.meta.arg.append;
+    
+      state.loading = false;
+      state.totalPages = action.payload.totalPages;
+    
+      if (!shouldAppend || currentPage === 1) {
+        // Replace mode
+        state.allTemplates = newTemplates;
+      } else {
+        // Append mode
+        const existing = state.allTemplates || [];
+        const merged = [...existing, ...newTemplates];
+    
+        // Optional deduplication based on _id
+        const deduped = Array.from(new Map(merged.map(t => [t._id, t])).values());
+    
+        state.allTemplates = deduped;
+      }
+    })    
+    .addCase(getRecentlyUsedTemplates.fulfilled, (state, action) => {
+      state.recentTemplates = action.payload.data;
+      state.totalPages = action.payload.totalPages;
+    })
+    // .addCase(getFavoriteTemplates.fulfilled, (state, action) => {
+    //   state.favoriteTemplates = action.payload.data;
+    //   state.totalPages = action.payload.totalPages;
+    // })
+    // .addCase(getFavoriteTemplates.fulfilled, (state, action) => {
+    //   const newTemplates = action.payload.data;
+    //   const currentPage = action.meta.arg.page; // <-- the page number you passed in
+    
+    //   state.loading = false;
+    //   state.totalPages = action.payload.totalPages;
+    
+    //   if (currentPage === 1) {
+    //     // Fresh load or filter reset
+    //     state.favoriteTemplates = newTemplates;
+    //   } else {
+    //     // Infinite scroll - append
+    //     const existing = state.favoriteTemplates || [];
+    //     const merged = [...existing, ...newTemplates];
+    
+    //     // Optional deduplication based on _id
+    //     const deduped = Array.from(new Map(merged.map(t => [t._id, t])).values());
+    
+    //     state.favoriteTemplates = deduped;
+    //   }
+    // })   
+    
+    .addCase(getFavoriteTemplates.fulfilled, (state, action) => {
+      const newTemplates = action.payload.data;
+      const currentPage = action.meta.arg.page;
+      const shouldAppend = action.meta.arg.append;
+    
+      state.loading = false;
+      state.totalPages = action.payload.totalPages;
+    
+      if (!shouldAppend || currentPage === 1) {
+        // Replace mode
+        state.favoriteTemplates = newTemplates;
+      } else {
+        // Append mode
+        const existing = state.favoriteTemplates || [];
+        const merged = [...existing, ...newTemplates];
+    
+        // Optional deduplication based on _id
+        const deduped = Array.from(new Map(merged.map(t => [t._id, t])).values());
+    
+        state.favoriteTemplates = deduped;
+      }
+    })     
+    .addCase(getTemplateById.pending, (state) => {
+      state.loading = true;
+      state.error = null;
+    })
+    .addCase(getTemplateById.fulfilled, (state, action) => {
+      state.selectedTemplate = action.payload;
+    })
+    .addCase(getTemplateById.rejected, (state, action) => {
+      state.loading = false;
+      state.error = action.payload as string;
+    })
+    .addCase(updateTemplate.pending, (state) => {
+      state.loading = true;
+      state.error = null;
+    })
+    .addCase(updateTemplate.fulfilled, (state, action) => {
+      state.loading = false;
+      state.selectedTemplate = action.payload;
+    })
+    .addCase(updateTemplate.rejected, (state, action) => {
+      state.loading = false;
+      state.error = action.payload as string;
+    })
+    .addCase(toggleFavorite.fulfilled, (state, action) => {
+      const { templateId, updatedTemplate } = action.payload;
 
-      .addCase(getTemplates.pending, (state) => {
-        state.loading = true;
-      })
-      // .addCase(getTemplates.fulfilled, (state, action) => {
-      //   state.loading = false;
-      //   state.allTemplates = action.payload.data;
-      //   state.totalPages = action.payload.totalPages;
-      // })
-      // .addCase(getTemplates.fulfilled, (state, action) => {
-      //   const newTemplates = action.payload.data;
-      //   const currentPage = action.meta.arg.page; // <-- the page number you passed in
+      const isFav =
+        updatedTemplate.favorite ?? updatedTemplate.isFavorite ?? false;
 
-      //   state.loading = false;
-      //   state.totalPages = action.payload.totalPages;
-
-      //   if (currentPage === 1) {
-      //     // Fresh load or filter reset
-      //     state.allTemplates = newTemplates;
-      //   } else {
-      //     // Infinite scroll - append
-      //     const existing = state.allTemplates || [];
-      //     const merged = [...existing, ...newTemplates];
-
-      //     // Optional deduplication based on _id
-      //     const deduped = Array.from(new Map(merged.map(t => [t._id, t])).values());
-
-      //     state.allTemplates = deduped;
-      //   }
-      // })    
-      .addCase(getTemplates.fulfilled, (state, action) => {
-        const newTemplates = action.payload.data;
-        const currentPage = action.meta.arg.page;
-        const shouldAppend = action.meta.arg.append;
-
-        state.loading = false;
-        state.totalPages = action.payload.totalPages;
-
-        if (!shouldAppend || currentPage === 1) {
-          // Replace mode
-          state.allTemplates = newTemplates;
-        } else {
-          // Append mode
-          const existing = state.allTemplates || [];
-          const merged = [...existing, ...newTemplates];
-
-          // Optional deduplication based on _id
-          const deduped = Array.from(new Map(merged.map(t => [t._id, t])).values());
-
-          state.allTemplates = deduped;
+      const updateList = (list: Template[]) => {
+        const index = list.findIndex((t) => t._id === templateId);
+        if (index !== -1) {
+          list[index] = {
+            ...list[index],
+            isFavorite: isFav,
+            favorite: isFav,
+          };
         }
-      })
-      .addCase(getRecentlyUsedTemplates.fulfilled, (state, action) => {
-        state.recentTemplates = action.payload.data;
-        state.totalPages = action.payload.totalPages;
-      })
-      // .addCase(getFavoriteTemplates.fulfilled, (state, action) => {
-      //   state.favoriteTemplates = action.payload.data;
-      //   state.totalPages = action.payload.totalPages;
-      // })
-      // .addCase(getFavoriteTemplates.fulfilled, (state, action) => {
-      //   const newTemplates = action.payload.data;
-      //   const currentPage = action.meta.arg.page; // <-- the page number you passed in
+      };
 
-      //   state.loading = false;
-      //   state.totalPages = action.payload.totalPages;
+      updateList(state.allTemplates);
+      updateList(state.recentTemplates);
+      updateList(state.favoriteTemplates);
 
-      //   if (currentPage === 1) {
-      //     // Fresh load or filter reset
-      //     state.favoriteTemplates = newTemplates;
-      //   } else {
-      //     // Infinite scroll - append
-      //     const existing = state.favoriteTemplates || [];
-      //     const merged = [...existing, ...newTemplates];
+      const existsInFavorites = state.favoriteTemplates.some((t) => t._id === templateId);
 
-      //     // Optional deduplication based on _id
-      //     const deduped = Array.from(new Map(merged.map(t => [t._id, t])).values());
-
-      //     state.favoriteTemplates = deduped;
-      //   }
-      // })   
-
-      .addCase(getFavoriteTemplates.fulfilled, (state, action) => {
-        const newTemplates = action.payload.data;
-        const currentPage = action.meta.arg.page;
-        const shouldAppend = action.meta.arg.append;
-
-        state.loading = false;
-        state.totalPages = action.payload.totalPages;
-
-        if (!shouldAppend || currentPage === 1) {
-          // Replace mode
-          state.favoriteTemplates = newTemplates;
-        } else {
-          // Append mode
-          const existing = state.favoriteTemplates || [];
-          const merged = [...existing, ...newTemplates];
-
-          // Optional deduplication based on _id
-          const deduped = Array.from(new Map(merged.map(t => [t._id, t])).values());
-
-          state.favoriteTemplates = deduped;
+      if (isFav) {
+        if (!existsInFavorites) {
+          state.favoriteTemplates.push({
+            ...updatedTemplate,
+            isFavorite: true,
+            favorite: true,
+          });
         }
-      })
-      .addCase(getTemplateById.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-      })
-      .addCase(getTemplateById.fulfilled, (state, action) => {
-        state.selectedTemplate = action.payload;
-      })
-      .addCase(getTemplateById.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload as string;
-      })
-      .addCase(updateTemplate.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-      })
-      .addCase(updateTemplate.fulfilled, (state, action) => {
-        state.loading = false;
-        state.selectedTemplate = action.payload;
-      })
-      .addCase(updateTemplate.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload as string;
-      })
-      .addCase(toggleFavorite.fulfilled, (state, action) => {
-        const { templateId, updatedTemplate } = action.payload;
+      } else {
+        state.favoriteTemplates = state.favoriteTemplates.filter(
+          (t) => t._id !== templateId
+        );
+      }
+    })
+    // deleteTemplate
+    .addCase(deleteTemplate.fulfilled, (state, action) => {
+      const deletedId = action.payload.id;
 
-        const isFav =
-          updatedTemplate.favorite ?? updatedTemplate.isFavorite ?? false;
+      const removeFromList = (list: Template[]) =>
+        list.filter((t) => t._id !== deletedId);
 
-        const updateList = (list: Template[]) => {
-          const index = list.findIndex((t) => t._id === templateId);
-          if (index !== -1) {
-            list[index] = {
-              ...list[index],
-              isFavorite: isFav,
-              favorite: isFav,
-            };
-          }
-        };
+      state.allTemplates = removeFromList(state.allTemplates);
+      state.recentTemplates = removeFromList(state.recentTemplates);
+      state.favoriteTemplates = removeFromList(state.favoriteTemplates);
 
-        updateList(state.allTemplates);
-        updateList(state.recentTemplates);
-        updateList(state.favoriteTemplates);
+      if (state.selectedTemplate?._id === deletedId) {
+        state.selectedTemplate = null;
+      }
+    })
+    // restoreTemplate fulfilled
+    .addCase(restoreTemplate.fulfilled, (state, action) => {
+      const restored = action.payload;
 
-        const existsInFavorites = state.favoriteTemplates.some((t) => t._id === templateId);
+      // add back to allTemplates if it’s not there
+      const exists = state.allTemplates.find((t) => t._id === restored._id);
+      if (!exists) {
+        state.allTemplates.unshift(restored);
+      }
 
-        if (isFav) {
-          if (!existsInFavorites) {
-            state.favoriteTemplates.push({
-              ...updatedTemplate,
-              isFavorite: true,
-              favorite: true,
-            });
-          }
-        } else {
-          state.favoriteTemplates = state.favoriteTemplates.filter(
-            (t) => t._id !== templateId
-          );
-        }
-      })
-      // deleteTemplate
-      .addCase(deleteTemplate.fulfilled, (state, action) => {
-        const deletedId = action.payload.id;
+      // similarly for recentTemplates and favoriteTemplates if needed
+    })
 
-        const removeFromList = (list: Template[]) =>
-          list.filter((t) => t._id !== deletedId);
-
-        state.allTemplates = removeFromList(state.allTemplates);
-        state.recentTemplates = removeFromList(state.recentTemplates);
-        state.favoriteTemplates = removeFromList(state.favoriteTemplates);
-
-        if (state.selectedTemplate?._id === deletedId) {
-          state.selectedTemplate = null;
-        }
-      })
-      // restoreTemplate fulfilled
-      .addCase(restoreTemplate.fulfilled, (state, action) => {
-        const restored = action.payload;
-
-        // add back to allTemplates if it’s not there
-        const exists = state.allTemplates.find((t) => t._id === restored._id);
-        if (!exists) {
-          state.allTemplates.unshift(restored);
-        }
-
-        // similarly for recentTemplates and favoriteTemplates if needed
-      })
-
-      //  duplicateTemplate fulfilled
+    //  duplicateTemplate fulfilled
       .addCase(duplicateTemplate.fulfilled, (state, action) => {
-<<<<<<< HEAD
-        const duplicated = action.payload;
-        state.allTemplates.unshift(duplicated);
-      })
-      ////add here
-      // .addCase(duplicateTemplate.fulfilled, (state, action) => {
-      //   const duplicated = action.payload;
-      //   const originalIndex = state.allTemplates.findIndex(t => t._id === duplicated.originalId); // You must include originalId in API response
-      //   if (originalIndex === -1) {
-      //     state.allTemplates.unshift(duplicated); // fallback: add to top
-      //     return;
-      //   }
-      //   state.allTemplates.splice(originalIndex + 1, 0, duplicated); // insert right after
-      // });
-      .addCase(getTemplatesByCategory.fulfilled, (state, action) => {
-        state.loading = false;
-        state.totalPages = action.payload.totalPages;
-        state.allTemplates = action.payload.data || [];
-      })
-
-
-=======
       const duplicated = action.payload;
       state.allTemplates.unshift(duplicated);
     })
@@ -539,14 +486,13 @@ const templateSlice = createSlice({
       state.totalPages = action.payload.totalPages;
       state.allTemplates = action.payload.data || [];
     });
->>>>>>> 6a0bebb701306a174c77281586ef9472c0446144
 
   },
 });
 
-export const {
-  setFilters, setActiveTab, clearSelectedTemplate, setAllTemplates,
-  setRecentTemplates, setFavoriteTemplates,
+export const { 
+  setFilters, setActiveTab, clearSelectedTemplate,setAllTemplates, 
+  setRecentTemplates, setFavoriteTemplates, 
 } = templateSlice.actions;
 
 export default templateSlice.reducer;

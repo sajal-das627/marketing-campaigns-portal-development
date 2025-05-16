@@ -1,12 +1,6 @@
-<<<<<<< HEAD
-import React, { useState, useEffect } from 'react';
-import {
-  Box, Typography, Grid, Card, Button, Tabs, Tab
-=======
 import React, { useState, useEffect, Suspense, } from 'react';
 import {
   Box, Typography, Grid2 as Grid, Card, Button, Tabs, Tab
->>>>>>> 6a0bebb701306a174c77281586ef9472c0446144
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { useSelector } from "react-redux";
@@ -19,26 +13,16 @@ import {
 import { RootState } from '../../redux/store';
 import { useAppDispatch } from '../../redux/hooks';
 import CustomPreview from "../../components/Templates/CustomPreview";
-<<<<<<< HEAD
-=======
 import type { Template } from "../../redux/slices/templateSlice";
 import AllModal from '../../components/Modals/DeleteModal';
 import LoopIcon from '@mui/icons-material/Loop';
->>>>>>> 6a0bebb701306a174c77281586ef9472c0446144
-
+import CryptoJS from 'crypto-js'
 export default function EmailTemplateGallery() {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const rootBlockId = 'root';
 
-<<<<<<< HEAD
-  const {
-    allTemplates = [],
-    favoriteTemplates = [],
-  } = useSelector((state: RootState) => state.template || {});
-=======
   useSelector((state: RootState) => state.template || {});
->>>>>>> 6a0bebb701306a174c77281586ef9472c0446144
 
   const [tabIndex, setTabIndex] = useState(0);
   const [topBarIndex, setTopBarIndex] = useState("All");
@@ -47,71 +31,6 @@ export default function EmailTemplateGallery() {
   const [templates, setTemplates] = useState<any[]>([]);
   const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(false);
-<<<<<<< HEAD
-
-const [categories, setCategories] = useState<string[]>([]);
-
-const topBarTabs = ['All', 'Favorite', ...categories];
-
-
-  const fetchTemplates = async () => {
-  setLoading(true);
-  try {
-    let res;
-if (topBarIndex === "All") {
-  res = await dispatch(getTemplates({ page, limit: 12, type: "Email" }) as any);
-  if (res?.payload?.data) {
-    setTemplates(res.payload.data);
-    setTotalPages(res.payload.totalPages);
-
-    const extractedCategories = Array.from(
-      new Set(res.payload.data.map((t: any) => t.category).filter(Boolean))
-    ) as string[];
-
-    setCategories(extractedCategories);
-  }
-} else if (topBarIndex === "Favorite") {
-      res = await dispatch(getFavoriteTemplates({ page, limit: 12, type: "Email" }) as any);
-      if (res?.payload?.data) {
-        setTemplates(res.payload.data);
-        setTotalPages(res.payload.totalPages);
-      }
-    } else {
-      res = await dispatch(getTemplatesByCategory({
-        category: topBarIndex,
-        type: "Email",
-        page,
-        limit: 12
-      }) as any);
-      if (res?.payload?.data) {
-        setTemplates(res.payload.data);
-        setTotalPages(res.payload.totalPages);
-      }
-    }
-  } catch (err) {
-    console.error("Template fetch failed:", err);
-    setTemplates([]);
-  } finally {
-    setLoading(false);
-  }
-};
-
-
-
-  useEffect(() => {
-    setPage(1);
-  }, [topBarIndex]);
-
-  useEffect(() => {
-    fetchTemplates();
-  }, [topBarIndex, page]);
-
-  const handleSelect = async (id: string) => {
-    if (id) {
-      await dispatch(duplicateTemplate(id) as any);
-    }
-  };
-=======
   const [successIndex, setSuccessIndex] = useState<string | null>(null);
   const [categories, setCategories] = useState<string[]>([]);
 
@@ -173,15 +92,19 @@ if (topBarIndex === "All") {
       console.log('res', res);
 
       if (!duplicateTemplate.fulfilled.match(res)) return;
-      const duplicated: Template = res.payload.template._id;
-      navigate(`/build-template/${duplicated}`);
+      const duplicated: string = res.payload.template._id;
+
+        const secretKey = process.env.REACT_APP_ENCRYPT_SECRET_KEY as string;
+        const encryptedId = CryptoJS.AES.encrypt(duplicated, secretKey).toString();
+      
+        navigate(`/build-template/${encodeURIComponent(encryptedId)}`);
+      // navigate(`/build-template/${duplicated}`);
       console.log('duplicateID:', duplicated);
     }
     else console.log("ID doesn't exist");
   }
 
   const LazyReader = React.lazy(() => import('@usewaypoint/email-builder').then((module) => ({ default: module.Reader })));
->>>>>>> 6a0bebb701306a174c77281586ef9472c0446144
 
   return (
     <Box sx={{ display: 'flex', flexDirection: { xs: 'column', lg: 'row' }, p: 3 }}>
@@ -222,11 +145,7 @@ if (topBarIndex === "All") {
           {(templates ?? [])
             .filter((template) => template?.type === 'Email')
             .map((template: any) => (
-<<<<<<< HEAD
-              <Grid item xs={6} sm={4} md={3} lg={2.4} key={template._id}>
-=======
               <Grid size={{ xs: 6, sm: 4, md: 4, lg: 3, xl:2.4 }} key={template._id}>
->>>>>>> 6a0bebb701306a174c77281586ef9472c0446144
                 <Card sx={{ width: '200px', height: '200px', borderRadius: '10px' }}>
                   <Box
                     sx={{
@@ -246,56 +165,19 @@ if (topBarIndex === "All") {
                       },
                     }}
                   >
-<<<<<<< HEAD
-                    <Box
-                      sx={{
-                        transform: 'scale(0.25)',
-                        transformOrigin: 'top left',
-                        width: '800px',
-                        pointerEvents: 'none',
-                      }}
-                    >
-                      <CustomPreview doc={template.content} open={false} rootBlockId={rootBlockId} />
-                    </Box>
-=======
                     {/* Scaled Preview */}
 
                     <Suspense fallback={<LoopIcon />} >
->>>>>>> 6a0bebb701306a174c77281586ef9472c0446144
 
-                    <Box
-                      className="hover-buttons"
-                      sx={{
-                        position: 'absolute',
-                        top: 57,
-                        left: 57,
-                        display: 'flex',
-                        flexDirection: 'column',
-                        gap: 1,
-                        opacity: 0,
-                        pointerEvents: 'none',
-                        zIndex: 2,
-                        transition: 'opacity 0.3s',
-                      }}
-                    >
-                      <Button
-                        size="medium"
-                        variant="contained"
-                        color="primary"
-                        sx={{ bgcolor: '#0057D9' }}
-                        onClick={() => handleSelect(template._id)}
+                      <Box
+                        sx={{
+                          transform: 'scale(0.25)',
+                          transformOrigin: 'top left',
+                          width: '800px',
+                          // height: '2400px',
+                          pointerEvents: 'none',
+                        }}
                       >
-<<<<<<< HEAD
-                        Select
-                      </Button>
-                      <Button
-                        size="medium"
-                        variant="contained"
-                        sx={{ bgcolor: 'white', color: '#232232' }}
-                        onClick={() => setOpenIndex(template._id)}
-                      >
-                        Preview
-=======
                         <LazyReader document={template.content} rootBlockId={rootBlockId} />
                       </Box>
                     </Suspense>
@@ -344,7 +226,6 @@ if (topBarIndex === "All") {
                         onClick={setOpenIndex.bind(null, template._id)}
                       >
                         preview
->>>>>>> 6a0bebb701306a174c77281586ef9472c0446144
                       </Button>
                     </Box>
                   </Box>
@@ -363,8 +244,6 @@ if (topBarIndex === "All") {
                     handleClose={() => setOpenIndex(null)}
                   />
                 )}
-<<<<<<< HEAD
-=======
                 
                  {template && template._id === successIndex && (
                 <AllModal
@@ -378,15 +257,10 @@ if (topBarIndex === "All") {
                   icon={{ type: "success" }}
                   color="primary"
                 />)}
->>>>>>> 6a0bebb701306a174c77281586ef9472c0446144
               </Grid>
             ))}
         </Grid>
 
-<<<<<<< HEAD
-        {/* Pagination Controls */}
-=======
->>>>>>> 6a0bebb701306a174c77281586ef9472c0446144
         <Box mt={4} display="flex" justifyContent="center" alignItems="center" gap={2}>
           <Button
             variant="outlined"

@@ -1,7 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import 
+// React,
+ { useState, useEffect }
+  from 'react';
 
-import { Alert, Stack, useTheme } from '@mui/material';
-// import { Box } from '@mui/material';
+import { Stack, useTheme } from '@mui/material';
 import { useInspectorDrawerOpen, useSamplesDrawerOpen } from '../documents/editor/EditorContext';
 
 import InspectorDrawer, { INSPECTOR_DRAWER_WIDTH } from './InspectorDrawer';
@@ -20,8 +22,6 @@ import { RootState } from "../../../redux/store";
 import { resetDocument } from '../documents/editor/EditorContext';
 import CryptoJS from 'crypto-js';
 
-// import AllModal from '@components/Modals/DeleteModal';
-
 const SAMPLES_DRAWER_WIDTH = 240;
 
 function useDrawerTransition(cssProperty: 'margin-left' | 'margin-right', open: boolean) {
@@ -30,11 +30,6 @@ function useDrawerTransition(cssProperty: 'margin-left' | 'margin-right', open: 
     easing: !open ? transitions.easing.sharp : transitions.easing.easeOut,
     duration: !open ? transitions.duration.leavingScreen : transitions.duration.enteringScreen,
   });
-}
-
-interface SamplateDrawerProps {
-  template?: Template;
-  campaigns?: string[];
 }
 
 interface TemplateEditorProps {
@@ -47,18 +42,14 @@ export default function App({template}: TemplateEditorProps) {
   const samplesDrawerOpen = useSamplesDrawerOpen();
   const [isEditMode, setIsEditMode] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
-  // const [template, setTemplate] = useState<Template>();
   const [templateDetails, setTemplateDetails] = useState<Template>({
       _id: template?._id || '',
       name: template?.name || '',
       subject: template?.subject || '',
       type: template?.type || 'Email',
-      category: template?.category || 'Promotional',
+      category: template?.category || '',
       tags: template?.tags || [],
-      senderId: template?.senderId || '',
-      campaign: template?.campaign || '',
       includeOptOut: template?.includeOptOut ?? false,
-      // content: { message: template?.content.message || '' },
       content: {
         root: {
           id: 'root',
@@ -79,11 +70,6 @@ export default function App({template}: TemplateEditorProps) {
         },
       },
       layout: template?.layout || 'Custom',
-      createdAt: template?.createdAt || '',
-      lastModified: template?.lastModified || '',
-      favorite: template?.favorite ?? false,
-      isDeleted: template?.isDeleted ?? false,
-      version: template?.version ?? 1,
     });
   
   const marginLeftTransition = useDrawerTransition('margin-left', samplesDrawerOpen);
@@ -91,9 +77,9 @@ export default function App({template}: TemplateEditorProps) {
   const handleClose = () =>{
     setOpen(false);
   }
-  //edit part
+  
   const dispatch = useAppDispatch();
-  // Replace 'templateData' with the actual property name from your TemplateState that holds the template object
+  
     const templateFromApi = useSelector((state: RootState) => state.template.selectedTemplate as Template || null);
 
     const resetState = () => {
@@ -102,10 +88,8 @@ export default function App({template}: TemplateEditorProps) {
         name: '',
         subject: '',
         type: 'Email',
-        category: 'Promotional',
+        category: '',
         tags: [],
-        senderId: '',
-        campaign: '',
         includeOptOut: false,
         content: {
           root: {
@@ -127,11 +111,6 @@ export default function App({template}: TemplateEditorProps) {
           },
         },
         layout: 'Custom',
-        createdAt: '',
-        lastModified: '',
-        favorite: false,
-        isDeleted: false,
-        version: 1,
       });
       resetDocument({
         root: {
@@ -143,17 +122,13 @@ export default function App({template}: TemplateEditorProps) {
       });
     };
 
-  // const { id } = useParams<{id: string}>();
-  // const id = '68220f25c305eea6017e4104';
-  
   const { id : encryptedId } = useParams();
   const [id, setId] = useState<string | null>(null);
-  // const { id } = useParams<{id: string}>();
   const secretKey =  (process.env.REACT_APP_ENCRYPT_SECRET_KEY as string);
   
   useEffect(() => {
     if (encryptedId) {
-      try {
+      try { 
         const bytes = CryptoJS.AES.decrypt(decodeURIComponent(encryptedId), secretKey);
         const decryptedId = bytes.toString(CryptoJS.enc.Utf8);
         setId(decryptedId);
@@ -220,31 +195,8 @@ export default function App({template}: TemplateEditorProps) {
       }
     }, [templateFromApi]);
     
-
-
-  // useEffect(() => {
-  //   if (templateFromApi) {
-  //     const FetchData = async() =>{
-  //       console.log('templateFromApi', templateFromApi)
-  //       setTemplateDetails(prev => ({
-  //         ...prev,
-  //         ...templateFromApi,
-  //         tags: templateFromApi.tags ?? [],
-  //       }));
-  //       await resetDocument(templateFromApi.content);
-  //     }
-  //     FetchData();
-  //   }
-  // }, [templateFromApi]);
-
-
   return (
     <>
-    {/* // Box  
-    // sx={{ '& *': { fontSize:'18px', fontFamily:'Manrope', fontWeight:'bold'} }} */}
-    {/* <Box sx={{height: '88px', width:'100%'}}>
-    </Box> */}
-
       <InspectorDrawer />
       
       <SamplesDrawer templateDetails={templateDetails} setTemplateDetails={setTemplateDetails} error={error}/>
@@ -259,8 +211,6 @@ export default function App({template}: TemplateEditorProps) {
         <TemplatePanel templateDetails={templateDetails} isEdit={isEditMode} setError={setError} setIsEditMode={setIsEditMode}/>        
         {/* <BlocksDrawer/> */}
       </Stack>
-
-     
     
     </>
   );
