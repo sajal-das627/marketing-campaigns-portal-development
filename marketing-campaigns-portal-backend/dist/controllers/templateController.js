@@ -17,7 +17,7 @@ const Template_1 = __importDefault(require("../models/Template"));
 // Create a new template
 const createTemplate = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const { name, type, category, tags, layout, content, favorite, includeOptOutText, // ✅ receive optional field
+        const { name, subject, type, category, tags, layout, content, favorite, includeOptOutText, // ✅ receive optional field
          } = req.body;
         const existingTemplate = yield Template_1.default.findOne({ name });
         if (existingTemplate) {
@@ -30,6 +30,7 @@ const createTemplate = (req, res) => __awaiter(void 0, void 0, void 0, function*
         }
         const template = new Template_1.default({
             name,
+            subject,
             type,
             category,
             tags,

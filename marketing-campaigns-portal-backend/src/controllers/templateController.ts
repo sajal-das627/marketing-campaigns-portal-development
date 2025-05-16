@@ -7,6 +7,7 @@ export const createTemplate = async (req: Request, res: Response) => {
   try {
     const {
       name,
+      subject,
       type,
       category,
       tags,
@@ -29,6 +30,7 @@ export const createTemplate = async (req: Request, res: Response) => {
 
     const template = new Template({
       name,
+      subject,
       type,
       category,
       tags,
