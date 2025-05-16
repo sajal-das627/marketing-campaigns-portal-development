@@ -67,12 +67,12 @@ interface DashboardProps {
 
 }
 
-type AudienceKey = keyof TotalAudience; 
+type AudienceKey = keyof TotalAudience;
 type ScheduledKey = keyof ScheduledCampaigns;
 type ActiveKey = keyof ActiveCampaigns;
 
 const Dashboard: React.FC<DashboardProps> = () => {
-  
+
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const [activeDropdownOption, setActiveDropdownOption] = useState<ActiveKey>("weekly");
@@ -81,99 +81,99 @@ const Dashboard: React.FC<DashboardProps> = () => {
   const dispatch = useAppDispatch();
   const navigation = useNavigate();
   //demo api response
-const campaignResponses: Array<{
-  activeCampaigns: number;
-  scheduledCampaigns: number;
-  totalAudience: number;
-  emailsSent: {
-    daily: number;
-    weekly: number;
-    monthly: number;
-  };
-  engagementMetrics: {
-    openRate: string;
-    clickRate: string;
-  };
-  recentActivity: Array<{
-    id: Types.ObjectId;
-    type: string;
-    user: string;
-    details: string;
-    timeAgo: string;
-  }>;
-}> = [
+  const campaignResponses: Array<{
+    activeCampaigns: number;
+    scheduledCampaigns: number;
+    totalAudience: number;
+    emailsSent: {
+      daily: number;
+      weekly: number;
+      monthly: number;
+    };
+    engagementMetrics: {
+      openRate: string;
+      clickRate: string;
+    };
+    recentActivity: Array<{
+      id: Types.ObjectId;
+      type: string;
+      user: string;
+      details: string;
+      timeAgo: string;
+    }>;
+  }> = [
 
-    {
-      activeCampaigns: 40,
-      scheduledCampaigns: 12,
-      totalAudience: 30500,
-      emailsSent: {
-        daily: 1000,
-        weekly: 7000,
-        monthly: 30000
-      },
-      engagementMetrics: {
-        openRate: "75%",
-        clickRate: "12%"
-      },
-      recentActivity: [
-        {
-          id: new Types.ObjectId("65f8e3c5a9b7d1a8f4e52345"),          
-          type: "New Campaign",
-          user: "Michael Scott",
-          details: "Created 'Spring Super Sale 2025'",
-          timeAgo: "5m ago"
+      {
+        activeCampaigns: 40,
+        scheduledCampaigns: 12,
+        totalAudience: 30500,
+        emailsSent: {
+          daily: 1000,
+          weekly: 7000,
+          monthly: 30000
         },
-        {
-          id: new Types.ObjectId("65f8e3c5a9b7d1a8f4e52346"), 
-          type: "New Campaign",
-          user: "Michael Scott",
-          details: "Created 'Spring Super Sale 2025'",
-          timeAgo: "5m ago"
-        },        
-      ]
-    },
+        engagementMetrics: {
+          openRate: "75%",
+          clickRate: "12%"
+        },
+        recentActivity: [
+          {
+            id: new Types.ObjectId("65f8e3c5a9b7d1a8f4e52345"),
+            type: "New Campaign",
+            user: "Michael Scott",
+            details: "Created 'Spring Super Sale 2025'",
+            timeAgo: "5m ago"
+          },
+          {
+            id: new Types.ObjectId("65f8e3c5a9b7d1a8f4e52346"),
+            type: "New Campaign",
+            user: "Michael Scott",
+            details: "Created 'Spring Super Sale 2025'",
+            timeAgo: "5m ago"
+          },
+        ]
+      },
 
-  ];
-    console.log(campaignResponses[0].activeCampaigns);
-    
-    function timeAgo(date: number) {
-      const seconds = Math.floor((Date.now() - new Date(date).getTime()) / 1000);
-    
-      const units = [
-        { label: 'month', seconds: 2592000 },  // 30*24*60*60
-        { label: 'week', seconds: 604800 },    // 7*24*60*60
-        { label: 'day', seconds: 86400 },      // 24*60*60
-        { label: 'hour', seconds: 3600 },
-        { label: 'minute', seconds: 60 },
-        { label: 'second', seconds: 1 }
-      ];
-    
-      for (const unit of units) {
-        const value = Math.floor(seconds / unit.seconds);
-        if (value >= 1) {
-          return `${value} ${unit.label}${value !== 1 ? 's' : ''} ago`;
-        }
+    ];
+  console.log(campaignResponses[0].activeCampaigns);
+
+  function timeAgo(date: number) {
+    const seconds = Math.floor((Date.now() - new Date(date).getTime()) / 1000);
+
+    const units = [
+      { label: 'month', seconds: 2592000 },  // 30*24*60*60
+      { label: 'week', seconds: 604800 },    // 7*24*60*60
+      { label: 'day', seconds: 86400 },      // 24*60*60
+      { label: 'hour', seconds: 3600 },
+      { label: 'minute', seconds: 60 },
+      { label: 'second', seconds: 1 }
+    ];
+
+    for (const unit of units) {
+      const value = Math.floor(seconds / unit.seconds);
+      if (value >= 1) {
+        return `${value} ${unit.label}${value !== 1 ? 's' : ''} ago`;
       }
-    
-      return 'just now';
     }
-    
-    
-    
-    const { data, loading, error } = useSelector((state: RootState) => state.dashboard);
-    
-    useEffect(() => {
-      const fetchData = async () => {
-        const result = await dispatch(fetchDashboardData());
-        if (fetchDashboardData.fulfilled.match(result)) {
-          console.log("🎯 Data from payload:", result.payload);
-        }
-      };
-      fetchData();
-    }, [dispatch]);
-    
-    
+
+    return 'just now';
+  }
+
+
+
+  const { data, loading, error } = useSelector((state: RootState) => state.dashboard);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const result = await dispatch(fetchDashboardData());
+      if (fetchDashboardData.fulfilled.match(result)) {
+        console.log("🎯 Data from payload:", result.payload);
+      }
+    };
+    fetchData();
+  }, [dispatch]);
+
+
   if (loading) return <p>Loading dashboard...</p>;
   if (error) return <p>Error: {error}</p>;
   return (
@@ -181,7 +181,7 @@ const campaignResponses: Array<{
       p: 3, bgcolor: '#F8F9FE', maxWidth: '100%', overflow: 'hidden',
       // '& *': { color: '#495057' }
     }}>
-      
+
       <Box
         display="flex"
         flexDirection={{ xs: 'column', md: 'row' }}
@@ -189,7 +189,7 @@ const campaignResponses: Array<{
         alignItems="center"
         mb={3}
       >
-        <Typography variant="h4" component="h1"sx={{mb:1, mr:1}} >
+        <Typography variant="h4" component="h1" sx={{ mb: 1, mr: 1 }} >
           Dashboard
         </Typography>
 
@@ -202,12 +202,12 @@ const campaignResponses: Array<{
             </StyledText>
           </StyledButton>
 
-          <StyledButton variant="outlined" sx={{ mr: 2, p: 1 }} onClick={()=> navigation('/templates')}>
+          <StyledButton variant="outlined" sx={{ mr: 2, p: 1 }} onClick={() => navigation('/templates')}>
             <StyledText variant="button" >
               Manage&nbsp;Templates
             </StyledText>
           </StyledButton>
-          <Button onClick={()=> navigation('/create-campaign')} variant="contained" sx={{ minWidth: '180px',bgcolor: '#0057D9', color: '#fff  ', p: 1, ":hover": { bgcolor: '#2068d5' } }}>
+          <Button onClick={() => navigation('/create-campaign')} variant="contained" sx={{ minWidth: '180px', bgcolor: '#0057D9', color: '#fff  ', p: 1, ":hover": { bgcolor: '#2068d5' } }}>
             + Create&nbsp;Campaign
           </Button>
         </Box>
@@ -300,64 +300,64 @@ const campaignResponses: Array<{
       </Grid>
 
 
-<Grid container spacing={3}>
-      {/* Main Content */}
-      <Grid  size={{ xs: 12, md: 8 }}>
-        <Grid container spacing={3}>
-          <Grid  size={{ xs: 12}}>
+      <Grid container spacing={3}>
+        {/* Main Content */}
+        <Grid size={{ xs: 12, md: 8 }}>
+          <Grid container spacing={3}>
+            <Grid size={{ xs: 12 }}>
 
-            <EmailSent data={data?.emailsSent?.monthlyStats} />
+              <EmailSent data={data?.emailsSent?.monthlyStats} />
 
-          </Grid>
-          <Grid  size={{ xs: 12}}>
+            </Grid>
+            <Grid size={{ xs: 12 }}>
 
-            <CampaignPerformanceChart stats={data?.emailsSent?.monthlyStats} />
+              <CampaignPerformanceChart stats={data?.emailsSent?.monthlyStats} />
 
+            </Grid>
           </Grid>
         </Grid>
-      </Grid>
 
-      {/* Recent Activity Sidebar (Responsive) */}
-      <Grid size={{ xs: 12, md: 4 }} sx={{ order: isMobile ? 1 : "unset" }}>  
-      
-        <Card sx={{ borderRadius:2}}>
-          <CardContent>
-            <Typography variant="h6" mb={2}>
-              Recent Activity
-            </Typography>
-            <List>
-              <ListItem sx={{ alignItems: "flex-start", padding: { xs: 1, md: 2 },minHeight: { xs: 'auto', md: '64px' }, }}>
-                <Box
-                  component="img"
-                  src="/icons/recent_activity.png"
-                  alt="Activity Icon"
-                  sx={{ width: 24, height: 24, mr: { xs: 1, md: 2 }, flexShrink: 0 }}
-                />
-                <ListItemText
-                  primary="New Campaign"
-                  secondary="Michael Scott created 'Spring Super Sale 2025' - 5 min ago"
-                  sx={{ margin: 0 }}
-                />
-              </ListItem>
+        {/* Recent Activity Sidebar (Responsive) */}
+        <Grid size={{ xs: 12, md: 4 }} sx={{ order: isMobile ? 1 : "unset" }}>
 
-
-              {data?.recentActivity.map((activity) => (
-                <ListItem key={activity._id.toString()} sx={{ alignItems: "flex-start", padding: { xs: 1, md: 2 },minHeight: { xs: 'auto', md: '64px' }, }}>
-
-                  <Box component="img" src="/icons/recent_activity.png" alt="Activity Icon" sx={{ width: 24, height: 24, mr: { xs: 1, md: 2 }, flexShrink: 0 }} />
-
-                  <ListItemText 
-                    primary={activity.name}
-                    secondary={`Michael Scott ${activity.name} - ${ timeAgo(activity.createdAt).toString() }`}
+          <Card sx={{ borderRadius: 2 }}>
+            <CardContent>
+              <Typography variant="h6" mb={2}>
+                Recent Activity
+              </Typography>
+              <List>
+                <ListItem sx={{ alignItems: "flex-start", padding: { xs: 1, md: 2 }, minHeight: { xs: 'auto', md: '64px' }, }}>
+                  <Box
+                    component="img"
+                    src="/icons/recent_activity.png"
+                    alt="Activity Icon"
+                    sx={{ width: 24, height: 24, mr: { xs: 1, md: 2 }, flexShrink: 0 }}
+                  />
+                  <ListItemText
+                    primary="New Campaign"
+                    secondary="Michael Scott created 'Spring Super Sale 2025' - 5 min ago"
                     sx={{ margin: 0 }}
                   />
                 </ListItem>
-              ))}
-            </List>
-          </CardContent>
-        </Card>
+
+
+                {data?.recentActivity.map((activity) => (
+                  <ListItem key={activity._id.toString()} sx={{ alignItems: "flex-start", padding: { xs: 1, md: 2 }, minHeight: { xs: 'auto', md: '64px' }, }}>
+
+                    <Box component="img" src="/icons/recent_activity.png" alt="Activity Icon" sx={{ width: 24, height: 24, mr: { xs: 1, md: 2 }, flexShrink: 0 }} />
+
+                    <ListItemText
+                      primary={activity.name}
+                      secondary={`Michael Scott ${activity.name} - ${timeAgo(activity.createdAt).toString()}`}
+                      sx={{ margin: 0 }}
+                    />
+                  </ListItem>
+                ))}
+              </List>
+            </CardContent>
+          </Card>
+        </Grid>
       </Grid>
-    </Grid>
     </Box>
   );
 };

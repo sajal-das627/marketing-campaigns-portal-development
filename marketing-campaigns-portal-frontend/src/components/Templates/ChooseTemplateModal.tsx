@@ -37,25 +37,25 @@ const TemplateModal: React.FC<TemplateModalProps> = ({
       sx={{
         "& .MuiPaper-root": {
           width: "450px",
-          height: "350px", 
+          height: "350px",
           borderRadius: "10px",
-      
+
         },
       }}
     >
-      <Box sx={{ bgcolor: '#0057D9', width:'100%', height: 35, display:'flex', justifyContent:'space-between'}}> 
-        <Typography sx={{color: "white", ml:2, mt:0.5}}>Choose a Template  Type</Typography> 
-          <IconButton onClick={onClose}>
-            <CloseIcon sx={{color:"white"}} />
-          </IconButton>
+      <Box sx={{ bgcolor: '#0057D9', width: '100%', height: 35, display: 'flex', justifyContent: 'space-between' }}>
+        <Typography sx={{ color: "white", ml: 2, mt: 0.5 }}>Choose a Template  Type</Typography>
+        <IconButton onClick={onClose}>
+          <CloseIcon sx={{ color: "white" }} />
+        </IconButton>
       </Box>
       <DialogTitle id="template-modal-title" sx={{ textAlign: "center" }}>
-        {/* Select Template */}
+
       </DialogTitle>
       <DialogContent>
         <Grid container spacing={2} justifyContent="center">
-          {/* Email Template Box */}
-          <Grid size={{xs:6}} >
+
+          <Grid size={{ xs: 6 }} >
             <Box
               onClick={() => onSelect("email")}
               sx={{
@@ -70,7 +70,7 @@ const TemplateModal: React.FC<TemplateModalProps> = ({
                 flexDirection: "column",
                 alignItems: "center",
                 overflow: "hidden",
-                height: '200px',                
+                height: '200px',
                 alignContent: 'center',
                 justifyContent: 'space-between',
               }}
@@ -87,14 +87,16 @@ const TemplateModal: React.FC<TemplateModalProps> = ({
                 src="/icons/email-template.png"
                 alt="Email Template"
               />
-              <Typography  align="center" sx={{ padding: 1, bgcolor: selectedTemplate === "email" ? "#0057D9": "#ECEEF6",
-                 color: selectedTemplate === "email"?'white': '#6D6976',  width: '100%', mt: 0.5}}>
+              <Typography align="center" sx={{
+                padding: 1, bgcolor: selectedTemplate === "email" ? "#0057D9" : "#ECEEF6",
+                color: selectedTemplate === "email" ? 'white' : '#6D6976', width: '100%', mt: 0.5
+              }}>
                 Email Template
               </Typography>
             </Box>
           </Grid>
-          {/* SMS Template Box */}
-          <Grid size={{xs:6}} >
+
+          <Grid size={{ xs: 6 }} >
             <Box
               onClick={() => onSelect("sms")}
               sx={{
@@ -126,24 +128,24 @@ const TemplateModal: React.FC<TemplateModalProps> = ({
                 src="/icons/sms-template.png"
                 alt="SMS Template"
               />
-              <Typography  align="center" sx={{ padding: 1, bgcolor: selectedTemplate === "sms" ? "#0057D9": "#ECEEF6",
-                color: selectedTemplate === "sms"?'white': '#6D6976', width: '100%', mt: 0.5}}>
-              SMS Template
+              <Typography align="center" sx={{
+                padding: 1, bgcolor: selectedTemplate === "sms" ? "#0057D9" : "#ECEEF6",
+                color: selectedTemplate === "sms" ? 'white' : '#6D6976', width: '100%', mt: 0.5
+              }}>
+                SMS Template
               </Typography>
             </Box>
           </Grid>
         </Grid>
-        </DialogContent>
-        {/* Confirm Button */}
-        <DialogActions>
-          <Button variant="contained" onClick={onConfirm} sx={{bgcolor: "#EBEBEB", color:'#6D6976'}}>
-            Back
-          </Button>
-          <Button variant="contained" onClick={onConfirm} sx={{bgcolor: "#0057D9", color: 'white'}}>
-            Confirm Selection
-          </Button>
-        </DialogActions>
-      
+      </DialogContent>
+      <DialogActions>
+        <Button variant="contained" onClick={onConfirm} sx={{ bgcolor: "#EBEBEB", color: '#6D6976' }}>
+          Back
+        </Button>
+        <Button variant="contained" onClick={onConfirm} sx={{ bgcolor: "#0057D9", color: 'white' }}>
+          Confirm Selection
+        </Button>
+      </DialogActions>
     </Dialog>
   );
 };

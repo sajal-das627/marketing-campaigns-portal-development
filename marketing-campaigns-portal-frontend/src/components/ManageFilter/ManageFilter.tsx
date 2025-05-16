@@ -1,61 +1,51 @@
 import React, { useState, useEffect } from "react";
 import {
   Typography, Box, Tabs, Tab, TextField, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Checkbox, Button, Select, MenuItem, InputAdornment, IconButton, Menu,
-  SelectChangeEvent, Snackbar, Alert,
-  Divider, Modal,
-  DialogActions,
-  Dialog,
+  SelectChangeEvent, Snackbar, Alert, Divider, Modal, DialogActions, Dialog,
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import CloseIcon from '@mui/icons-material/Close';
 import DeleteModal from "../Modals/DeleteModal";
-
-import { fetchFilters, applyFilter, duplicateFilterAsync, deleteFilterAsync, updateFilterAsync  } from "../../redux/slices/filterSlice";
+import { fetchFilters, applyFilter, duplicateFilterAsync, deleteFilterAsync, updateFilterAsync } from "../../redux/slices/filterSlice";
 import { RootState } from "../../redux/store";
 import { useSelector } from "react-redux";
-import {useAppDispatch} from "../../redux/hooks";
+import { useAppDispatch } from "../../redux/hooks";
 import { useNavigate } from "react-router-dom";
 import CryptoJS from 'crypto-js'
 const ManageFilters = () => {
 
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
-  const [selectedActionFilterId, setSelectedActionFilterId] = useState<string | null>(null);
   const [highlightedId, setHighlightedId] = useState<string | null>(null);
 
   const [search, setSearch] = useState("");
-  const [debouncedSearch, setDebouncedSearch] = useState(""); // New state for debounced search
+  const [debouncedSearch, setDebouncedSearch] = useState("");
   const [sortBy, setSortBy] = useState("");
   const [order, setOrder] = useState("asc");
   const [page, setPage] = useState(1);
   const [openModal, setOpenModal] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [selectedFilter, setSelectedFilter] = useState<any>(null);
-  const [showDeleteAlert, setShowDeleteAlert] = useState(false);
-  // const [isDeleteModalopen, setIsDeleteModalopen] = useState(false);
-  // const [tabValue, setTabValue] = useState<boolean>(false);///delete
-  // const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-  // const open = Boolean(anchorEl);
+  const [showAlert, setShowAlert] = useState(false);
+  const [alertData, setAlertData] = useState<string | null>(null);
   const [menuAnchorEl, setMenuAnchorEl] = useState<Record<string, HTMLElement | null>>({});
-    
   const [selectedFilters, setSelectedFilters] = useState<string[]>([]);
   const [selectAll, setSelectAll] = useState(false);
-
   const [activeSubTab, setActiveSubTab] = useState<"saved" | "drafts">("saved");
   const isDraft = activeSubTab === "drafts";
 
-  const [modalData, setModalData] = useState<{open: boolean; handleConfirm: () => void | ((id: string) => void) | (() => void); title:string; message:string }>({
+  const [modalData, setModalData] = useState<{ open: boolean; handleConfirm: () => void | ((id: string) => void) | (() => void); title: string; message: string }>({
     open: false,
-    handleConfirm: () => {},
+    handleConfirm: () => { },
     title: '',
     message: ''
   });
 
   const params = new URLSearchParams(window.location.search);
-  const draft = params.get('isDraft'); // returns string "false" or "true"
-  const isDraftBool = draft === 'true'; // convert to boolean if needed
+  const draft = params.get('isDraft');
+  const isDraftBool = draft === 'true';
 
   useEffect(() => {
     if (isDraftBool) {
@@ -64,12 +54,12 @@ const ManageFilters = () => {
       setActiveSubTab("saved");
     }
   }
-  , [isDraftBool]);
+    , [isDraftBool]);
 
   const openDeleteSelectedModal = () => {
     setModalData({
       open: true,
-      handleConfirm: handleDeleteSelectedFilters, 
+      handleConfirm: handleDeleteSelectedFilters,
       title: 'Delete Selected Filters',
       message: 'Are you sure you want to delete these filters?'
     });
@@ -78,7 +68,7 @@ const ManageFilters = () => {
   const openDeleteOneModal = (filterId: string) => {
     setModalData({
       open: true,
-      handleConfirm: () => handleDeleteFilter(filterId), 
+      handleConfirm: () => handleDeleteFilter(filterId),
       title: 'Delete This Item?',
       message: 'Are you sure you want to delete this thing?'
     });
@@ -129,8 +119,8 @@ const ManageFilters = () => {
     }
     setSelectAll(!selectAll);
   };
-  
-  
+
+
   const handleClick = (event: React.MouseEvent<HTMLElement>, id: string) => {
     setMenuAnchorEl((prev) => ({
       ...prev,
@@ -148,13 +138,11 @@ const ManageFilters = () => {
     setPage(1);
   }
 
-
-  //  
   useEffect(() => {
     const handler = setTimeout(() => {
       setDebouncedSearch(search);
     }, 400);
-    return () => clearTimeout(handler); // Cleanup function to clear timeout on every new keystroke
+    return () => clearTimeout(handler);
   }, [search]);
 
   useEffect(() => {
@@ -186,30 +174,28 @@ const ManageFilters = () => {
   const handleDuplicateFilter = async (filterId: string) => {
     const resultAction = await dispatch(duplicateFilterAsync(filterId));
     const newFilter = resultAction.payload.filter || resultAction.payload;
-  
+
     if (newFilter && newFilter._id) {
       setHighlightedId(newFilter._id);
       setTimeout(() => setHighlightedId(null), 8000);
     }
+    setShowAlert(true);
+    setAlertData('Filter Cloned Successfully');
   };
-  
-  
-
 
   const handleDeleteFilter = (filterId: string) => {
-    // if (window.confirm("Are you sure you want to delete this filter?")) {
-      dispatch(deleteFilterAsync(filterId));
-      setShowDeleteAlert(true);
-      setModalData(prev => ({ ...prev, open: false }));
-      setMenuAnchorEl({});
-    // }
+    dispatch(deleteFilterAsync(filterId));
+    setShowAlert(true);
+    setModalData(prev => ({ ...prev, open: false }));
+    setMenuAnchorEl({});
+    setAlertData('Filter Deleted Successfully');
   };
 
   const handleEditFilter = (id: string) => {
-  
+
     const secretKey = process.env.REACT_APP_ENCRYPT_SECRET_KEY as string;
     const encryptedId = CryptoJS.AES.encrypt(id, secretKey).toString();
-    
+
     navigate(`/edit-filter/${encodeURIComponent(encryptedId)}`);
     // setSelectedFilter(filter);
     // setEditModalOpen(true);
@@ -223,20 +209,17 @@ const ManageFilters = () => {
     }
   };
 
-
   const handleDeleteSelectedFilters = () => {
     if (selectedFilters.length === 0) {
       alert("No filters selected!");
       return;
     }
 
-    // if (window.confirm(`Are you sure you want to delete ${selectedFilters.length} selected filters?`)) {
-      selectedFilters.forEach((filterId) => dispatch(deleteFilterAsync(filterId)));
-      setSelectedFilters([]);
-      setSelectAll(false);
-      setShowDeleteAlert(true);
-      setModalData(prev => ({ ...prev, open: false })); // ✅ correct way to close modal
-      // }
+    selectedFilters.forEach((filterId) => dispatch(deleteFilterAsync(filterId)));
+    setSelectedFilters([]);
+    setSelectAll(false);
+    setShowAlert(true);
+    setModalData(prev => ({ ...prev, open: false }));
   };
 
   return (
@@ -249,32 +232,41 @@ const ManageFilters = () => {
       </Typography>
 
       <Snackbar
-        open={showDeleteAlert}
+        open={showAlert}
         autoHideDuration={3000}
-        onClose={() => setShowDeleteAlert(false)}
+        onClose={() => setShowAlert(false)}
         anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
       // sx={{mt:8}}
-      >
-        <Alert severity="success" onClose={() => setShowDeleteAlert(false)} sx={{ width: '100%' }}>
-          Campaign deleted successfully!
-        </Alert>
+      >        
+        <Alert severity="success" onClose={() => setShowAlert(false)} sx={{ width: '100%' }}>
+          {alertData}
+        </Alert>        
       </Snackbar>
 
-        {/* <DeleteModal open={modalData.open} handleClose={()=>setIsDeleteModalopen(false)} handleConfirm={handleDeleteSelectedFilters} title='Delete Selected Filters' message='Are you sure you want to delete these filters? This action cannot be undone.'  /> */}
-        <DeleteModal open={modalData.open} 
-                    handleClose={() => setModalData(prev => ({ ...prev, open: false }))} 
-                    handleConfirm={modalData.handleConfirm} 
-                    title={modalData.title} 
-                    message={modalData.message} 
-        />
+      <DeleteModal open={modalData.open}
+        handleClose={() => setModalData(prev => ({ ...prev, open: false }))}
+        handleConfirm={modalData.handleConfirm}
+        title={modalData.title}
+        message={modalData.message}
+      />
 
       <Box bgcolor="white" boxShadow={2} borderRadius={2} padding={2}>
+        <Box sx={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
         <Tabs value={activeSubTab} onChange={handleTabChange}>
           <Tab value="saved"  /*onClick={() => { setActiveSubTab("saved"); setPage(1); }}*/ sx={{ fontWeight: "600" }} label="Saved Filters" />
           <Tab value="drafts" /*onClick={() => { setActiveSubTab("drafts"); setPage(1); }}*/ sx={{ fontWeight: "600" }} label="Drafts" />
         </Tabs>
-
-        <Box display="flex" justifyContent="space-between" alignItems="center" padding={2} bgcolor="white">
+        <Button variant="contained" color="error" size="small"
+                    // sx={{ position: 'absolute', top: 23, left: 86, }}
+                    onClick={() => openDeleteSelectedModal()}
+                    // onClick={()=>setIsDeleteModalopen(true)}
+                    disabled={selectedFilters.length === 0}
+                    sx={{mr:2}}
+                  >
+                    Delete Selected
+                  </Button>
+        </Box>
+        <Box display="flex" justifyContent="space-between" alignItems="center" padding={2} bgcolor="white" sx={{width:'100%'}}>
 
           <TextField
             variant="outlined"
@@ -318,17 +310,9 @@ const ManageFilters = () => {
                 <TableCell>FILTER NAME</TableCell>
                 <TableCell>TAGS</TableCell>
                 <TableCell>DESCRIPTION</TableCell>
-                <TableCell sx={{ position: 'relative' }}>                  
-                    ACTIONS 
-                    <Button  variant="contained" color="error" size="small"
-                      sx={{ position: 'absolute', top: 23, left: 86,}}
-                      onClick={()=>openDeleteSelectedModal()}
-                      // onClick={()=>setIsDeleteModalopen(true)}
-                      disabled={selectedFilters.length === 0}
-                    >
-                      Delete Selected
-                    </Button>
-                </TableCell> 
+                <TableCell sx={{ position: 'relative' }}>
+                  ACTIONS                  
+                </TableCell>
               </TableRow>
             </TableHead>
 
@@ -345,59 +329,58 @@ const ManageFilters = () => {
                     .filter((filter) => filter && filter.name
                       // && filter.isDraft == tabValue
                     )
-                      .map((filter, index) => (
-                <TableRow key={filter._id} sx={{       
-                  boxShadow: filter._id === highlightedId
-                  ? 'inset 0px 0px 10px #ff9800'
-                  : 'inset 0px 0px 10px #fff',
-                                      bgcolor: index%2 === 0? 'white' : '#FAFAFA', 
-                }}>
-                  <TableCell>
-                    <Checkbox
-                      checked={selectedFilters.includes(filter._id)}
-                      onChange={() => handleSelectFilter(filter._id)}
-                    />
-                  </TableCell>
-                  <TableCell style={{ color: "#4170ba", fontWeight: "600" }}>{filter.name}</TableCell>
-                  <TableCell style={{ fontWeight: "600" }}>{filter.tags}</TableCell>
-                  <TableCell style={{ fontWeight: "600" }}>{filter.description}</TableCell>
-                  <TableCell >
-                    <Box sx={{ display: "flex" }}>
-                      
-                    <Button variant="contained" color="success" size="small" onClick={() => handleApplyFilter(filter._id)} style={{ marginRight: 8 }}>Apply</Button>
-                    <Button variant="contained" color="warning" size="small" onClick={() => handleDuplicateFilter(filter._id)} >Duplicate</Button>
-                    
-                    <IconButton onClick={(e) => {handleClick(e, filter._id)}}>
-                      <MoreVertIcon />
-                    </IconButton>
+                    .map((filter, index) => (
+                      <TableRow key={filter._id} sx={{
+                        boxShadow: filter._id === highlightedId
+                          ? 'inset 0px 0px 10px #ff9800'
+                          : 'inset 0px 0px 10px #fff',
+                        bgcolor: index % 2 === 0 ? 'white' : '#FAFAFA',
+                      }}>
+                        <TableCell>
+                          <Checkbox
+                            checked={selectedFilters.includes(filter._id)}
+                            onChange={() => handleSelectFilter(filter._id)}
+                          />
+                        </TableCell>
+                        <TableCell style={{ color: "#4170ba", fontWeight: "600" }}>{filter.name}</TableCell>
+                        <TableCell style={{ fontWeight: "600" }}>{filter.tags}</TableCell>
+                        <TableCell style={{ fontWeight: "600" }}>{filter.description}</TableCell>
+                        <TableCell >
 
-                    <Menu
-                      anchorEl={menuAnchorEl[filter._id]}
-                      open={Boolean(menuAnchorEl[filter._id])}
-                      onClose={handleClose}
-                      anchorOrigin={{
-                        vertical: "bottom",
-                        horizontal: "center",
-                      }}
-                      transformOrigin={{
-                        vertical: "top",
-                        horizontal: "center",
-                      }}
-                    >
-                      {/* <MenuItem onClick={() => navigate(`/edit-filter/${filter._id}`)}>Edit</MenuItem> */}
-                      <MenuItem onClick={() => handleEditFilter(filter._id)}>Edit</MenuItem>
-                      <MenuItem onClick={() => openDeleteOneModal(filter._id)}>Delete</MenuItem>
-                    </Menu>
-                    </Box>
-                  </TableCell>
-                </TableRow>
-               ))
-              ) : (
-                <TableRow>
-                  <TableCell colSpan={4}>No filters found</TableCell>
-                </TableRow>
-              )}
-            </TableBody>
+                          <Box sx={{ display: "flex" }}>
+                            <Button variant="contained" color="success" size="small" onClick={() => handleApplyFilter(filter._id)} style={{ marginRight: 8 }}>Apply</Button>
+                            <Button variant="contained" color="warning" size="small" onClick={() => handleDuplicateFilter(filter._id)} >Duplicate</Button>
+
+                            <IconButton onClick={(e) => { handleClick(e, filter._id) }}>
+                              <MoreVertIcon />
+                            </IconButton>
+
+                            <Menu
+                              anchorEl={menuAnchorEl[filter._id]}
+                              open={Boolean(menuAnchorEl[filter._id])}
+                              onClose={handleClose}
+                              anchorOrigin={{
+                                vertical: "bottom",
+                                horizontal: "center",
+                              }}
+                              transformOrigin={{
+                                vertical: "top",
+                                horizontal: "center",
+                              }}
+                            >
+                              <MenuItem onClick={() => handleEditFilter(filter._id)}>Edit</MenuItem>
+                              <MenuItem onClick={() => openDeleteOneModal(filter._id)}>Delete</MenuItem>
+                            </Menu>
+                          </Box>
+                        </TableCell>
+                      </TableRow>
+                    ))
+                ) : (
+                  <TableRow>
+                    <TableCell colSpan={4}>No filters found</TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
             )}
           </Table>
         </TableContainer>
@@ -432,93 +415,67 @@ const ManageFilters = () => {
         </Button>
       </div>
 
-      {/* Modal for Applied Filter */}
-      {/* <Modal open={openModal} onClose={() => setOpenModal(false)}>
-        <Box sx={{
-          position: "absolute",
-          top: "50%",
-          left: "50%",
-          transform: "translate(-50%, -50%)",
-          width: 450,
-          bgcolor: "background.paper",
-          boxShadow: 24,
-          p: 2,
-          borderRadius: 2,
-        }}> */}
-<Dialog
-      open={openModal}
-      onClose={() => setOpenModal(false)}
-      fullWidth
-      // maxWidth="sm"
-      aria-labelledby="filter-modal-title"
-      sx={{borderRadius: "10px", 
-        "& .MuiPaper-root": {
-          maxWidth:'550px',
-          // width: '100%',
-          // height: '100%',
-        },
-        // "& .MuiDialog-paper": { width: "80vw", maxWidth: "none" , height: "80vh", maxHeight:"none"},
-      }}
-    >
+      <Dialog
+        open={openModal}
+        onClose={() => setOpenModal(false)}
+        fullWidth
+        aria-labelledby="filter-modal-title"
+        sx={{
+          borderRadius: "10px",
+          "& .MuiPaper-root": {
+            maxWidth: '550px',
+          },
+        }}
+      >
+        <Box sx={{ bgcolor: '#0057D9', width: '100%', height: 35, display: 'flex', justifyContent: 'space-between' }}>
+          <Typography sx={{ color: "white", ml: 2, mt: 0.5 }}>Saved&nbsp;Filter</Typography>
+          <IconButton onClick={() => setOpenModal(false)}>
+            <CloseIcon sx={{ color: "white" }} />
+          </IconButton>
+        </Box>
+        <Divider sx={{ marginBottom: 2 }} />
+        {appliedFilter ? (
+          <>
+            <Box
+              sx={{
+                display: "grid",
+                gridTemplateColumns: "150px auto",
+                gap: 2,
+                width: '100%',
+                // maxWidth: "450px",
+                p: 2,
+              }}
+            >
+              <Typography sx={{ color: '#A3AABC' }}>Filter Name -</Typography>
+              <Typography sx={{ color: '#6D6976' }}>{appliedFilter.name}</Typography>
 
-          <Box sx={{ bgcolor: '#0057D9', width:'100%', height: 35, display:'flex', justifyContent:'space-between'}}> 
-            <Typography sx={{color: "white", ml:2,mt:0.5}}>Saved&nbsp;Filter</Typography> 
-            <IconButton onClick={() => setOpenModal(false)}>
-              <CloseIcon sx={{color:"white"}} />
-              </IconButton>
-          </Box>
-          <Divider sx={{ marginBottom: 2 }} />
-          {appliedFilter ? (
-            <>
-              <Box
-                    sx={{
-                      display: "grid",
-                      gridTemplateColumns: "150px auto",
-                      gap: 2,
-                      width:'100%',
-                      // maxWidth: "450px",
-                      p:2,
-                    }}
-                  >
-                    <Typography sx={{color:'#A3AABC'}}>Filter Name -</Typography>
-                    <Typography sx={{color:'#6D6976'}}>{appliedFilter.name}</Typography>
-              
-                    <Typography sx={{color:'#A3AABC'}}>Description -</Typography>
-                    <Typography sx={{color:'#6D6976'}}>{appliedFilter.description}</Typography>
-              
-                    <Typography sx={{color:'#A3AABC'}}>Tags -</Typography>
-                    <Typography sx={{color:'#6D6976'}}>{appliedFilter.tags.toString().split(",").join(", ")}</Typography>
-              
-                    <Typography sx={{color:'#A3AABC'}}>Last Used -</Typography>
-                    <Typography sx={{color:'#6D6976'}}>{appliedFilter.lastUsed}</Typography>
-              
-                    <Typography sx={{color:'#A3AABC'}}>CTR % -</Typography>
-                    <Typography sx={{color:'#6D6976'}}>{appliedFilter.ctr}</Typography>
-              
-                  </Box>
-                  <DialogActions>
-                  <Button variant="outlined" onClick={() => setOpenModal(false)} sx={{ marginRight: 1, bgcolor:"#EBEBEB", color:"#6D6976"}}>
-                  Cancel
-                </Button>
-                <Button variant="contained" color="primary" sx={{bgcolor:"#0057D9"}} onClick={() => setOpenModal(false)}>
-                  Reuse for New Campaign
-                </Button>
-                        </DialogActions>
-              {/* <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 10 }}>
-                <Button variant="outlined" onClick={() => setOpenModal(false)} sx={{ marginRight: 1 }}>
-                  Cancel
-                </Button>
-                <Button variant="contained" color="primary" onClick={() => setOpenModal(false)}>
-                  Reuse for New Campaign
-                </Button>
-              </div> */}
-              
-            </>
-            
-          ) : (
-            <Typography>Loading filter details...</Typography>
-          )}
-          </Dialog>
+              <Typography sx={{ color: '#A3AABC' }}>Description -</Typography>
+              <Typography sx={{ color: '#6D6976' }}>{appliedFilter.description}</Typography>
+
+              <Typography sx={{ color: '#A3AABC' }}>Tags -</Typography>
+              <Typography sx={{ color: '#6D6976' }}>{appliedFilter.tags.toString().split(",").join(", ")}</Typography>
+
+              <Typography sx={{ color: '#A3AABC' }}>Last Used -</Typography>
+              <Typography sx={{ color: '#6D6976' }}>{appliedFilter.lastUsed}</Typography>
+
+              <Typography sx={{ color: '#A3AABC' }}>CTR % -</Typography>
+              <Typography sx={{ color: '#6D6976' }}>{appliedFilter.ctr}</Typography>
+
+            </Box>
+            <DialogActions>
+              <Button variant="outlined" onClick={() => setOpenModal(false)} sx={{ marginRight: 1, bgcolor: "#EBEBEB", color: "#6D6976" }}>
+                Cancel
+              </Button>
+              <Button variant="contained" color="primary" sx={{ bgcolor: "#0057D9" }} onClick={() => setOpenModal(false)}>
+                Reuse for New Campaign
+              </Button>
+            </DialogActions>
+          </>
+
+        ) : (
+          <Typography>Loading filter details...</Typography>
+        )}
+      </Dialog>
 
       {/* Edit Filter Modal */}
       <Modal open={editModalOpen} onClose={() => setEditModalOpen(false)}>

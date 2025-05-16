@@ -49,7 +49,6 @@ export default function App({template}: TemplateEditorProps) {
       type: template?.type || 'Email',
       category: template?.category || '',
       tags: template?.tags || [],
-      includeOptOut: template?.includeOptOut ?? false,
       content: {
         root: {
           id: 'root',
@@ -90,7 +89,6 @@ export default function App({template}: TemplateEditorProps) {
         type: 'Email',
         category: '',
         tags: [],
-        includeOptOut: false,
         content: {
           root: {
             id: 'root',

@@ -3,10 +3,6 @@ import { Reader } from '@usewaypoint/email-builder';
 import { Box, Button, Dialog, DialogActions, DialogContent, IconButton, Typography } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 
-
-// Assuming this is your reader component
-
-
 type CustomPreviewProps = {
   doc?: any;
   html?: string;
@@ -34,24 +30,19 @@ export default function CustomPreview({
     if (handleClose) {
       handleClose();
     }
-    setDoc(null); // Unset the values here
-    setHtml(null); // Also unset html if needed
+    setDoc(null); 
+    setHtml(null); 
   };
-
-  // if (!open) return null; // Don't render if the modal isn't open
 
   if (!doc || !doc[rootBlockId]) {
     return <Box>— No preview available —</Box>;
   }
   
-
-  // Common Dialog setup
   const dialogContent = (
     <Dialog
       open={!!open}
       onClose={closeModal}
       fullWidth
-      // maxWidth="sm"
       sx={{
         '& .MuiDialog-paper': {
           width: '80vw',
@@ -86,7 +77,7 @@ export default function CustomPreview({
           — Invalid document structure —
         </Typography>
       )}
-{/* important */}
+        {/* important */}
         {/* <Box sx={{ width: '100%', maxHeight: '60vh', overflow: 'auto' }}>
           {html ? (
             <Box
@@ -109,21 +100,3 @@ export default function CustomPreview({
 
   return dialogContent;
 }
-
-  // 2) Otherwise, if you only have HTML, just dangerouslySetInnerHTML
-  // if (html) {
-  //   return (
-  //     <>
-  //     <Box
-  //       sx={{ width: '300px', height: '300px', overflow: 'none', p: 2, m:2 }}
-  //       dangerouslySetInnerHTML={{ __html: html }}
-  //     />     
-  //     </>
-      
-  //   );
-  // }
-  
-  // 3) Nothing to show
-  // return <Box>— No preview available —</Box>;
-//}
- 

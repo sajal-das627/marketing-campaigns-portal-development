@@ -14,7 +14,7 @@ export interface Template {
     isDeleted?: boolean
     deletedAt?: string | null
     version?: number;
-    includeOptOut? : boolean;
+    includeOptOutText? : boolean;
     content : any;
 
   }

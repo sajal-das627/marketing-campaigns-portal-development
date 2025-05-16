@@ -13,7 +13,6 @@ import {
 import { RootState } from '../../redux/store';
 import { useAppDispatch } from '../../redux/hooks';
 import CustomPreview from "../../components/Templates/CustomPreview";
-import type { Template } from "../../redux/slices/templateSlice";
 import AllModal from '../../components/Modals/DeleteModal';
 import LoopIcon from '@mui/icons-material/Loop';
 import CryptoJS from 'crypto-js'
@@ -89,17 +88,11 @@ export default function EmailTemplateGallery() {
   const handleSelect = async (id: string) => {
     if (id) {
       const res: any = await dispatch(duplicateTemplate(id) as any);
-      console.log('res', res);
-
       if (!duplicateTemplate.fulfilled.match(res)) return;
       const duplicated: string = res.payload.template._id;
-
-        const secretKey = process.env.REACT_APP_ENCRYPT_SECRET_KEY as string;
-        const encryptedId = CryptoJS.AES.encrypt(duplicated, secretKey).toString();
-      
-        navigate(`/build-template/${encodeURIComponent(encryptedId)}`);
-      // navigate(`/build-template/${duplicated}`);
-      console.log('duplicateID:', duplicated);
+      const secretKey = process.env.REACT_APP_ENCRYPT_SECRET_KEY as string;
+      const encryptedId = CryptoJS.AES.encrypt(duplicated, secretKey).toString();
+      navigate(`/build-template/${encodeURIComponent(encryptedId)}`);
     }
     else console.log("ID doesn't exist");
   }
@@ -145,7 +138,7 @@ export default function EmailTemplateGallery() {
           {(templates ?? [])
             .filter((template) => template?.type === 'Email')
             .map((template: any) => (
-              <Grid size={{ xs: 6, sm: 4, md: 4, lg: 3, xl:2.4 }} key={template._id}>
+              <Grid size={{ xs: 6, sm: 4, md: 4, lg: 3, xl: 2.4 }} key={template._id}>
                 <Card sx={{ width: '200px', height: '200px', borderRadius: '10px' }}>
                   <Box
                     sx={{
@@ -165,24 +158,18 @@ export default function EmailTemplateGallery() {
                       },
                     }}
                   >
-                    {/* Scaled Preview */}
-
                     <Suspense fallback={<LoopIcon />} >
-
                       <Box
                         sx={{
                           transform: 'scale(0.25)',
                           transformOrigin: 'top left',
                           width: '800px',
-                          // height: '2400px',
                           pointerEvents: 'none',
                         }}
                       >
                         <LazyReader document={template.content} rootBlockId={rootBlockId} />
                       </Box>
                     </Suspense>
-
-                    {/* Buttons - Not Scaled, Stay in Normal Size */}
                     <Box
                       className="hover-buttons"
                       sx={{
@@ -202,8 +189,7 @@ export default function EmailTemplateGallery() {
                         size="medium"
                         variant="contained"
                         color="primary"
-                        onClick={() => {setSuccessIndex(template._id) as any}}
-                        // onClick={() => handleSelect(template._id) as any}
+                        onClick={() => { setSuccessIndex(template._id) as any }}
                         sx={{
                           bgcolor: '#0057D9',
                           '&:hover': {
@@ -244,19 +230,19 @@ export default function EmailTemplateGallery() {
                     handleClose={() => setOpenIndex(null)}
                   />
                 )}
-                
-                 {template && template._id === successIndex && (
-                <AllModal
-                  open={true}
-                  handleClose={() => {setSuccessIndex(null) }}
-                  handleConfirm={() => handleSelect(template._id) as any}
-                  
-                  title="Do you want Select this template?"
-                  message={`Copy and Update "${template.name}" as a New Template`}
-                  btntxt="Yes"
-                  icon={{ type: "success" }}
-                  color="primary"
-                />)}
+
+                {template && template._id === successIndex && (
+                  <AllModal
+                    open={true}
+                    handleClose={() => { setSuccessIndex(null) }}
+                    handleConfirm={() => handleSelect(template._id) as any}
+
+                    title="Do you want Select this template?"
+                    message={`Copy and Update "${template.name}" as a New Template`}
+                    btntxt="Yes"
+                    icon={{ type: "success" }}
+                    color="primary"
+                  />)}
               </Grid>
             ))}
         </Grid>
@@ -280,7 +266,6 @@ export default function EmailTemplateGallery() {
             Next
           </Button>
         </Box>
-
         {loading && <Typography mt={2}>Loading templates...</Typography>}
       </Box>
     </Box>

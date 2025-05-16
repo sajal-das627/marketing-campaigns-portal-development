@@ -1,8 +1,6 @@
 import { Paper, Typography } from "@mui/material";
 import { useDrag } from "react-dnd";
-import
-//  React,
- { forwardRef } from "react";
+import { forwardRef } from "react";
 
 const ConditionBlock = forwardRef<HTMLDivElement, { condition: any }>(({ condition }, ref) => {
   const [{ isDragging }, drag] = useDrag(() => ({
@@ -16,7 +14,7 @@ const ConditionBlock = forwardRef<HTMLDivElement, { condition: any }>(({ conditi
   return (
     <Paper
       ref={(node) => {
-        drag(node); // Attach React DnD ref
+        drag(node); 
         if (typeof ref === "function") ref(node);
       }}
       component="div"

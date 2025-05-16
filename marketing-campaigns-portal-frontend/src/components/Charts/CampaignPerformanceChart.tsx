@@ -13,7 +13,6 @@ import {
 } from 'chart.js';
 import { MonthlyStat } from 'types/dashboard';
 
-
 ChartJS.register(
   CategoryScale,
   LinearScale,
@@ -114,7 +113,6 @@ const CampaignPerformanceChart: React.FC<CampaignPerformanceChartProps> = ({stat
     setTimeFrame(frame);
   };
 
-
   return (
     <Card sx={{ borderRadius: 2, boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)' }}>
       <CardContent>
@@ -129,10 +127,8 @@ const CampaignPerformanceChart: React.FC<CampaignPerformanceChartProps> = ({stat
                 sx={{
                   borderColor: '#F7F9FF',
                   borderRadius: '4px !important',
-
                   backgroundColor: timeFrame === frame ? '#0057D9' : '#FFFFFF',
-                  color: timeFrame === frame ? '#FFFFFF' : '#000000',
-                  
+                  color: timeFrame === frame ? '#FFFFFF' : '#000000',                  
                   textTransform: 'none',
                   '&:hover': {
                     backgroundColor: timeFrame === frame ? '#0057D9' : '#FFFFFF',
@@ -145,8 +141,8 @@ const CampaignPerformanceChart: React.FC<CampaignPerformanceChartProps> = ({stat
             ))}
           </ButtonGroup>
           </Box>
-
         </Box>
+
         <Box sx={{ width: '100%', height: { xs: '300px', md: '400px' }, position: 'relative' }}>
           <Line data={data} options={options} />
         </Box>

@@ -135,7 +135,6 @@ export default function CampaignCreator() {
   
   const { id : encryptedId } = useParams();
   const [id, setId] = useState<string | null>(null);
-  // const { id } = useParams<{id: string}>();
   const secretKey =  (process.env.REACT_APP_ENCRYPT_SECRET_KEY as string);
   
   useEffect(() => {
@@ -153,7 +152,7 @@ export default function CampaignCreator() {
   }, [encryptedId, secretKey]);
 
   const campaignFromStore = useSelector((state: RootState) => state.campaign.selectedCampaign); 
-  //Edited Mode Data Updates: 
+
   useEffect(() => {
     if (id) {
       dispatch(fetchCampaignById(id));
@@ -161,7 +160,6 @@ export default function CampaignCreator() {
     }
   }, [id, dispatch]);
 
-  // Update local state when the store updates
   useEffect(() => {
     if (campaignFromStore) {
       setCampaignData({
@@ -197,15 +195,8 @@ export default function CampaignCreator() {
   }, [id]);
 
 
-  // useEffect(() => {
-  //   if (campaignFromStore) {
-  //     setCampaignData(campaignFromStore);
-  //   }
-  // }, [campaignFromStore]); 
-
   useEffect(() => {
     if (campaignData.type === "Real Time") {
-      // Backup current schedule if it's not already null
       if (campaignData.schedule !== null) {
         setBackupSchedule(campaignData.schedule);
       }
@@ -276,7 +267,7 @@ export default function CampaignCreator() {
           if (startDate < today) {
             errors.push("Start date must be today or a future date.");
           } else if (startDate.getTime() === today.getTime() && campaignData.schedule?.time) {
-            // Check time if it's today
+            
             const [hours, minutes] = campaignData.schedule.time.split(":").map(Number);
             const selectedTime = new Date();
             selectedTime.setHours(hours, minutes, 0, 0);
@@ -368,16 +359,14 @@ export default function CampaignCreator() {
   setCampaignData((prev) => {
     if (type === "endDate" && prev?.schedule?.startDate && value.isBefore(dayjs(prev?.schedule?.startDate))) {
       // errors.push("End Date should be after Start Date");
-
-      // alert("End date cannot be before start date!");
-      return prev; // Do not update state
+      return prev; 
     }
 
     return {
       ...prev,
       schedule: {
         ...prev.schedule,
-        [type]: value.toDate(), // Dynamically update startDate or endDate
+        [type]: value.toDate(), 
       },
     };
   });
@@ -509,9 +498,7 @@ export default function CampaignCreator() {
                   </Button>
                 </Grid>
                 <Grid>
-                          <Button onClick={()=>setIsDeleteModalopen(true)} color="error" variant="contained" sx={{mr:1.5}}>exit</Button>
-                  
-                
+                  <Button onClick={()=>setIsDeleteModalopen(true)} color="error" variant="contained" sx={{mr:1.5}}>exit</Button>
                   <Button sx={{ bgcolor: "#0057D9" }} variant="contained" onClick={handleNextStep}>
                     {(activeStep === steps.length - 1) ? 'Launch Campaign' : activeStep === 0 ? 'Next' : 'Save & Continue'}
                   </Button>

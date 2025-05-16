@@ -12,7 +12,7 @@ import {
   InputAdornment,
   Avatar,
   Badge,
-  
+
 } from "@mui/material";
 // import { Outlet } from 'react-router-dom';
 
@@ -22,7 +22,7 @@ import SearchIcon from '@mui/icons-material/Search';
 import MenuIcon from "@mui/icons-material/Menu";
 import Sidebar from "./Sidebar";
 
-const drawerWidth:number = 240;
+const drawerWidth: number = 240;
 
 const ResponsiveLayout: React.FC = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -33,11 +33,11 @@ const ResponsiveLayout: React.FC = () => {
   // State for name and email
   const [name, setName] = useState('Marc Jacob');
   const [email, setEmail] = useState('marc.jacob@email.com');
-  
+
   const handleSearchChange = (e: any) => {
     setSearchValue(e.target.value);
   };
-  
+
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
   };
@@ -49,12 +49,13 @@ const ResponsiveLayout: React.FC = () => {
       {/* Topbar */}
       <AppBar
         position="fixed"
-        sx={{ zIndex: (theme) => theme.zIndex.drawer - 1,
-            bgcolor: "#fff",
-            color: "#000",
-            // width: { sm: `calc(100% - ${drawerWidth}px)` },
-            width: { sm: `100%` },
-         }}
+        sx={{
+          zIndex: (theme) => theme.zIndex.drawer - 1,
+          bgcolor: "#fff",
+          color: "#000",
+          // width: { sm: `calc(100% - ${drawerWidth}px)` },
+          width: { sm: `100%` },
+        }}
       >
         <Toolbar>
           <Box sx={{ display: { md: 'none' } }}>
@@ -66,30 +67,23 @@ const ResponsiveLayout: React.FC = () => {
             >
               <MenuIcon />
             </IconButton>
+          </Box>
+
+          <Box component="img" src="/icons/logo.png" alt="logo" width={'auto'} height={'35px'} />
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%', padding: 2, }}>
+            <Box sx={{ display: { xs: 'none', lg: 'block' } }}>
+              <Box sx={{ ml: 9, display: 'flex', flexDirection: 'column' }}>
+                <Typography variant="h6" sx={{ fontSize: "16px", color: 'text.secondary' }}>
+                  Welcome, {name}!
+                </Typography>
+                <Typography variant="body2" sx={{ fontSize: "16px", color: 'text.primary' }}>
+                  Ready to Boost Your Campaign
+                </Typography>
+              </Box>
             </Box>
-          
-           {/* Right part: Search bar, Notifications, Profile */}
-           {/* <Box sx={{ display: 'flex', alignItems: 'center' }}> */}
-         
-            <Box component="img" src="/icons/logo.png" alt="logo" width={'auto'} height={'35px'} />
-         
+            <Box></Box>
+            <Box sx={{ display: 'flex', alignItems: 'center' }}>
 
-          <Box sx={{display:'flex', justifyContent:'space-between', alignItems:'center', width:'100%', padding:2, }}>
-          
-                <Box sx={{display: { xs: 'none', lg:'block'} }}>
-
-                <Box  sx={{ml: 9, display: 'flex', flexDirection: 'column'}}>
-                  <Typography variant="h6" sx={{ fontSize: "16px", color: 'text.secondary' }}>
-                    Welcome, {name}!
-                  </Typography>
-                  <Typography variant="body2" sx={{ fontSize: "16px", color: 'text.primary' }}>
-                    Ready to Boost Your Campaign
-                  </Typography>
-                </Box>
-                </Box>
-                <Box></Box>
-            <Box sx={{display:'flex', alignItems:'center'}}>
-              
               {/* Search Bar with Search Icon */}
               <TextField
                 sx={{
@@ -97,7 +91,7 @@ const ResponsiveLayout: React.FC = () => {
                   marginLeft: 2,
                   marginRight: 2,
                   maxWidth: 400,
-                  backgroundColor: 'white', // Set background to white
+                  backgroundColor: 'white',
                 }}
                 variant="outlined"
                 size="small"
@@ -126,7 +120,7 @@ const ResponsiveLayout: React.FC = () => {
                 <Avatar sx={{ width: 35, height: 35 }} src="https://www.w3schools.com/w3images/avatar2.png" />
 
                 {/* Name and Email */}
-                <Box sx={{ marginLeft: 1, display: {xs:'none', md: "block"} }}>
+                <Box sx={{ marginLeft: 1, display: { xs: 'none', md: "block" } }}>
                   <Typography variant="body2" sx={{ fontSize: "14px", color: 'text.primary' }}>
                     {name}
                   </Typography>
@@ -134,18 +128,15 @@ const ResponsiveLayout: React.FC = () => {
                     {email}
                   </Typography>
                 </Box>
-              </Box> 
+              </Box>
             </Box>
           </Box>
-          {/* <Typography variant="h6" noWrap>
-            My App
-          </Typography> */}
         </Toolbar>
       </AppBar>
 
       {/* Desktop Sidebar */}
       <Hidden mdDown>
-        <Sidebar drawerWidth={drawerWidth} mobileOpen={mobileOpen} handleDrawerToggle={handleDrawerToggle}  />
+        <Sidebar drawerWidth={drawerWidth} mobileOpen={mobileOpen} handleDrawerToggle={handleDrawerToggle} />
       </Hidden>
 
       {/* Mobile Sidebar */}
@@ -166,7 +157,7 @@ const ResponsiveLayout: React.FC = () => {
         </Drawer>
       </Hidden>
 
-       {/* <Box
+      {/* <Box
         component="main"
         sx={{
           flexGrow: 1,

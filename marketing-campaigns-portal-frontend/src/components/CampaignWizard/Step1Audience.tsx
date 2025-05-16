@@ -3,58 +3,14 @@ import { Grid2 as Grid, Card, IconButton, CardActionArea, CardContent, Box, Typo
 import SearchIcon from "@mui/icons-material/Search";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import { Types } from "mongoose";
-import {
-  // Audience,
-  CampaignData
-} from "../../types/campaign";
+import { CampaignData } from "../../types/campaign";
 import FilterModal from './FilterModal';
-
 import { generateStatement } from '../../utils/generateStatement'
-// import {generateStatement, GroupsData } from '../../utils/generateStatement'
-
 import { fetchFilters } from "../../redux/slices/filterSlice"
 import { RootState } from "../../redux/store";
 import { useSelector } from "react-redux";
 import { useAppDispatch } from "../../redux/hooks";
 import { useNavigate } from "react-router-dom";
-// import {FilterStatement} from '../../utils/genState'
-// import { ConditionGroup } from "types/filter";
-// const data: GroupsData = {
-//   groups: [
-//     {
-//       groupId: 'group1',
-//       groupOperator: 'OR',
-//       conditions: [
-//         {
-//           field: 'Email Opened',
-//           operator: 'Equals',
-//           value: 'Yes',
-//         },
-//         {
-//           field: 'Last Purchase Date',
-//           operator: 'Before',
-//           value: '2024-05-18',
-//         },
-//       ],
-//     },
-//     {
-//       groupId: 'group2',
-//       groupOperator: 'OR',
-//       conditions: [
-//         {
-//           field: 'Total Purchase Date',
-//           operator: 'Equals',
-//           value: '0',
-//         },
-//         {
-//           field: 'Customer Type',
-//           operator: 'Equals',
-//           value: 'New',
-//         },
-//       ],
-//     },
-//   ],
-// };
 
 interface AudienceSelectorProps {
   handleChange: (event: any) => void;
@@ -66,27 +22,21 @@ interface AudienceSelectorProps {
 const AudienceSelector: React.FC<AudienceSelectorProps> = ({ handleChange, campaignData, audienceName, setAudienceName }) => {
 
   const [isfilterModalId, setIsfilterModalId] = useState<string | null>(null);
-  //
   const [search, setSearch] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState(""); // New state for debounced search
-  const [sortBy, setSortBy] = useState("");
-  const [order, setOrder] = useState("asc");
   const [page, setPage] = useState(1);
-  // const [selectedFilter, setSelectedFilter] = useState<any>(null);
-
 
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
 
   const { filters, currentPage, totalPages,
-    // loading, error, appliedFilter 
   } = useSelector(
     (state: RootState) => state.filter
   );
 
   useEffect(() => {
-    dispatch(fetchFilters({ page, search: debouncedSearch, sortBy, order, /*isDraft: false*/ }));
-  }, [dispatch, page, debouncedSearch, sortBy, order]);
+    dispatch(fetchFilters({ page, search: debouncedSearch,  }));
+  }, [dispatch, page, debouncedSearch]);
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearch(e.target.value);
@@ -97,10 +47,9 @@ const AudienceSelector: React.FC<AudienceSelectorProps> = ({ handleChange, campa
     const handler = setTimeout(() => {
       setDebouncedSearch(search);
     }, 400);
-    return () => clearTimeout(handler); // Cleanup function to clear timeout on every new keystroke
+    return () => clearTimeout(handler);
   }, [search]);
 
-  //
   useEffect(() => {
     if (campaignData.audience) {
       const selectedAudience = filters.find(
@@ -112,12 +61,9 @@ const AudienceSelector: React.FC<AudienceSelectorProps> = ({ handleChange, campa
     }
   })
 
-
   useEffect(() => {
     dispatch(fetchFilters({ page: 1, search: "", sortBy: "createdOn", order: "desc", /*isDraft: false*/ }));
   }, [dispatch]);
-
-  console.log("Filters:", filters);
 
   const isSelected = (selectVal: number | string | Types.ObjectId) => {
     return campaignData.audience === selectVal ? '2px solid #007BFF' : '1px solid #ddd';
@@ -129,15 +75,8 @@ const AudienceSelector: React.FC<AudienceSelectorProps> = ({ handleChange, campa
     setIsfilterModalId(null);
   };
 
-  // const summary = generateStatement(data.groups);
-
   return (
-
     <Box sx={{ boxSizing: 'border-box' }}>
-
-      {/* {JSON.stringify(filters)}<br/> */}
-      { /* {JSON.stringify(filterState.data)}<br/>
-      {JSON.stringify(summary)} */}
       <Box display="flex"
         sx={{
           justifyContent: { md: "space-between", xs: "flex-start" },
@@ -171,37 +110,13 @@ const AudienceSelector: React.FC<AudienceSelectorProps> = ({ handleChange, campa
         />
 
         <Card sx={{ display: "flex", m: 1, p: 1, pl: 2, pr: 2 }}>
-
           <Box>
             <Typography sx={{ color: '#2068D5' }}>Selected Audience</Typography>
 
-            <Typography variant="body1" fontWeight="bold" sx={{ m: 0.5 }}>
+            <Typography variant="body1" fontWeight="bold" sx={{ m: 0.5, }}>
               {audienceName}
             </Typography>
-            <Typography variant="body2" color="#626262">
-              {campaignData.audience?.toString()}
-            </Typography>
           </Box>
-          {/* <Typography
-                  sx={{
-                    display: "flex",
-                    alignItems: "center",
-                    marginLeft: "auto",
-                    color: "#495057",
-                    fontSize: "14px",
-                    borderLeft: "2px solid #ECEEF6",
-                    paddingLeft: "8px",
-                  }}
-                >
-                  <IconButton 
-                  onClick={(e) => {
-                    e.stopPropagation();  
-                    handleFilterModal(campaignData.audience?.toString() ?? "");
-                  }} ><VisibilityIcon />
-                  </IconButton>
-                    
-                  <span>View</span>
-                </Typography> */}
         </Card>
       </Box>
       {filters.map((audience) => {

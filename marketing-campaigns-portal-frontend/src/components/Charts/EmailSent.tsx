@@ -21,7 +21,6 @@ const EmailSent: React.FC<EmailSentProps> = ({ data }) => {
   const [timeFrame, setTimeFrame] = useState<'daily' | 'weekly' | 'monthly'>('daily');
   const timeFrames = ['daily', 'weekly', 'monthly'] as const;
 
-  // Build chartData whenever `data` or `timeFrame` changes
   const chartData = useMemo(() => {
     if (!data || data.length === 0) {
       return {
@@ -29,13 +28,11 @@ const EmailSent: React.FC<EmailSentProps> = ({ data }) => {
         datasets: []
       };
     }
-      //old code
-    // Labels are the month names
-    // const labels = data.map((d) => d.month);
-    // Pick the right slice of EmailRate
-    // const clickRates = data.map((d) => d[timeFrame].clickRate);
-    // const openRates = data.map((d) => d[timeFrame].openRate);
 
+  // const labels = data.map((d) => d.month);
+  // Pick the right slice of EmailRate
+  // const clickRates = data.map((d) => d[timeFrame].clickRate);
+  // const openRates = data.map((d) => d[timeFrame].openRate);
 
   const labels = data.map((stat) => stat.month);
 
