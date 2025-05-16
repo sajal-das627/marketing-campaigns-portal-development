@@ -18,10 +18,10 @@ interface SuccessModalProps {
 }
 
 const SuccessModal: React.FC<SuccessModalProps> = ({
-  open, onClose, title, message,}) => {
+  open, onClose, title, message, }) => {
   const navigation = useNavigate();
 
-  const handleNavigation =() =>{
+  const handleNavigation = () => {
     navigation("/manage-campaign");
   }
   return (
@@ -32,31 +32,30 @@ const SuccessModal: React.FC<SuccessModalProps> = ({
       aria-describedby="success-dialog-description"
     >
       <DialogTitle
-  id="success-dialog-title"
-  sx={{ display: 'flex', alignItems: 'center' }}
->
-  <CheckCircleIcon
-    sx={{ marginRight: 1, color: "#0057D9", fontSize: "34px" }}
-  />
-  <Typography variant="h6" component="span" sx={{ fontWeight: "semi-bold" }}>
-    {title || "Success"}
-  </Typography>
-</DialogTitle>
-
+        id="success-dialog-title"
+        sx={{ display: 'flex', alignItems: 'center' }}
+      >
+        <CheckCircleIcon
+          sx={{ marginRight: 1, color: "#0057D9", fontSize: "34px" }}
+        />
+        <Typography variant="h6" component="span" sx={{ fontWeight: "semi-bold" }}>
+          {title || "Success"}
+        </Typography>
+      </DialogTitle>
 
       <DialogContent>
-        <DialogContentText id="success-dialog-description" sx={{color: '#A3AABC', fontSize:'12px'}}>
+        <DialogContentText id="success-dialog-description" sx={{ color: '#A3AABC', fontSize: '12px' }}>
           {message || "Saved Successfully"}
         </DialogContentText>
       </DialogContent>
 
       <DialogActions>
-      <Button onClick={()=>{onClose(); handleNavigation()}} variant="outlined">
+        <Button onClick={() => { onClose(); handleNavigation() }} variant="outlined">
           Cancel
         </Button>
-        <Button onClick={()=>{onClose(); handleNavigation()}} variant="contained"  sx={{bgcolor:"#0057D9"}}>
+        <Button onClick={() => { onClose(); handleNavigation() }} variant="contained" sx={{ bgcolor: "#0057D9" }}>
           Ok
-        </Button>        
+        </Button>
       </DialogActions>
     </Dialog>
   );

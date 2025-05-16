@@ -44,19 +44,17 @@ export default function TemplatePanel({templateDetails, isEdit, setError, setIsE
   const htmlCode = useHtmlCode();
   const setDocument = useSetDocument();
   React.useEffect(() => {
-    // 1) Don’t even try to patch unless it really *is* an Html block
+    
     if (document.root.type !== 'Html') return;
-    // 2) Now TS knows `document.root` is the Html variant
     const htmlBlock = document.root as HtmlBlock;
-    // 3) Patch only the .data.props.html field
     setDocument({
       root: {
         ...htmlBlock,
         data: {
-          ...htmlBlock.data,              // keep childrenIds + style
+          ...htmlBlock.data,             
           props: {
-            ...(htmlBlock.data.props ?? {}), // keep any other HtmlProps
-            contents: htmlCode,              // overwrite the HTML
+            ...(htmlBlock.data.props ?? {}), 
+            contents: htmlCode,             
           },
         },
       },
@@ -104,24 +102,7 @@ export default function TemplatePanel({templateDetails, isEdit, setError, setIsE
         );
       case 'html':
         return (
-          <Box sx={mainBoxSx} display="flex" flexDirection="column">
-            {/* your HTML source editor */}
-            <HtmlPanel />
-  
-            {/* live editor matching that code */}
-            <Box
-              sx={{
-                flex: 1,
-                mt: 2,
-                border: '1px solid #ddd',
-                borderRadius: 1,
-                overflow: 'auto',
-              }}
-              key={`html-preview-${htmlCode}`}
-            >
-              <EditorBlock id="root" />
-            </Box>
-          </Box>
+           <HtmlPanel />
         );  
       case 'json':
         return <JsonPanel />;
@@ -134,7 +115,7 @@ export default function TemplatePanel({templateDetails, isEdit, setError, setIsE
           height: 99,
           borderBottom: 1,
           borderColor: 'divider',
-          bgcolor: '#F7F9FF',          // backgroundColor: 'white',
+          bgcolor: '#F7F9FF',          
           position: 'sticky',
           top: 0,
           zIndex: 'appBar',

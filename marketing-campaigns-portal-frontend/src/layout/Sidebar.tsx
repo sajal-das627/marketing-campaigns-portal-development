@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { List, ListItem, ListItemText, ListItemIcon, Collapse, Box, Drawer, useTheme, IconButton } from "@mui/material";
-import { ExpandLess, 
+import {
+  ExpandLess,
   // ExpandMore,
-   Dashboard as DashboardIcon, Campaign as CampaignIcon, Create as CreateIcon, ViewModule as TemplateIcon, Group as AudienceIcon, ChevronRight } from "@mui/icons-material";
+  Dashboard as DashboardIcon, Campaign as CampaignIcon, Create as CreateIcon, ViewModule as TemplateIcon, Group as AudienceIcon, ChevronRight
+} from "@mui/icons-material";
 import DescriptionIcon from "@mui/icons-material/Description";
 import MenuIcon from "@mui/icons-material/Menu";
 
@@ -27,8 +29,8 @@ const CollapsibleMenu = () => {
       icon: <AudienceIcon />,
       active: false,
       subItems: [
-        { text: "Manage Filter",  path: "/filters", active: false },
-        { text: "Create New Filter",  path: "/create-filters", active: false },
+        { text: "Manage Filter", path: "/filters", active: false },
+        { text: "Create New Filter", path: "/create-filters", active: false },
       ],
     },
     {
@@ -42,7 +44,6 @@ const CollapsibleMenu = () => {
     },
   ]);
 
-
   useEffect(() => {
     const updatedMenuItems = menuItems.map(item => {
       if (item.subItems) {
@@ -51,7 +52,7 @@ const CollapsibleMenu = () => {
           active: location.pathname === subItem.path,
         }));
         const isAnySubItemActive = updatedSubItems.some(subItem => subItem.active);
-        if(isAnySubItemActive) setOpenSubMenu(item.text)
+        if (isAnySubItemActive) setOpenSubMenu(item.text)
         return {
           ...item,
           active: location.pathname === item.path || isAnySubItemActive,
@@ -70,8 +71,6 @@ const CollapsibleMenu = () => {
     setOpenSubMenu(openSubMenu === menuItem ? null : menuItem);
   };
 
-  
-
   return (
     <List>
       {menuItems.map((item, index) => (
@@ -80,17 +79,17 @@ const CollapsibleMenu = () => {
           <ListItem
             component={item.path ? Link : "button"}
             to={item.path}
-            onClick={item.subItems ? () => handleClick(item.text) : ()=>setOpenSubMenu("")}
+            onClick={item.subItems ? () => handleClick(item.text) : () => setOpenSubMenu("")}
             sx={{
-                color: item.active ? theme.palette.primary.main : theme.palette.secondary.main,
-                backgroundColor: item.active ? theme.palette.background.default : theme.palette.common.white,
+              color: item.active ? theme.palette.primary.main : theme.palette.secondary.main,
+              backgroundColor: item.active ? theme.palette.background.default : theme.palette.common.white,
               '&:hover': {
                 backgroundColor: theme.palette.background.default,
               },
               border: 'none', // Remove border
             }}
           >
-            <ListItemIcon sx={{ color: item.active ? theme.palette.primary.main : theme.palette.secondary.main, marginRight:"-20px" }}>
+            <ListItemIcon sx={{ color: item.active ? theme.palette.primary.main : theme.palette.secondary.main, marginRight: "-20px" }}>
               {item.icon}
             </ListItemIcon>
             <ListItemText primary={item.text} />
@@ -130,13 +129,12 @@ const CollapsibleMenu = () => {
 };
 
 interface SidebarProps {
-  drawerWidth : number;
+  drawerWidth: number;
   mobileOpen: boolean;
   handleDrawerToggle: () => void;
 }
 
-const Sidebar: React.FC<SidebarProps> = ({drawerWidth, mobileOpen, handleDrawerToggle}) => {
-  // const {drawerWidth, mobileOpen, handleDrawerToggle} = props;
+const Sidebar: React.FC<SidebarProps> = ({ drawerWidth, mobileOpen, handleDrawerToggle }) => {
 
   return (
     <Drawer
@@ -147,20 +145,20 @@ const Sidebar: React.FC<SidebarProps> = ({drawerWidth, mobileOpen, handleDrawerT
         [`& .MuiDrawer-paper`]: { width: drawerWidth, boxSizing: 'border-box' },
       }}
     >
-      <Box sx={{ display: 'flex',padding: "20px", marginBottom: "5px" }}>
-          <Box component='img' src="/icons/logo.png" alt="logo" width={'auto'} height={'35px'} />
-          <Box sx={{ display: { md: 'none' } }}>
-              <IconButton
-                  color="inherit"
-                  edge="start"
-                  onClick={handleDrawerToggle}
-                  sx={{ ml: 2 }}
-                >
-              <MenuIcon />
-              </IconButton>
-          </Box>
+      <Box sx={{ display: 'flex', padding: "20px", marginBottom: "5px" }}>
+        <Box component='img' src="/icons/logo.png" alt="logo" width={'auto'} height={'35px'} />
+        <Box sx={{ display: { md: 'none' } }}>
+          <IconButton
+            color="inherit"
+            edge="start"
+            onClick={handleDrawerToggle}
+            sx={{ ml: 2 }}
+          >
+            <MenuIcon />
+          </IconButton>
         </Box>
-      
+      </Box>
+
       <Box sx={{ overflow: 'auto' }}>
         <CollapsibleMenu />
       </Box>

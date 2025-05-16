@@ -23,6 +23,8 @@ export interface Template {
   isFavorite: boolean;
   favorite?: boolean;
   [key: string]: any;
+  includeOptOutText? : boolean;
+
 }
 
 export interface TemplateQuery {
@@ -41,6 +43,8 @@ export const createTemplateThunk = createAsyncThunk<any, TemplateType>(
   async (data: TemplateType, thunkAPI): Promise<any> => {
     try {
       const res: any = await createTemplate(data); // assumes same-named function from apiClient
+      console.log('res///////////////////////////////////');
+      console.log('res', res);
       return res.data;
     } catch (err: any) {
       return thunkAPI.rejectWithValue(
@@ -471,16 +475,6 @@ const templateSlice = createSlice({
       const duplicated = action.payload;
       state.allTemplates.unshift(duplicated);
     })
-    ////add here
-    // .addCase(duplicateTemplate.fulfilled, (state, action) => {
-    //   const duplicated = action.payload;
-    //   const originalIndex = state.allTemplates.findIndex(t => t._id === duplicated.originalId); // You must include originalId in API response
-    //   if (originalIndex === -1) {
-    //     state.allTemplates.unshift(duplicated); // fallback: add to top
-    //     return;
-    //   }
-    //   state.allTemplates.splice(originalIndex + 1, 0, duplicated); // insert right after
-    // });
     .addCase(getTemplatesByCategory.fulfilled, (state, action) => {
       state.loading = false;
       state.totalPages = action.payload.totalPages;

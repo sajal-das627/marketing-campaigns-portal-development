@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import  { useEffect, useState } from "react";
 import { Box, List, ListItem, ListItemText, Typography, Button } from "@mui/material";
 import  { getFilters, applyFilter } from "../../api/apiClient";
 

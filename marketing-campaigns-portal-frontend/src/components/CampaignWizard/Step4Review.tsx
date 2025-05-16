@@ -10,10 +10,10 @@ import { CampaignData } from 'types/campaign';
 interface Step4ReviewProps {
     campaignData: CampaignData;
     audienceName: String;
-    templateData: {name: String; type: String};
+    templateData: { name: String; type: String };
 }
 
-const Step4Review: React.FC<Step4ReviewProps> = ({ campaignData , audienceName, templateData }) => {
+const Step4Review: React.FC<Step4ReviewProps> = ({ campaignData, audienceName, templateData }) => {
     return (
         <Box>
             <Typography variant="h6" fontWeight={'500'} >Campaign Overview</Typography>
@@ -40,18 +40,18 @@ const Step4Review: React.FC<Step4ReviewProps> = ({ campaignData , audienceName, 
                                 <Typography sx={{ color: '#ABABAB' }}>Template</Typography>
                                 <Typography> {templateData.type + " - " + templateData.name}</Typography>
                             </Grid>
-                            {campaignData.schedule && campaignData.type !== "Real Time" &&(
+                            {campaignData.schedule && campaignData.type !== "Real Time" && (
                                 <Grid size={5}>
-                                <Typography sx={{ color: '#ABABAB' }}>Schedule</Typography>
-                                <Typography>{campaignData.schedule?.frequency} At &nbsp;
-                                    {String(campaignData.schedule?.time)}, starts on {String(campaignData.schedule?.startDate).slice(0, 10)}.<br />
-                                   
-                                </Typography>
-                                {campaignData.schedule?.endDate ?(<Typography> Ends on {String(campaignData.schedule?.endDate).slice(0, 10)}</Typography>):<></>
-}
-                            </Grid>                            
+                                    <Typography sx={{ color: '#ABABAB' }}>Schedule</Typography>
+                                    <Typography>{campaignData.schedule?.frequency} At &nbsp;
+                                        {String(campaignData.schedule?.time)}, starts on {String(campaignData.schedule?.startDate).slice(0, 10)}.<br />
+
+                                    </Typography>
+                                    {campaignData.schedule?.endDate ? (<Typography> Ends on {String(campaignData.schedule?.endDate).slice(0, 10)}</Typography>) : <></>
+                                    }
+                                </Grid>
                             )}
-                            
+
                         </Grid>
                     </CardContent>
                 </Card>

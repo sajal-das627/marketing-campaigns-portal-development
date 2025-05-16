@@ -1,6 +1,6 @@
 import { Paper, Typography } from "@mui/material";
 import { useDrag } from "react-dnd";
-import React, { forwardRef } from "react";
+import { forwardRef } from "react";
 
 const OperatorBlock = forwardRef<HTMLDivElement, { operator: string }>(({ operator }, ref) => {
   const [{ isDragging }, drag] = useDrag(() => ({
@@ -14,7 +14,7 @@ const OperatorBlock = forwardRef<HTMLDivElement, { operator: string }>(({ operat
   return (
     <Paper
       ref={(node) => {
-        drag(node); // Attach React DnD ref
+        drag(node); 
         if (typeof ref === "function") ref(node);
       }}
       component="div"

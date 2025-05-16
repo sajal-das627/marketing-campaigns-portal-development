@@ -55,23 +55,15 @@ import { useDebounce } from "use-debounce";
 import DeleteModal from "../Modals/DeleteModal";
 import type { Template } from "../../redux/slices/templateSlice";
 import CustomPreview from "./CustomPreview";
-import { useNavigate, useNavigation } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import SMSPreview from '../Modals/SMSPreview'
 import EmptyTemplates from "./EmptyTemplates";
 import CryptoJS from "crypto-js";
 
 const TemplatesTable: React.FC = () => {
-  
-    // const [tab, setTab] = React.useState(0);
-    // const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-      // const openAnchor = Boolean(anchorEl);
-  
+    
     const dispatch = useDispatch();
-    // const {
-    //   allTemplates = [], recentTemplates = [], favoriteTemplates = [],
-    //   filters, totalPages, activeTab, selectedTemplate,
-    // } = useSelector((state: RootState) => state.template || {});
-
+    
     const {
       allTemplates = [],
       recentTemplates = [],
@@ -93,7 +85,6 @@ const TemplatesTable: React.FC = () => {
     const [debouncedSearch] = useDebounce(searchTerm, 500);
     const [totalLocalFavorites, setTotalLocalFavorites] = useState(1);
     const [selectedId, setSelectedId] = useState<string | number>(1);
-    // const [localTemplates, setLocalTemplates] = useState(allTemplates);
     const [menuAnchorEl, setMenuAnchorEl] = useState<Record<string, HTMLElement | null>>({});
     const [view, setView] = useState<'list' | 'grid'>('list');
     const [successMessage, setSuccessMessage] = useState<string | null>(null);
@@ -166,7 +157,6 @@ const TemplatesTable: React.FC = () => {
   
     const handleViewTemplate = (templateId: string, type:string) => {
       dispatch(getTemplateById(templateId) as any);
-      // setOpen(true);
       if(type === 'Email'){
         setOpenIndex(templateId);
       }
@@ -183,7 +173,6 @@ const TemplatesTable: React.FC = () => {
   
     const handleClose = () => {
       setOpenIndex(null);
-
       // dispatch(clearSelectedTemplate());
       // refreshActiveTab();
     };
@@ -235,12 +224,9 @@ const TemplatesTable: React.FC = () => {
     };
   
     const handleDeleteTemplate = async (id: string) => {
-      // if (window.confirm("Are you sure you want to delete this template?")) {
       setSelectedId(id);
       setIsDeleteModalopen(true);
       setMenuAnchorEl(({}));
-      
-      // }
     };
     const handleConfirmDelete = async() => {
         if (selectedId) {
@@ -267,7 +253,6 @@ const TemplatesTable: React.FC = () => {
     const res: any = await dispatch(duplicateTemplate(id) as any);
     if (!duplicateTemplate.fulfilled.match(res)) return;
   
-    // now this is the slice Template with `_id` etc.
     const duplicated: Template = res.payload.template;
   
     let newList: Template[];
@@ -313,50 +298,44 @@ const TemplatesTable: React.FC = () => {
   return (    
     <Container sx={{py: 4, bgcolor: '#F8F9FE',  maxWidth:  {xs: '100%',}, }}>
       <Typography sx={{ fontSize: "26px", }} gutterBottom>
-              Template Dashboard
-            </Typography>
-              <Snackbar
-              open={successMessage? true : false}
-              autoHideDuration={3000}
-              onClose={() => setSuccessMessage(null)}
-              anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
-              // sx={{mt:8}}
-            >
-               <Alert severity="success" onClose={() => setSuccessMessage(null)} sx={{ width: '100%' }}>
-                  {successMessage}
-                </Alert>
-            </Snackbar>
-              
+        Template Dashboard
+      </Typography>
+        <Snackbar
+        open={successMessage? true : false}
+        autoHideDuration={3000}
+        onClose={() => setSuccessMessage(null)}
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+      >
+          <Alert severity="success" onClose={() => setSuccessMessage(null)} sx={{ width: '100%' }}>
+            {successMessage}
+          </Alert>
+      </Snackbar>              
 
       <Card sx={{p:2}}>
-             
-      {/* Top Tabs */}
       <Tabs value={activeTab} onChange={handleTabChange} sx={{ mb: 2 }}>
         <Tab label="All Templates" value={"all"} />
         <Tab label="Recently Used" value={"recent"} />
         <Tab label="Favourites" value={"favorite"} />
       </Tabs>
 
-      {/* Search and Filters */}
       <Stack direction="row" spacing={2} alignItems="center" mb={2} sx={{justifyContent:'space-between',}}>
         <Box>
-                  
-              <FormControl variant="outlined" size="small" sx={{ minWidth: {xs: 40,md:225}, bgcolor: "#F8F9FA", borderRadius: "6px", marginRight:"auto" }}>
-                <InputLabel htmlFor="status-select" sx={{ fontSize: "14px", boxSizing:"border-box", display: "flex", alignItems: "center", }}>
-                  <SearchIcon />&nbsp;Search by templates or tags
-                </InputLabel>        
-                <InputBase
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                name="search"
-                sx={{
-                  fontSize: "14px",
-                  width: "100%",
-                  pt:0.5, 
-                  pb:0.5,         
-                }}
-              />      
-              </FormControl>
+          <FormControl variant="outlined" size="small" sx={{ minWidth: {xs: 40,md:225}, bgcolor: "#F8F9FA", borderRadius: "6px", marginRight:"auto" }}>
+            <InputLabel htmlFor="status-select" sx={{ fontSize: "14px", boxSizing:"border-box", display: "flex", alignItems: "center", }}>
+              <SearchIcon />&nbsp;Search by templates or tags
+            </InputLabel>        
+            <InputBase
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            name="search"
+            sx={{
+              fontSize: "14px",
+              width: "100%",
+              pt:0.5, 
+              pb:0.5,         
+            }}
+          />      
+          </FormControl>
         </Box>
          
         <Box sx={{display:'flex', flexWrap:'nowrap'}}>
@@ -455,13 +434,10 @@ const TemplatesTable: React.FC = () => {
               </MenuItem>
             </Select>
           </FormControl>
-          </Box>
-       
+          </Box>       
       </Stack>
-
       
       {view === 'list' ? (
-      
       <Table sx={{border:'2px solid #ECEEF6',}}>
         <TableHead>
           <TableRow sx={{bgcolor:'#F3F3F3', color:'#A3AABC'}}>
@@ -475,17 +451,11 @@ const TemplatesTable: React.FC = () => {
         </TableHead>
         <TableBody>
           {templatesToShow.map((template:any, i) => (
-
             <TableRow key={template._id} sx={{
               bgcolor: i%2 === 0? 'white' : '#FAFAFA', 
               border: i%2 === 0 ? 'white' : '#ECEEF6',
               opacity: Boolean(template.isDeleted)? 0.4 : 1 ,
               boxShadow: template._id === highlightedId ?  'inset 0px 0px 10px #ff9800' :  'inset 0px 0px 10px #ffffff'
-              // pointerEvents: template.isDeleted ? "none" : "auto",
-              // "& .restore-btn": {
-              //     pointerEvents: "auto",
-              //     opacity: 1
-              //   }
             }}>
               <TableCell>
                 <Stack direction="row" alignItems="center" spacing={1} >
@@ -504,7 +474,7 @@ const TemplatesTable: React.FC = () => {
               <TableCell>{template.type}</TableCell>
               {/* <TableCell>{template.lastModified?.split('T').join(', ').slice(0,17)}</TableCell> */}
               <TableCell>{new Date(template.lastModified)?.toLocaleString('en-US', {
-                  timeZone: 'America/New_York', // or 'UTC' or whatever zone you want
+                  timeZone: 'America/New_York', // or 'UTC' acc to time zone 
                   hour12: true,
                   year: 'numeric',
                   month: 'short',
@@ -520,10 +490,10 @@ const TemplatesTable: React.FC = () => {
                   color:
                   template.category === 'Promotional' 
                   ? '#2B8A3E'
-                   : template.category === 'Transactional' 
-                   ? '#FD7E14' 
-                   : template.category === 'Event Based' 
-                   ? '#0057D9'
+                  : template.category === 'Transactional' 
+                  ? '#FD7E14' 
+                  : template.category === 'Event Based' 
+                  ? '#0057D9'
                   : template.category === 'Announcement'
                   ? '#F83738'
                   : template.category === 'Action'
@@ -538,10 +508,10 @@ const TemplatesTable: React.FC = () => {
               bgcolor:
                 template.category === 'Promotional' 
                 ? '#DFFFE5'
-                 : template.category === 'Transactional' 
-                 ? '#FFECDD' 
-                 : template.category === 'Event Based' 
-                 ? '#E0ECFF'
+                : template.category === 'Transactional' 
+                ? '#FFECDD' 
+                : template.category === 'Event Based' 
+                ? '#E0ECFF'
                 : template.category === 'Announcement'
                 ? '#F8DDDD'
                 : template.category === 'Action'
@@ -585,7 +555,6 @@ const TemplatesTable: React.FC = () => {
                   >
                     {!template.isDeleted && (
                       <>
-                      {/* <MenuItem onClick={() => template.type === 'Email' ? navigation(`/build-template/${template._id}`) : navigation(`/build-sms/${template._id}`)}>Edit</MenuItem> */}
                       <MenuItem onClick={() => handleEditClick(template._id, template.type)}>Edit</MenuItem>
                       <MenuItem onClick={() => handleDuplicateTemplate(template._id)}>Duplicate</MenuItem>
                       </>
@@ -602,8 +571,7 @@ const TemplatesTable: React.FC = () => {
             </TableRow>
           ))}
         </TableBody>
-      </Table>
-      
+      </Table>      
     ) : (
         <Grid container sx={{display:'flex', justifyContent:'center', gap:2.5}}>
         {templatesToShow.map((template: any, i: number) => (
@@ -639,10 +607,10 @@ const TemplatesTable: React.FC = () => {
                   color:
                     template.category === 'Promotional' 
                     ? '#2B8A3E'
-                     : template.category === 'Transactional' 
-                     ? '#FD7E14' 
-                     : template.category === 'Event Based' 
-                     ? '#0057D9'
+                    : template.category === 'Transactional' 
+                    ? '#FD7E14' 
+                    : template.category === 'Event Based' 
+                    ? '#0057D9'
                     : template.category === 'Announcement'
                     ? '#F83738'
                     : template.category === 'Action'
@@ -657,10 +625,10 @@ const TemplatesTable: React.FC = () => {
                 bgcolor:
                   template.category === 'Promotional' 
                   ? '#DFFFE5'
-                   : template.category === 'Transactional' 
-                   ? '#FFECDD' 
-                   : template.category === 'Event Based' 
-                   ? '#E0ECFF'
+                  : template.category === 'Transactional' 
+                  ? '#FFECDD' 
+                  : template.category === 'Event Based' 
+                  ? '#E0ECFF'
                   : template.category === 'Announcement'
                   ? '#F8DDDD'
                   : template.category === 'Action'
@@ -710,8 +678,6 @@ const TemplatesTable: React.FC = () => {
                     View
                   </Typography>
                   
-                  {/* <CustomPreview  key={template.id}  doc={template.design} html={template.html} open={openIndex === template.id} handleClose={handleClose}/> */}
-                  {/* <CustomPreview doc={template.content} /> */}
                 </Box>
               </Tooltip>
               <IconButton onClick={(e) => handleAnchorClick(e, template._id)}>
@@ -744,137 +710,49 @@ const TemplatesTable: React.FC = () => {
               </Menu>
             </Stack>
           </Card>
-          {/* {openIndex === template._id &&
-          ( 
-          <CustomPreview  key={selectedTemplate.id}  doc={selectedTemplate.design} html={selectedTemplate.html} open={openIndex === selectedTemplate.id} handleClose={handleClose}/>
-          )} */}
-
-          {/* <SMSPreview   
-            open={openSMSModal}
-            name={template.name} 
-            handleClose={() => setOpenSMSModal(false)}
-            handleConfirm={() => setOpenSMSModal(false)}
-            subject={template.subject} 
-            message={template.content.message} 
-            /> */}
-
           </Grid>
         ))}
-        </Grid>
-     
-    )}
+        </Grid> 
+      )}
     
       <Box mt={3}>
-              <Button onClick={() => handlePageChange("prev")} disabled={filters.page === 1}>
-                Previous
-              </Button>
-              <span style={{ margin: "0 10px" }}>
-                Page {filters.page} of {activeTab === "favorite" ? totalLocalFavorites : totalPages}
-              </span>
-              <Button
-                onClick={() => handlePageChange("next")}
-                disabled={
-                  filters.page >= (activeTab === "favorite" ? totalLocalFavorites : totalPages ?? 1)
-                }
-              >
-                Next
-              </Button>
-            </Box>
-      </Card>
+        <Button onClick={() => handlePageChange("prev")} disabled={filters.page === 1}>
+          Previous
+        </Button>
+        <span style={{ margin: "0 10px" }}>
+          Page {filters.page} of {activeTab === "favorite" ? totalLocalFavorites : totalPages}
+        </span>
+        <Button
+          onClick={() => handlePageChange("next")}
+          disabled={
+            filters.page >= (activeTab === "favorite" ? totalLocalFavorites : totalPages ?? 1)
+          }
+        >
+          Next
+        </Button>
+      </Box>
+    </Card>
 
       { selectedTemplate && selectedTemplate._id === openIndex && (
-                  <CustomPreview  key={selectedTemplate.id}  
-                  doc={selectedTemplate.content} 
-                  html={selectedTemplate.html} 
-                  // open={openIndex === selectedTemplate.id ? true : false} 
-                  open={true}
-                  // handleClose={()=> setOpen(false)}/>
-                  handleClose={handleClose}
-                  />
+        <CustomPreview  key={selectedTemplate.id}  
+        doc={selectedTemplate.content} 
+        html={selectedTemplate.html} 
+        open={true}
+        handleClose={handleClose}
+        />
       )}
       {selectedTemplate && selectedTemplate._id === openIndex && (
        <SMSPreview   
-            open={openSMSModal}
-            name={selectedTemplate.name} 
-            handleClose={() => setOpenSMSModal(false)}
-            handleConfirm={() => setOpenSMSModal(false)}
-            subject={selectedTemplate.subject} 
-            message={selectedTemplate.content.message} 
-            />)
-        }
-      {/* <Modal open={open} onClose={handleClose}>
-        <Dialog
-              open={open}
-              onClose={handleClose}
-              fullWidth
-              maxWidth="sm"
-              aria-labelledby="filter-modal-title"
-              sx={{borderRadius: "10px",
-                "& .MuiPaper-root": {
-                  // width: '100%',
-                  // height: '100%',
-                },
-                "& .MuiDialog-paper": { width: "80vw", maxWidth: "500px" ,  maxHeight:"none"},
-              }}
-            >
-              <Box sx={{ bgcolor: '#0057D9', width:'100%', height: 35, display:'flex', justifyContent:'space-between'}}> 
-                  <Typography sx={{color: "white", ml:2,mt:0.5}}>Template Details</Typography> 
-                    <IconButton onClick={handleClose}>
-                    <CloseIcon sx={{color:"white"}} />
-                    </IconButton>
-                </Box>
-          {selectedTemplate ? (
-            <Box sx={{m:3}}>
-              <DialogContent>       
-              
-                    <Box
-                    sx={{
-                      display: "grid",
-                      gridTemplateColumns: "150px auto",
-                      gap: "8px",
-                      maxWidth: "500px",
-                      m:1
-                    }}
-                  >
-                    <Typography sx={{color:'#A3AABC'}}>Name -</Typography>
-                    <Typography>{selectedTemplate.name}</Typography>
-              
-                    <Typography sx={{color:'#A3AABC'}}>Type -</Typography>
-                    <Typography>{selectedTemplate.type}</Typography>
-              
-              
-                    <Typography sx={{color:'#A3AABC'}}>Category -</Typography>
-                    <Typography>{selectedTemplate.category}</Typography>
-              
-                    <Typography sx={{color:'#A3AABC'}}>Tags -</Typography>
-                    <Typography>{selectedTemplate.tags.toString().split(",").join(", ")}</Typography>
-              
-                    <Typography sx={{color:'#A3AABC'}}>lastModified -</Typography>
-                    <Typography>{new Date(selectedTemplate.lastModified).toLocaleString('en-US', {
-                        timeZone: 'America/New_York', // or 'UTC' or whatever zone you want
-                        hour12: true,
-                        year: 'numeric',
-                        month: 'short',
-                        day: 'numeric',
-                        hour: '2-digit',
-                        minute: '2-digit',
-                      })}</Typography>
-                  </Box>
-
-                  </DialogContent>
-
-              <DialogActions>
-                <Button onClick={handleClose} variant="contained" color="primary">
-                  Close
-                </Button>
-              </DialogActions>
-            </Box>
-          ) : (
-            <Typography>Loading template...</Typography>
-          )}
-        </Dialog>
-      </Modal> */}
-
+          open={openSMSModal}
+          name={selectedTemplate.name} 
+          handleClose={() => setOpenSMSModal(false)}
+          handleConfirm={() => setOpenSMSModal(false)}
+          subject={selectedTemplate.subject} 
+          message={selectedTemplate.content} 
+          includeOptOut={selectedTemplate?.includeOptOutText}
+        />
+      )}
+     
       <Modal open={openEditModal} onClose={handleCloseEditModal}>
         <Box sx={{ p: 4, bgcolor: "background.paper", m: "auto", mt: 8, width: 500, borderRadius: 2 }}>
           {selectedTemplate ? (
@@ -905,8 +783,6 @@ const TemplatesTable: React.FC = () => {
       </Modal>
 
       <DeleteModal open={isDeleteModalopen} handleClose={()=>setIsDeleteModalopen(false)} handleConfirm={handleConfirmDelete} title='Delete This Template' message='Are you sure you want to delete this template?'  />
-
-
     </Container>
   );
 };

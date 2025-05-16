@@ -1,11 +1,8 @@
-// src/components/FilterBuilder/AudiencePreview.tsx
-import React from "react";
 import { useSelector } from "react-redux";
-import { RootState } from "../../redux/store"; 
+import { RootState } from "../../redux/store";
 import { Box, Card, Typography } from "@mui/material";
 
 const AudiencePreview = () => {
-  // 👇 Corrected to state.filter instead of state.filters
   const { estimatedAudience, loading } = useSelector((state: RootState) => state.filter);
 
   return (
