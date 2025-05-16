@@ -70,37 +70,14 @@ const TemplateEditor: React.FC<TemplateEditorProps> = ({
     name: template?.name || '',
     subject: template?.subject || '',
     type: template?.type || 'SMS',
-    category: template?.category || 'Transactional',
+    category: template?.category || '',
     tags: template?.tags || [],
-    senderId: template?.senderId || '',
-    campaign: template?.campaign || '',
     includeOptOut: template?.includeOptOut ?? false,
-    content: { message: template?.content.message || '' },
-    layout: template?.layout || 'Custom',
-    createdAt: template?.createdAt || '',
-    lastModified: template?.lastModified || '',
-    // approved: template?.approved ?? false,
-    // approvedBy: template?.approvedBy || '',
-    // approvedAt: template?.approvedAt || '',
-    favorite: template?.favorite ?? false,
-    isDeleted: template?.isDeleted ?? false,
-    version: template?.version ?? 1,
+    content: '',
   });
   const [isOpenSuccess, setIsOpenSuccess] = useState(false);
   const [open, setOpen] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
-  // const [form, setForm] = useState<Template>({
-  //   name: template?.name || '',
-  //   subject: template?.subject || '',
-  //   type: template?.type || 'SMS',
-  //   category: template?.category || 'Transactional',
-  //   tags: template?.tags || [],
-  //   senderId: template?.senderId || '',
-  //   campaign: template?.campaign || '',
-  //   includeOptOut: template?.includeOptOut ?? false,
-  //   content: { message: template?.content.message || '' },
-  // });
-
   const dispatch = useAppDispatch();
 
   const messageRef = useRef<HTMLTextAreaElement>(null);
@@ -110,7 +87,7 @@ const TemplateEditor: React.FC<TemplateEditorProps> = ({
   };
 
   const handleContentChange = (value: string) => {
-    setForm((prev) => ({ ...prev, content: { message: value } }));
+    setForm((prev) => ({ ...prev, content: value }));
   };
 
   const insertVariable = (variable: string) => {
@@ -152,7 +129,7 @@ const TemplateEditor: React.FC<TemplateEditorProps> = ({
       setError("Subject is Required");      
       return;
     }  
-    if (!form.content.message || !/^[\s\S]{3,1500}$/.test(form.content.message)) {
+    if (!form.content || !/^[\s\S]{3,1500}$/.test(form.content)) {
       setError("Message should be 3-1500 characters");
       return;
     }  
@@ -162,7 +139,7 @@ const TemplateEditor: React.FC<TemplateEditorProps> = ({
         await dispatch(updateTemplate({ id: form._id, data: form }) as any);
       } else {
         const newForm = form.includeOptOut
-          ? { ...form, content: { message: form.content.message + '\n"Reply STOP to unsubscribe"' } }
+          ? { ...form, content: { message: form.content + '\n"Reply STOP to unsubscribe"' } }
           : form;
   
         await dispatch(createTemplateThunk(newForm));
@@ -175,7 +152,7 @@ const TemplateEditor: React.FC<TemplateEditorProps> = ({
     }
 
     if(form.includeOptOut){
-      const newForm = {...form, content : form.content.message + '/n "Reply STOP to unsubscribe")'}
+      const newForm = {...form, content : form.content + '/n "Reply STOP to unsubscribe")'}
       await dispatch(createTemplateThunk(newForm));
     }
     else{
@@ -187,7 +164,7 @@ const TemplateEditor: React.FC<TemplateEditorProps> = ({
     // TODO: send `form` to your API
   };
 
-  console.log("content: ", form.content.message);
+  console.log("content: ", form.content);
 
   //edit
   
@@ -197,18 +174,10 @@ const TemplateEditor: React.FC<TemplateEditorProps> = ({
       name: '',
       subject: '',
       type: 'SMS',
-      category: 'Promotional',
+      category: '',
       tags: [],
-      senderId: '',// Remove these fields
-      campaign: '',// Remove these fields
       includeOptOut: false,
-      content: { message: '' },
-      layout: 'Custom',
-      createdAt: '',//
-      lastModified: '',
-      favorite: false,//
-      isDeleted: false,//
-      version: 1,//
+      content: '',
     });
   }
   // const { id } = useParams<{id: string}>();
@@ -400,7 +369,7 @@ useEffect(() => {
               Message Content
               </InputLabel>        
               <InputBase
-              value={form.content.message}
+              value={form.content }
               // value={isEditMode ? form.content.message : form.content}
               onChange={(e) => handleContentChange(e.target.value)}
               name="message"
@@ -475,7 +444,6 @@ useEffect(() => {
                 sx={{  color: "#6D6976",    }}
               >
                 {[
-                  '',
                   'Promotional',
                   'Transactional',
                   'Event Based',
@@ -584,7 +552,7 @@ useEffect(() => {
             </Box>
 
             <Box sx={{minHeight:'350px', p:2}}>
-              {form.content.message}<br/>
+              {form.content}<br/>
               {form.includeOptOut ? '"Reply STOP to unsubscribe"' : ''}
             </Box>
 

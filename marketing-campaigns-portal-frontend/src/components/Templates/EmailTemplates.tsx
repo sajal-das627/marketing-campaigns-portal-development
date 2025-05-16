@@ -16,7 +16,7 @@ import CustomPreview from "../../components/Templates/CustomPreview";
 import type { Template } from "../../redux/slices/templateSlice";
 import AllModal from '../../components/Modals/DeleteModal';
 import LoopIcon from '@mui/icons-material/Loop';
-
+import CryptoJS from 'crypto-js'
 export default function EmailTemplateGallery() {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
@@ -92,8 +92,13 @@ export default function EmailTemplateGallery() {
       console.log('res', res);
 
       if (!duplicateTemplate.fulfilled.match(res)) return;
-      const duplicated: Template = res.payload.template._id;
-      navigate(`/build-template/${duplicated}`);
+      const duplicated: string = res.payload.template._id;
+
+        const secretKey = process.env.REACT_APP_ENCRYPT_SECRET_KEY as string;
+        const encryptedId = CryptoJS.AES.encrypt(duplicated, secretKey).toString();
+      
+        navigate(`/build-template/${encodeURIComponent(encryptedId)}`);
+      // navigate(`/build-template/${duplicated}`);
       console.log('duplicateID:', duplicated);
     }
     else console.log("ID doesn't exist");
