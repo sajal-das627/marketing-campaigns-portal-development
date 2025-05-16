@@ -247,7 +247,27 @@ export const createTemplate = (data: any) => {
   return axios.post(`${process.env.REACT_APP_API_BASE_URL}/templates/`, data);
 };
 
-
+// fetchTemplatesByCategory
+export const fetchTemplatesByCategory = async (
+  category: string,
+  type: string,
+  page: number = 1,
+  limit: number = 10
+) => {
+  try {
+    const response = await axios.get(
+      `${process.env.REACT_APP_API_BASE_URL}/templates/category/${category}`,
+      {
+        params: { type, page, limit },
+      }
+    );
+    return response.data;
+  } catch (error: any) {
+    console.error("Error fetching templates by category:", error);
+    throw error?.response?.data || { message: "Unknown error occurred" };
+  }
+};
+ 
 export const getTemplates = () => apiClient.get("/templates");
 export const getTemplateById = (id: string) => apiClient.get(`/templates/${id}`);
 export const updateTemplate = (id: string, templateData: any) => apiClient.put(`/templates/${id}`, templateData);

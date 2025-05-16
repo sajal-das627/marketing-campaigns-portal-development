@@ -31,10 +31,13 @@ type HtmlBlock = Extract<TEditorBlock, { type: 'Html' }>;
 type TemplatePanelProps = {
   templateDetails:Template;
   isEdit: boolean;
+  setError: React.Dispatch<React.SetStateAction<string | null>>;
+  setIsEditMode: React.Dispatch<React.SetStateAction<boolean>>;
+  
 }
 
 
-export default function TemplatePanel({templateDetails, isEdit}:TemplatePanelProps) {
+export default function TemplatePanel({templateDetails, isEdit, setError, setIsEditMode}:TemplatePanelProps) {
   const document = useDocument();
   const selectedMainTab = useSelectedMainTab();
   const selectedScreenSize = useSelectedScreenSize();
@@ -164,7 +167,7 @@ export default function TemplatePanel({templateDetails, isEdit}:TemplatePanelPro
                 </ToggleButtonGroup>
             </Card>
             <ShareButton />
-            <SaveButton TemplateDetails = {templateDetails} isEdit={isEdit} />
+            <SaveButton TemplateDetails = {templateDetails} isEdit={isEdit} setError={setError} setIsEditMode={setIsEditMode}/>
           </Stack>
         </Stack>
         <ToggleInspectorPanelButton /> 

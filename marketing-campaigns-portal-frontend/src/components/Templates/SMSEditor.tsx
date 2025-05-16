@@ -16,12 +16,13 @@ import {
   InputBase,
   Dialog,
   IconButton,
+  Alert,
 } from '@mui/material';
 import SaveIcon from '@mui/icons-material/Save';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import SendIcon from '@mui/icons-material/Send';
-import { useParams } from 'react-router-dom';
-
+import { useParams, useNavigate } from 'react-router-dom';
+import CryptoJS from 'crypto-js';
 import { RootState } from "../../redux/store";
 import {useAppDispatch} from '../../redux/hooks'
 import { createTemplateThunk, getTemplateById, updateTemplate } from "../../redux/slices/templateSlice";
@@ -29,7 +30,6 @@ import { Template } from 'types/template';
 import CloseIcon from '@mui/icons-material/Close';
 import AllModal from '../Modals/DeleteModal';
 import { useSelector } from "react-redux" ;
-import { useNavigate } from 'react-router-dom';
 
 type TemplateType = 'Email' | 'SMS' | 'Basic' | 'Designed' | 'Custom';
 type CategoryType =
@@ -63,6 +63,7 @@ const TemplateEditor: React.FC<TemplateEditorProps> = ({
   template,
   campaigns = [],
 }) => {
+  const navigate = useNavigate();
   const [isEditMode, setIsEditMode] = useState<boolean>(false);
   const [form, setForm] = useState<Template>({
     _id: template?._id || '',
@@ -87,6 +88,7 @@ const TemplateEditor: React.FC<TemplateEditorProps> = ({
   });
   const [isOpenSuccess, setIsOpenSuccess] = useState(false);
   const [open, setOpen] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
   // const [form, setForm] = useState<Template>({
   //   name: template?.name || '',
   //   subject: template?.subject || '',
@@ -130,20 +132,45 @@ const TemplateEditor: React.FC<TemplateEditorProps> = ({
 
   const handleSubmit = async(e: React.FormEvent) => {
     e.preventDefault();
-    try{
-      if(isEditMode){
+    setTimeout(()=>{
+      setError(null);
+    }, 7000)
+    if (!form.name || !/^[a-zA-Z0-9\s]{3,50}$/.test(form.name)) {
+      setError("Template name should be 3-50 characters and contain only letters, numbers, and spaces.");
+      return;
+    }  
+    if (/^copy/i.test(form.name.trim())) {
+      setError("Name Cannot Start from 'Copy'");
+      return;
+    }  
+
+    if (!form.category) {
+      setError("Category is Required");      
+      return;
+    }  
+    if (!form.subject) {
+      setError("Subject is Required");      
+      return;
+    }  
+    if (!form.content.message || !/^[\s\S]{3,1500}$/.test(form.content.message)) {
+      setError("Message should be 3-1500 characters");
+      return;
+    }  
+    
+    try {
+      if (isEditMode) {
         await dispatch(updateTemplate({ id: form._id, data: form }) as any);
+      } else {
+        const newForm = form.includeOptOut
+          ? { ...form, content: { message: form.content.message + '\n"Reply STOP to unsubscribe"' } }
+          : form;
+  
+        await dispatch(createTemplateThunk(newForm));
       }
-      else{
-        if(form.includeOptOut){
-          const newForm = {...form, content : form.content.message + '/n "Reply STOP to unsubscribe")'}
-          await dispatch(createTemplateThunk(newForm));
-        }
-        else{
-          await dispatch(createTemplateThunk(form));
-        }
-      }
-    } catch(error){
+  
+      setIsOpenSuccess(true);
+      console.log('Submitting template:', form);
+    } catch (error) {
       console.error(error);
     }
 
@@ -169,22 +196,40 @@ const TemplateEditor: React.FC<TemplateEditorProps> = ({
       _id: '',
       name: '',
       subject: '',
-      type: 'Email',
+      type: 'SMS',
       category: 'Promotional',
       tags: [],
-      senderId: '',
-      campaign: '',
+      senderId: '',// Remove these fields
+      campaign: '',// Remove these fields
       includeOptOut: false,
-      content: { message: template?.content.message || '' },
+      content: { message: '' },
       layout: 'Custom',
-      createdAt: '',
+      createdAt: '',//
       lastModified: '',
-      favorite: false,
-      isDeleted: false,
-      version: 1,
+      favorite: false,//
+      isDeleted: false,//
+      version: 1,//
     });
   }
-  const { id } = useParams<{id: string}>();
+  // const { id } = useParams<{id: string}>();
+    const { id : encryptedId } = useParams();
+    const [id, setId] = useState<string | null>(null);
+    // const { id } = useParams<{id: string}>();
+    const secretKey =  (process.env.REACT_APP_ENCRYPT_SECRET_KEY as string);
+    
+    useEffect(() => {
+      if (encryptedId) {
+        try {
+          const bytes = CryptoJS.AES.decrypt(decodeURIComponent(encryptedId), secretKey);
+          const decryptedId = bytes.toString(CryptoJS.enc.Utf8);
+          setId(decryptedId);
+          console.log("Decrypted ID:", decryptedId);
+        } catch (error) {
+          console.error("Failed to decrypt ID:", error);
+          setId(null);
+        }
+      }
+    }, [encryptedId, secretKey]);
 
   const templateFromApi = useSelector((state: RootState) => state.template.selectedTemplate as Template || null);
 
@@ -194,20 +239,34 @@ const TemplateEditor: React.FC<TemplateEditorProps> = ({
       if (!id) resetState();
     }, [id]);
 
-  useEffect(() => {
-      const CheckData = async() =>{       
-        if (id) {
-          await dispatch(getTemplateById(id) as any);
-          
+  // Remove the standalone resetState effect and the standalone populate effect.
+// Replace with one effect:
+
+useEffect(() => {
+  if (id) {
+    // we're editing: fetch & then populate
+    dispatch(getTemplateById(id) as any)
+      .then((action : any) => {
+        const tpl = (action.payload as Template) || null;
+        if (tpl) {
           setIsEditMode(true);
-        } 
-      }
-      CheckData();
-    }, [id, dispatch]);
+          setForm({
+            ...tpl,
+            tags: tpl.tags ?? [],
+          });
+        }
+      });
+  } else {
+    // we're creating: clear out any stale API data AND form
+    // (optionally dispatch an action to clear selectedTemplate)
+    resetState();
+  }
+}, [id, dispatch]);
+
 
        
     useEffect(() => {
-      if (templateFromApi) {
+      if (templateFromApi && isEditMode) {
         setForm((prev) => ({
           ...prev,
           ...templateFromApi,
@@ -262,6 +321,11 @@ const TemplateEditor: React.FC<TemplateEditorProps> = ({
       >
         <Grid container spacing={2}>
           {/* Template Name */}
+          <Grid size={12}>
+          {error && 
+            <Alert severity="error" sx={{ mb: 2, width:'100%' }}>{error}</Alert>
+            }
+          </Grid>
           <Grid size={{xs:12, sm:6}} >
             {/* <TextField
               label="Template Name"
@@ -270,6 +334,7 @@ const TemplateEditor: React.FC<TemplateEditorProps> = ({
               required
               fullWidth
             /> */}
+            
             <FormControl variant="outlined" size="medium" sx={{ minWidth: {xs:'100%'}, bgcolor: "#F8F9FA", borderRadius: "6px", p:1 }}>
               <InputLabel htmlFor="status-select" sx={{ }}>
               Template Name
@@ -335,7 +400,8 @@ const TemplateEditor: React.FC<TemplateEditorProps> = ({
               Message Content
               </InputLabel>        
               <InputBase
-              value={form.content.message || form.content}
+              value={form.content.message}
+              // value={isEditMode ? form.content.message : form.content}
               onChange={(e) => handleContentChange(e.target.value)}
               name="message"
               sx={{
@@ -478,7 +544,7 @@ const TemplateEditor: React.FC<TemplateEditorProps> = ({
       <AllModal
               open={isOpenSuccess}
               handleClose={()=>{setIsOpenSuccess(false)}}
-              handleConfirm= {()=>{setIsOpenSuccess(false)}}
+              handleConfirm= {()=>{navigate('/templates')}}
               title= "Success"
               message= {isEditMode ? "This SMS Template Has Been Updated Successfully" : "This SMS Template Has Been Saved Successfully"}
               btntxt = "Ok"

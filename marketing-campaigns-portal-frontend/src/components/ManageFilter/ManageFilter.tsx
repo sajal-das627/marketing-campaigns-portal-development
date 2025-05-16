@@ -17,7 +17,7 @@ import { RootState } from "../../redux/store";
 import { useSelector } from "react-redux";
 import {useAppDispatch} from "../../redux/hooks";
 import { useNavigate } from "react-router-dom";
-
+import CryptoJS from 'crypto-js'
 const ManageFilters = () => {
 
   const dispatch = useAppDispatch();
@@ -205,10 +205,15 @@ const ManageFilters = () => {
     // }
   };
 
-  const handleEditFilter = (filter: any) => {
-    setSelectedFilter(filter);
-    setEditModalOpen(true);
-    setMenuAnchorEl({});
+  const handleEditFilter = (id: string) => {
+  
+    const secretKey = process.env.REACT_APP_ENCRYPT_SECRET_KEY as string;
+    const encryptedId = CryptoJS.AES.encrypt(id, secretKey).toString();
+    
+    navigate(`/edit-filter/${encodeURIComponent(encryptedId)}`);
+    // setSelectedFilter(filter);
+    // setEditModalOpen(true);
+    // setMenuAnchorEl({});
   };
 
   const handleUpdateFilter = async () => {
@@ -379,7 +384,8 @@ const ManageFilters = () => {
                         horizontal: "center",
                       }}
                     >
-                      <MenuItem onClick={() => navigate(`/edit-filter/${filter._id}`)}>Edit</MenuItem>
+                      {/* <MenuItem onClick={() => navigate(`/edit-filter/${filter._id}`)}>Edit</MenuItem> */}
+                      <MenuItem onClick={() => handleEditFilter(filter._id)}>Edit</MenuItem>
                       <MenuItem onClick={() => openDeleteOneModal(filter._id)}>Delete</MenuItem>
                     </Menu>
                     </Box>

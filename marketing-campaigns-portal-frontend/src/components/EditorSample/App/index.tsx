@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
-import { Stack, useTheme } from '@mui/material';
+import { Alert, Stack, useTheme } from '@mui/material';
 // import { Box } from '@mui/material';
 import { useInspectorDrawerOpen, useSamplesDrawerOpen } from '../documents/editor/EditorContext';
 
@@ -11,7 +11,6 @@ import
  from './SamplesDrawer';
 import TemplatePanel from './TemplatePanel';
 // import BlocksDrawer from './BlockDrawer/BlockDrawer';
-import EditTemplateMain from './BlockDrawer/EditTemplateMain'
 import { Template } from '../../../types/template';
 import { useParams } from 'react-router-dom';
 import { getTemplateById, } from "../../../redux/slices/templateSlice";
@@ -19,6 +18,9 @@ import { useAppDispatch } from "../../../hooks/useAppDispatch";
 import { useSelector } from "react-redux" ;
 import { RootState } from "../../../redux/store";
 import { resetDocument } from '../documents/editor/EditorContext';
+import CryptoJS from 'crypto-js';
+
+// import AllModal from '@components/Modals/DeleteModal';
 
 const SAMPLES_DRAWER_WIDTH = 240;
 
@@ -44,7 +46,7 @@ export default function App({template}: TemplateEditorProps) {
   const inspectorDrawerOpen = useInspectorDrawerOpen();
   const samplesDrawerOpen = useSamplesDrawerOpen();
   const [isEditMode, setIsEditMode] = useState<boolean>(false);
-
+  const [error, setError] = useState<string | null>(null);
   // const [template, setTemplate] = useState<Template>();
   const [templateDetails, setTemplateDetails] = useState<Template>({
       _id: template?._id || '',
@@ -141,21 +143,46 @@ export default function App({template}: TemplateEditorProps) {
       });
     };
 
-  const { id } = useParams<{id: string}>();
+  // const { id } = useParams<{id: string}>();
   // const id = '68220f25c305eea6017e4104';
+  
+  const { id : encryptedId } = useParams();
+  const [id, setId] = useState<string | null>(null);
+  // const { id } = useParams<{id: string}>();
+  const secretKey =  (process.env.REACT_APP_ENCRYPT_SECRET_KEY as string);
+  
+  useEffect(() => {
+    if (encryptedId) {
+      try {
+        const bytes = CryptoJS.AES.decrypt(decodeURIComponent(encryptedId), secretKey);
+        const decryptedId = bytes.toString(CryptoJS.enc.Utf8);
+        setId(decryptedId);
+        console.log("Decrypted ID:", decryptedId);
+      } catch (error) {
+        console.error("Failed to decrypt ID:", error);
+        setId(null);
+      }
+    }
+  }, [encryptedId, secretKey]);
   console.log('id', id);
   useEffect(() => {
       if (!id) resetState();
     }, [id]);
-  useEffect(() => {
-      const CheckData = async() =>{       
-        if (id) {
-          await dispatch(getTemplateById(id) as any);
-          
-          setIsEditMode(true);
-        } 
+    
+    useEffect(() => {
+      if (id) {
+        dispatch(getTemplateById(id) as any).then((action: any) => {
+          const tpl = action.payload as Template;
+          if (tpl) {
+            setIsEditMode(true);
+            setTemplateDetails({
+              ...tpl,
+              tags: tpl.tags ?? [],
+            });
+            resetDocument(tpl.content);
+          }
+        });
       }
-      CheckData();
     }, [id, dispatch]);
 
     function isValidEmailBuilderJson(content: any) {
@@ -169,7 +196,7 @@ export default function App({template}: TemplateEditorProps) {
     }
     
     useEffect(() => {
-      if (templateFromApi) {
+      if (templateFromApi && isEditMode) {
         setTemplateDetails((prev) => ({
           ...prev,
           ...templateFromApi,
@@ -216,12 +243,11 @@ export default function App({template}: TemplateEditorProps) {
     {/* // Box  
     // sx={{ '& *': { fontSize:'18px', fontFamily:'Manrope', fontWeight:'bold'} }} */}
     {/* <Box sx={{height: '88px', width:'100%'}}>
-
     </Box> */}
+
       <InspectorDrawer />
       
-       <SamplesDrawer templateDetails={templateDetails} setTemplateDetails={setTemplateDetails} />
-       {/* {open && <EditTemplateMain onClose={handleClose}/>} */}
+      <SamplesDrawer templateDetails={templateDetails} setTemplateDetails={setTemplateDetails} error={error}/>
       
       <Stack
         sx={{
@@ -230,9 +256,12 @@ export default function App({template}: TemplateEditorProps) {
           transition: [marginLeftTransition, marginRightTransition].join(', '),
         }}
       >
-        <TemplatePanel templateDetails={templateDetails} isEdit={isEditMode} />        
+        <TemplatePanel templateDetails={templateDetails} isEdit={isEditMode} setError={setError} setIsEditMode={setIsEditMode}/>        
         {/* <BlocksDrawer/> */}
       </Stack>
+
+     
+    
     </>
   );
 }

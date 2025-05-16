@@ -45,6 +45,7 @@ describe("🔐 Okta User Login", () => {
           password: "Test@123",
         }
       )
+<<<<<<< HEAD
     );
 
     // Simulate redirection or localStorage update
@@ -71,5 +72,31 @@ describe("🔐 Okta User Login", () => {
     await waitFor(() =>
       expect(screen.getByText(/invalid credentials/i)).toBeInTheDocument()
     );
+=======
+    );
+
+    // Simulate redirection or localStorage update
+    expect(localStorage.getItem("token")).toBe("mocked-jwt-token");
+  });
+
+  it("❌ should show error message on login failure", async () => {
+    mockedAxios.post.mockRejectedValueOnce({
+      response: {
+        data: { message: "Invalid credentials" },
+      },
+    });
+
+    render(<Login />);
+
+    fireEvent.change(screen.getByLabelText(/email/i), {
+      target: { value: "wrong@example.com" },
+    });
+    fireEvent.change(screen.getByLabelText(/password/i), {
+      target: { value: "wrongpass" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: /login/i }));
+
+    expect(await screen.findByText(/invalid credentials/i)).toBeInTheDocument();
+>>>>>>> 6a0bebb701306a174c77281586ef9472c0446144
   });
 });

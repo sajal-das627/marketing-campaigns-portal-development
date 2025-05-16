@@ -12,6 +12,7 @@ import {
   restoreTemplateById,  // ✅ newly imported
   duplicateTemplateById,
   createTemplate,
+  fetchTemplatesByCategory,
 } from "../../api/apiClient";
 import { Template as TemplateType } from "../../types/template"; // Adjust the import path as necessary
 export interface Template {
@@ -202,17 +203,37 @@ export const duplicateTemplate = createAsyncThunk(
       const res = await duplicateTemplateById(templateId);
       return res.data;
 
-      ///add here
-      // return {
-      //   ...res.data,            // from backend
-      //   originalId: templateId  // manually attach it here
-      // };
     } catch (err: any) {
       return thunkAPI.rejectWithValue(err.response?.data?.message || "Failed to duplicate template");
     }
   }
 );
 
+// fetchTemplatesByCategory
+export const getTemplatesByCategory = createAsyncThunk(
+  "templates/getTemplatesByCategory",
+  async (
+    {
+      category,
+      type,
+      page = 1,
+      limit = 10,
+    }: { category: string; type: string; page?: number; limit?: number },
+    thunkAPI
+  ) => {
+    try {
+      const res = await fetchTemplatesByCategory(category, type, page, limit);
+      return {
+        data: res.data,
+        totalPages: res.pagination?.totalPages || 1,
+      };
+    } catch (err: any) {
+      return thunkAPI.rejectWithValue(
+        err?.message || "Failed to fetch templates by category"
+      );
+    }
+  }
+);
 
 interface TemplateState {
   allTemplates: Template[];
@@ -478,6 +499,7 @@ const templateSlice = createSlice({
 
       //  duplicateTemplate fulfilled
       .addCase(duplicateTemplate.fulfilled, (state, action) => {
+<<<<<<< HEAD
         const duplicated = action.payload;
         state.allTemplates.unshift(duplicated);
       })
@@ -498,6 +520,26 @@ const templateSlice = createSlice({
       })
 
 
+=======
+      const duplicated = action.payload;
+      state.allTemplates.unshift(duplicated);
+    })
+    ////add here
+    // .addCase(duplicateTemplate.fulfilled, (state, action) => {
+    //   const duplicated = action.payload;
+    //   const originalIndex = state.allTemplates.findIndex(t => t._id === duplicated.originalId); // You must include originalId in API response
+    //   if (originalIndex === -1) {
+    //     state.allTemplates.unshift(duplicated); // fallback: add to top
+    //     return;
+    //   }
+    //   state.allTemplates.splice(originalIndex + 1, 0, duplicated); // insert right after
+    // });
+    .addCase(getTemplatesByCategory.fulfilled, (state, action) => {
+      state.loading = false;
+      state.totalPages = action.payload.totalPages;
+      state.allTemplates = action.payload.data || [];
+    });
+>>>>>>> 6a0bebb701306a174c77281586ef9472c0446144
 
   },
 });

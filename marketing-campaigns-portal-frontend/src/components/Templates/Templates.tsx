@@ -23,9 +23,6 @@ import {
   Container,
   Menu,
   Button,
-  // Dialog,
-  // DialogActions,
-  // DialogContent,
   Tooltip,
   Divider,
   Grid2 as Grid,
@@ -56,10 +53,12 @@ import {
 import { RootState } from "../../redux/store";
 import { useDebounce } from "use-debounce";
 import DeleteModal from "../Modals/DeleteModal";
-import CloseIcon from '@mui/icons-material/Close';
 import type { Template } from "../../redux/slices/templateSlice";
 import CustomPreview from "./CustomPreview";
 import { useNavigate, useNavigation } from "react-router-dom";
+import SMSPreview from '../Modals/SMSPreview'
+import EmptyTemplates from "./EmptyTemplates";
+import CryptoJS from "crypto-js";
 
 const TemplatesTable: React.FC = () => {
   
@@ -89,6 +88,7 @@ const TemplatesTable: React.FC = () => {
     const [editName, setEditName] = useState("");
     const [editContent, setEditContent] = useState("");
     const [openIndex, setOpenIndex] = useState<string | null>(null);
+    const [openSMSModal, setOpenSMSModal] = useState<boolean>(false);
     const [searchTerm, setSearchTerm] = useState("");
     const [debouncedSearch] = useDebounce(searchTerm, 500);
     const [totalLocalFavorites, setTotalLocalFavorites] = useState(1);
@@ -164,11 +164,21 @@ const TemplatesTable: React.FC = () => {
       refreshActiveTab();
     };
   
-    const handleViewTemplate = (templateId: string) => {
+    const handleViewTemplate = (templateId: string, type:string) => {
       dispatch(getTemplateById(templateId) as any);
       // setOpen(true);
+      if(type === 'Email'){
+        setOpenIndex(templateId);
+      }
+      else if (type === 'SMS'){
+        setOpenSMSModal(true);
+        setOpenIndex(templateId);
+      }
+      else{
+        console.log("Type Doesn't exists");
+      }
       console.log("view template", templateId);
-      setOpenIndex(templateId);
+      
     };
   
     const handleClose = () => {
@@ -187,10 +197,19 @@ const TemplatesTable: React.FC = () => {
       dispatch(setFilters({ page: newPage }));
     };
   
-    const handleEditClick = async (id: string) => {
+    const handleEditClick = async (id: string, type: string) => {
       await dispatch(getTemplateById(id) as any);
       // setOpenEditModal(true);
-       navigation(`/build-template/${id}`);
+      const secretKey = process.env.REACT_APP_ENCRYPT_SECRET_KEY as string;
+      const encryptedId = CryptoJS.AES.encrypt(id, secretKey).toString();
+      
+      if(type === "Email") {
+        navigation(`/build-template/${encodeURIComponent(encryptedId)}`);
+      }
+      else
+      {
+        navigation(`/build-sms/${encodeURIComponent(encryptedId)}`);
+      }
     };
   
     const handleCloseEditModal = () => {
@@ -284,15 +303,13 @@ const TemplatesTable: React.FC = () => {
       activeTab === "recent" ? recentTemplates :
       favoriteTemplates;
   
-    // const isTemplateFavorite = (template: any) =>
-    //   template.isFavorite === true || template.favorite === true;
-  
     const isLoading = () =>
       (activeTab === "all" && allTemplates.length === 0) ||
       (activeTab === "recent" && recentTemplates.length === 0) ||
       (activeTab === "favorite" && favoriteTemplates.length === 0);
-  
-
+    
+      if(filters.search==="" && filters.category==='' && filters.sortBy==='' && allTemplates.length === 0) return <EmptyTemplates />;
+      
   return (    
     <Container sx={{py: 4, bgcolor: '#F8F9FE',  maxWidth:  {xs: '100%',}, }}>
       <Typography sx={{ fontSize: "26px", }} gutterBottom>
@@ -344,22 +361,6 @@ const TemplatesTable: React.FC = () => {
          
         <Box sx={{display:'flex', flexWrap:'nowrap'}}>
    
-        {/* <FormControl >
-          <RadioGroup
-            row
-            aria-labelledby="demo-radio-buttons-group-label"
-            defaultValue="list"
-            name="view-mode"
-            value={view}
-            onClick={(e)=>setView((e.target as HTMLInputElement).value as 'list' | 'grid')}
-            sx={{display:'flex', flexDirection:'row'}}
-          >
-            <FormControlLabel value="list" control={<Radio />} label={<ChecklistIcon />} />
-            <FormControlLabel value="grid" control={<Radio />} label={<GridViewIcon />} />
-          </RadioGroup>
-        </FormControl> */}
-
-        
         <Box sx={{ display: 'flex', gap: 0.5, mr:1, bgcolor:'#F8F9FA', borderRadius:'6px', height:'37px' }}>
           <Tooltip title="List View">
             <IconButton
@@ -561,10 +562,10 @@ const TemplatesTable: React.FC = () => {
               </TableCell>
               <TableCell>
                 <Stack direction="row" spacing={1} sx={{alignItems:'center',}}>
-                  <IconButton onClick={() => handleViewTemplate(template._id)}>
+                  <IconButton onClick={() => handleViewTemplate(template._id, template.type)}>
                     <VisibilityIcon color="primary" fontSize="small" />
                   </IconButton>
-                  <Typography sx={{color:"#0057D9", cursor:'pointer'}}  onClick={() => handleViewTemplate(template._id)}>View</Typography>
+                  <Typography sx={{color:"#0057D9", cursor:'pointer'}}  onClick={() => handleViewTemplate(template._id, template.type)}>View</Typography>
 
                   <IconButton onClick={(e) => handleAnchorClick(e, template._id)}>
                     <MoreVertIcon fontSize="small"  />
@@ -584,8 +585,8 @@ const TemplatesTable: React.FC = () => {
                   >
                     {!template.isDeleted && (
                       <>
-                      <MenuItem onClick={() => template.type === 'Email' ? navigation(`/build-template/${template._id}`) : navigation(`/build-sms/${template._id}`)}>Edit</MenuItem>
-                      {/* <MenuItem onClick={() => handleEditClick(template._id)}>Edit</MenuItem> */}
+                      {/* <MenuItem onClick={() => template.type === 'Email' ? navigation(`/build-template/${template._id}`) : navigation(`/build-sms/${template._id}`)}>Edit</MenuItem> */}
+                      <MenuItem onClick={() => handleEditClick(template._id, template.type)}>Edit</MenuItem>
                       <MenuItem onClick={() => handleDuplicateTemplate(template._id)}>Duplicate</MenuItem>
                       </>
                     )}                   
@@ -701,8 +702,8 @@ const TemplatesTable: React.FC = () => {
             <Stack direction="row" justifyContent="space-between" alignItems="center">
               <Tooltip title="View">
                 <Box
-                  sx={{ display: 'flex', alignItems: 'center', gap: 0.5, cursor: 'pointer' }}
-                  onClick={() => handleViewTemplate(template._id)}
+                  sx={{ display: 'flex', alignItems: 'center', gap: 0.1, cursor: 'pointer' }}
+                  onClick={() => handleViewTemplate(template._id, template.type)}
                 >
                   <VisibilityIcon fontSize="small" sx={{ color: '#007BFF' }} />
                   <Typography variant="body2" color="#007BFF" fontWeight={500}>
@@ -731,7 +732,7 @@ const TemplatesTable: React.FC = () => {
               >
                 {!template.isDeleted && (
                   <>
-                    <MenuItem onClick={() => handleEditClick(template._id)}>Edit</MenuItem>
+                    <MenuItem onClick={() => handleEditClick(template._id, template.type)}>Edit</MenuItem>
                     <MenuItem onClick={() => handleDuplicateTemplate(template._id)}>Duplicate</MenuItem>
                   </>
                 )}
@@ -747,6 +748,15 @@ const TemplatesTable: React.FC = () => {
           ( 
           <CustomPreview  key={selectedTemplate.id}  doc={selectedTemplate.design} html={selectedTemplate.html} open={openIndex === selectedTemplate.id} handleClose={handleClose}/>
           )} */}
+
+          {/* <SMSPreview   
+            open={openSMSModal}
+            name={template.name} 
+            handleClose={() => setOpenSMSModal(false)}
+            handleConfirm={() => setOpenSMSModal(false)}
+            subject={template.subject} 
+            message={template.content.message} 
+            /> */}
 
           </Grid>
         ))}
@@ -782,7 +792,16 @@ const TemplatesTable: React.FC = () => {
                   handleClose={handleClose}
                   />
       )}
-
+      {selectedTemplate && selectedTemplate._id === openIndex && (
+       <SMSPreview   
+            open={openSMSModal}
+            name={selectedTemplate.name} 
+            handleClose={() => setOpenSMSModal(false)}
+            handleConfirm={() => setOpenSMSModal(false)}
+            subject={selectedTemplate.subject} 
+            message={selectedTemplate.content.message} 
+            />)
+        }
       {/* <Modal open={open} onClose={handleClose}>
         <Dialog
               open={open}

@@ -228,7 +228,7 @@ const Step2Templates: React.FC<Step2TemplatesProps> = ({ handleChange, campaignD
               <Card key={template._id?.toString()}
                 onClick={() => {
                   handleChange({ target: { name: "template", value: template._id?.toString() } } as any);
-                  setTemplateData({name: template.name, type: template.type})
+                  setTemplateData({name: template?.name, type: template?.type})
                 }}
 
                 sx={{
@@ -242,7 +242,7 @@ const Step2Templates: React.FC<Step2TemplatesProps> = ({ handleChange, campaignD
                   // image={template.image}
                   // alt={template.name}
                 />
-                { template.type === 'Email' ? (
+                { template?.type === 'Email' ? (
                     <Suspense fallback={<LoopIcon />} >                
                     <Box
                       sx={{
@@ -263,7 +263,7 @@ const Step2Templates: React.FC<Step2TemplatesProps> = ({ handleChange, campaignD
                     <Box sx={{position: 'absolute', maxWidth: { xs: 160, sm: 180 }, overflow: 'hidden',
                     maxHeight: { xs: 80, sm: 120 }, color: 'grey', fontSize:'12px', border: 'blue 1px 1px 1px'                
                     }}>
-                      {template.content}
+                      {template?.content?.message || template?.content }
                     </Box>
                   )
                 }
