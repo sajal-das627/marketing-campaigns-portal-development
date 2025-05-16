@@ -172,6 +172,27 @@ export const updateCampaignApi = async (campaignId: string, updatedData: any) =>
 export const fetchTemplates = (params: any) => {
   return axios.get(`${process.env.REACT_APP_API_BASE_URL}/templates`, { params });
 };
+
+// ✅ Fetch Templates by Category with pagination & type
+export const fetchTemplatesByCategory = async (
+  category: string,
+  type: string,
+  page: number = 1,
+  limit: number = 10
+) => {
+  try {
+    const response = await axios.get(
+      `${process.env.REACT_APP_API_BASE_URL}/templates/category/${category}`,
+      {
+        params: { type, page, limit },
+      }
+    );
+    return response.data;
+  } catch (error: any) {
+    console.error("Error fetching templates by category:", error);
+    throw error?.response?.data || { message: "Unknown error occurred" };
+  }
+};
 // recentlyUsedTemplates
 export const fetchRecentlyUsedTemplates = (params: any) => {
   return axios.get(`${process.env.REACT_APP_API_BASE_URL}/templates/recent`, { params });
