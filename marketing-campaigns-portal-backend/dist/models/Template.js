@@ -20,6 +20,8 @@ const TemplateSchema = new mongoose_1.default.Schema({
     deletedAt: { type: Date, default: null }, // ✅ Timestamp for Deletion
     // ✅ Add versioning field
     version: { type: Number, default: 1 },
+    // ✅ Optional opt-out checkbox field
+    includeOptOutText: { type: Boolean, default: false }
 });
 const Template = mongoose_1.default.model("Template", TemplateSchema);
 exports.default = Template;

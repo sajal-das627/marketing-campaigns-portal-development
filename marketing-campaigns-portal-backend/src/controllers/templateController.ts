@@ -5,17 +5,26 @@ import Template from "../models/Template";
 // Create a new template
 export const createTemplate = async (req: Request, res: Response) => {
   try {
-    const { name, type, category, tags, layout, content, favorite } = req.body;
+    const {
+      name,
+      type,
+      category,
+      tags,
+      layout,
+      content,
+      favorite,
+      includeOptOutText, // ✅ receive optional field
+    } = req.body;
 
-    // Check if template name already exists
     const existingTemplate = await Template.findOne({ name });
     if (existingTemplate) {
       return res.status(400).json({ message: "Template name already exists" });
     }
 
-    // Validate required fields
     if (!name || !type || !category || !content) {
-      return res.status(400).json({ message: "All required fields must be provided" });
+      return res
+        .status(400)
+        .json({ message: "All required fields must be provided" });
     }
 
     const template = new Template({
@@ -24,21 +33,24 @@ export const createTemplate = async (req: Request, res: Response) => {
       category,
       tags,
       layout,
-      content, // Includes global settings, images, buttons, etc.
-      /*userId: (req as any).user.id,*/
-      userId: "67daedeaff85ef645f71206f",
+      content,
       favorite: favorite || false,
+      includeOptOutText: includeOptOutText || false, // ✅ default false
+      userId: "67daedeaff85ef645f71206f",
       createdAt: new Date(),
       lastModified: new Date(),
     });
 
     await template.save();
-    res.status(201).json({ message: "Template created successfully", template });
+    res
+      .status(201)
+      .json({ message: "Template created successfully", template });
   } catch (error) {
     console.error("Error creating template:", error);
     res.status(500).json({ message: "Internal Server Error", error });
   }
 };
+
 
 
 // ✅ Fetch All Templates with Filters, Sorting & Pagination
@@ -236,7 +248,7 @@ export const previewShowTemplate = async (req: Request, res: Response) => {
 // ✅ Update Template with Versioning & Modification Tracking
 export const updateTemplate = async (req: Request, res: Response) => {
   try {
-    const { name, subject, content, type, category, tags, layout, favorite } = req.body;
+    const { name, subject, content, type, category, tags, layout, favorite, includeOptOutText } = req.body;
 
     // ✅ Find Existing Template
     const template = await Template.findById(req.params.id);
@@ -265,6 +277,11 @@ export const updateTemplate = async (req: Request, res: Response) => {
     template.layout = layout || template.layout;
     template.favorite = favorite !== undefined ? favorite : template.favorite;
 
+    // ✅ Optional Field: includeOptOutText
+    if (includeOptOutText !== undefined) {
+      template.includeOptOutText = includeOptOutText;
+    }
+
     // ✅ Versioning: Increment If Any Changes
     if (JSON.stringify(previousVersion) !== JSON.stringify(template.toObject())) {
       template.version = (template.version || 1) + 1;
@@ -278,13 +295,14 @@ export const updateTemplate = async (req: Request, res: Response) => {
     res.status(200).json({
       message: "Template updated successfully",
       template,
-      previousVersion, // Include previous version details
+      previousVersion,
     });
   } catch (error) {
     console.error("Error updating template:", error);
     res.status(500).json({ message: "Error updating template", error });
   }
 };
+
 
 
 // ✅ Duplicate Template

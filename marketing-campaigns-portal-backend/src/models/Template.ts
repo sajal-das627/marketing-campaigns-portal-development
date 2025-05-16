@@ -18,6 +18,8 @@ const TemplateSchema = new mongoose.Schema({
 
   // ✅ Add versioning field
   version: { type: Number, default: 1 },
+  // ✅ Optional opt-out checkbox field
+  includeOptOutText: { type: Boolean, default: false }
 });
 
 const Template = mongoose.model("Template", TemplateSchema);

@@ -27,7 +27,7 @@ const router = express.Router();
 
 router.post("/", /*authenticateToken,*/ createTemplate);
 router.get("/", /*authenticateToken,*/ getAllTemplates); // ✅ Fetch All Templates
-router.get("/category/:category", getTemplatesByCategory); // ✅ New route
+router.get("/category/:category", /*authenticateToken,*/ getTemplatesByCategory); // ✅ New route
 router.put("/:id", /*authenticateToken,*/ updateTemplate);
 router.get("/recent", /*authenticateToken,*/ getRecentlyUsedTemplates); // ✅ Fetch Recently Used Templates
 router.get("/past", /*authenticateToken,*/ getPastCampaignTemplates); // ✅ Fetch Past Campaign Templates
